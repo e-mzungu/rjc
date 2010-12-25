@@ -78,7 +78,7 @@ public class ShardedRedis implements RedisOperations {
 
     public Set<String> keys(String pattern) {
         Set<String> result = new HashSet<String>();
-        for (SingleRedisOperations node : locator.getNodes()) {
+        for (SingleRedisOperations node : locator.getShardedNodes()) {
             result.addAll(node.keys(pattern));
         }
         return result;

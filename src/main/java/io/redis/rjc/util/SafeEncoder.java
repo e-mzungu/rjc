@@ -1,6 +1,6 @@
 package io.redis.rjc.util;
 
-import io.redis.rjc.Protocol;
+import io.redis.rjc.protocol.Protocol;
 import io.redis.rjc.RedisException;
 
 import java.io.UnsupportedEncodingException;

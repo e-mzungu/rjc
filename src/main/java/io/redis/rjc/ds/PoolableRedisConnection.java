@@ -10,8 +10,10 @@
  * receipt of a license from the right holder only.
  */
 
-package io.redis.rjc;
+package io.redis.rjc.ds;
 
+import io.redis.rjc.RedisException;
+import io.redis.rjc.protocol.Protocol;
 import org.apache.commons.pool.ObjectPool;
 
 import java.io.IOException;
@@ -19,11 +21,11 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 /**
- * <description>
+ * Wrapper for using in <code>io.redis.rjc.ds.PoolableDataSource</code>
  *
  * @author Evgeny Dolgov
  */
-public class PoolableRedisConnection implements RedisConnection {
+class PoolableRedisConnection implements RedisConnection {
 
     private final RedisConnection conn;
     private final ObjectPool pool;
@@ -53,7 +55,7 @@ public class PoolableRedisConnection implements RedisConnection {
         conn.connect();
     }
 
-    public void disconnect() {
+    public void close() {
         boolean isUnderlyingConnectionClosed;
         try {
             isUnderlyingConnectionClosed = !conn.isConnected();
@@ -62,7 +64,7 @@ public class PoolableRedisConnection implements RedisConnection {
                 pool.invalidateObject(this); // XXX should be guarded to happen at most once
             } catch (IllegalStateException ise) {
                 // pool is closed, so close the connection
-                conn.disconnect();
+                conn.close();
             } catch (Exception ie) {
                 // DO NOTHING the original exception will be rethrown
             }
@@ -76,7 +78,7 @@ public class PoolableRedisConnection implements RedisConnection {
                 pool.returnObject(this); // XXX should be guarded to happen at most once
             } catch (IllegalStateException e) {
                 // pool is closed, so close the connection
-                conn.disconnect();
+                conn.close();
             } catch (RuntimeException e) {
                 throw e;
             } catch (Exception e) {
@@ -89,7 +91,7 @@ public class PoolableRedisConnection implements RedisConnection {
                 pool.invalidateObject(this); // XXX should be guarded to happen at most once
             } catch (IllegalStateException e) {
                 // pool is closed, so close the connection
-                conn.disconnect();
+                conn.close();
             } catch (Exception ie) {
                 // DO NOTHING, "Already closed" exception thrown below
             }
@@ -154,6 +156,6 @@ public class PoolableRedisConnection implements RedisConnection {
     }
 
     public void reallyDisconnect() {
-        conn.disconnect();
+        conn.close();
     }
 }

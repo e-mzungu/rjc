@@ -1,8 +1,10 @@
-package io.redis.rjc;
+package io.redis.rjc.ds;
 
-import io.redis.rjc.Protocol.Command;
-import io.redis.rjc.util.RedisInputStream;
-import io.redis.rjc.util.RedisOutputStream;
+import io.redis.rjc.protocol.Protocol;
+import io.redis.rjc.protocol.Protocol.Command;
+import io.redis.rjc.RedisException;
+import io.redis.rjc.protocol.RedisInputStream;
+import io.redis.rjc.protocol.RedisOutputStream;
 import io.redis.rjc.util.SafeEncoder;
 
 import java.io.IOException;
@@ -12,7 +14,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RedisConnectionImpl implements RedisConnection {
+class RedisConnectionImpl implements RedisConnection {
     private String host;
     private int port = Protocol.DEFAULT_PORT;
     private Socket socket;
@@ -54,6 +56,8 @@ public class RedisConnectionImpl implements RedisConnection {
         this.host = host;
         this.port = port;
     }
+
+
 
     public void sendCommand(final Command cmd, final String... args) {
         final byte[][] bargs = new byte[args.length][];
@@ -107,7 +111,7 @@ public class RedisConnectionImpl implements RedisConnection {
         }
     }
 
-    public void disconnect() {
+    public void close() {
         if (isConnected()) {
             try {
                 inputStream.close();

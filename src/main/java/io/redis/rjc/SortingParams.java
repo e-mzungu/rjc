@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static io.redis.rjc.Protocol.Keyword.*;
+import static io.redis.rjc.protocol.Protocol.Keyword.*;
 
 /**
  * Builder Class for {@link RedisNode#sort(String, SortingParams) SORT} Parameters.

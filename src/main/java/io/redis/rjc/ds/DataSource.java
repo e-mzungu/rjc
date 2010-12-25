@@ -10,10 +10,9 @@
  * receipt of a license from the right holder only.
  */
 
-package io.redis.rjc;
+package io.redis.rjc.ds;
 
 /**
- * <description>
  *
  * @author Evgeny Dolgov
  */

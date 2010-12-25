@@ -1,4 +1,4 @@
-package io.redis.rjc.util;
+package io.redis.rjc.protocol;
 
 import java.io.*;
 

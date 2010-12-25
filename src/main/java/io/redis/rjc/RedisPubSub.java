@@ -5,12 +5,12 @@ import io.redis.rjc.util.SafeEncoder;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.redis.rjc.Protocol.Keyword.MESSAGE;
-import static io.redis.rjc.Protocol.Keyword.PMESSAGE;
-import static io.redis.rjc.Protocol.Keyword.PSUBSCRIBE;
-import static io.redis.rjc.Protocol.Keyword.PUNSUBSCRIBE;
-import static io.redis.rjc.Protocol.Keyword.SUBSCRIBE;
-import static io.redis.rjc.Protocol.Keyword.UNSUBSCRIBE;
+import static io.redis.rjc.protocol.Protocol.Keyword.MESSAGE;
+import static io.redis.rjc.protocol.Protocol.Keyword.PMESSAGE;
+import static io.redis.rjc.protocol.Protocol.Keyword.PSUBSCRIBE;
+import static io.redis.rjc.protocol.Protocol.Keyword.PUNSUBSCRIBE;
+import static io.redis.rjc.protocol.Protocol.Keyword.SUBSCRIBE;
+import static io.redis.rjc.protocol.Protocol.Keyword.UNSUBSCRIBE;
 
 public abstract class RedisPubSub {
     private int subscribedChannels = 0;

@@ -1,13 +1,13 @@
 package io.redis.rjc;
 
+import io.redis.rjc.protocol.Protocol;
+import io.redis.rjc.ds.RedisConnection;
 import io.redis.rjc.util.SafeEncoder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static io.redis.rjc.Protocol.toByteArray;
 
 public class Client implements RedisCommands {
 

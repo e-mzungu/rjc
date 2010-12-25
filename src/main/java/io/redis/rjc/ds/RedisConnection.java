@@ -1,4 +1,6 @@
-package io.redis.rjc;
+package io.redis.rjc.ds;
+
+import io.redis.rjc.protocol.Protocol;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -18,7 +20,7 @@ public interface RedisConnection {
 
     void connect() throws UnknownHostException, IOException;
 
-    void disconnect();
+    void close();
 
     boolean isConnected();
 

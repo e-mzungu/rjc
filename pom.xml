@@ -5,10 +5,10 @@
     <packaging>jar</packaging>
     <groupId>io.redis</groupId>
     <artifactId>rjc</artifactId>
-    <version>0.5</version>
+    <version>0.5-SNAPSHOT</version>
     <name>RJC</name>
     <description>Redis Java client</description>
-    <url>http://github.com/e-mzungu/rjc</url>
+    <url>http://e-mzungu.github.com/rjc</url>
 
     <licenses>
         <license>

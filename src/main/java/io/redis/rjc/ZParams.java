@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static io.redis.rjc.Protocol.Keyword.AGGREGATE;
-import static io.redis.rjc.Protocol.Keyword.WEIGHTS;
+import static io.redis.rjc.protocol.Protocol.Keyword.AGGREGATE;
+import static io.redis.rjc.protocol.Protocol.Keyword.WEIGHTS;
 
 public class ZParams {
     public enum Aggregate {

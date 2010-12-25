@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.redis.rjc.util;
+package io.redis.rjc.protocol;
 
 import io.redis.rjc.RedisException;
 

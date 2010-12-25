@@ -1,7 +1,6 @@
-package io.redis.rjc;
+package io.redis.rjc.protocol;
 
-import io.redis.rjc.util.RedisInputStream;
-import io.redis.rjc.util.RedisOutputStream;
+import io.redis.rjc.RedisException;
 import io.redis.rjc.util.SafeEncoder;
 
 import java.io.IOException;

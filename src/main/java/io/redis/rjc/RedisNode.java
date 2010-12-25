@@ -1,6 +1,8 @@
 package io.redis.rjc;
 
 import io.redis.rjc.Client.LIST_POSITION;
+import io.redis.rjc.ds.DataSource;
+import io.redis.rjc.ds.RedisConnection;
 
 import java.util.*;
 
@@ -12,9 +14,21 @@ public class RedisNode implements SingleRedisOperations {
     public RedisNode() {
     }
 
+    public RedisNode(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     public RedisNode(DataSource dataSource, int weight) {
         this.dataSource = dataSource;
         this.weight = weight;
+    }
+
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public int getWeight() {
@@ -47,7 +61,7 @@ public class RedisNode implements SingleRedisOperations {
         } finally {
             if (connection != null) {
                 try {
-                    connection.disconnect();
+                    connection.close();
                 } catch (Exception e) {
                     //...
                 }

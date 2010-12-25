@@ -10,8 +10,10 @@
  * receipt of a license from the right holder only.
  */
 
-package io.redis.rjc;
+package io.redis.rjc.ds;
 
+import io.redis.rjc.*;
+import io.redis.rjc.protocol.Protocol;
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
@@ -19,7 +21,7 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import java.sql.SQLException;
 
 /**
- * Provides a poolable implementation of <code>io.redis.rjc.DataSource</code> based on <em>commons-pool</em>
+ * Provides a poolable implementation of <code>io.redis.rjc.ds.DataSource</code> based on <em>commons-pool</em>
  *
  * @author Evgeny Dolgov
  */
@@ -528,40 +530,21 @@ public class PoolableDataSource implements DataSource {
 
 
     private static class PoolableConnectionFactory extends BasePoolableObjectFactory {
-        private final String host;
-        private final int port;
         private final ObjectPool pool;
-        private final int timeout;
-        private final String password;
+        private final ConnectionFactory connectionFactory;
+
 
         public PoolableConnectionFactory(final String host, final int port,
                                          final int timeout, final String password, ObjectPool pool) {
             super();
-            this.host = host;
-            this.port = port;
+            this.connectionFactory = new ConnectionFactoryImpl(host, port, timeout, password);
             this.pool = pool;
-            this.timeout = (timeout > 0) ? timeout : -1;
-            this.password = password;
 
             pool.setFactory(this);
         }
 
         public Object makeObject() throws Exception {
-            final RedisConnectionImpl redis;
-            redis = new RedisConnectionImpl(this.host, this.port);
-            if (timeout > 0) {
-                redis.setTimeout(timeout);
-            }
-
-
-            redis.connect();
-            if (null != this.password) {
-                redis.sendCommand(Protocol.Command.AUTH);
-                if (!"OK".equals(redis.getStatusCodeReply())) {
-                    throw new RedisException("Authentication failed");
-                }
-            }
-            return new PoolableRedisConnection(redis, pool);
+            return new PoolableRedisConnection(connectionFactory.create(), pool);
         }
 
         public void destroyObject(final Object obj) throws Exception {
