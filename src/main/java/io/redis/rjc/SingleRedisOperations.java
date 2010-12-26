@@ -69,7 +69,7 @@ public interface SingleRedisOperations extends RedisOperations {
 
     String auth(String password);
 
-    List<Object> pipelined(Pipeline pipeline);
+    List<Object> pipeline(Pipeline pipeline);
 
     void subscribe(RedisPubSub redisPubSub, String... channels);
 

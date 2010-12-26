@@ -2258,7 +2258,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public List<Object> pipelined(final Pipeline pipeline) {
+    public List<Object> pipeline(final Pipeline pipeline) {
         return execute(new RedisCommand<List<Object>>() {
             public List<Object> execute(Client client) {
                 pipeline.execute(client);

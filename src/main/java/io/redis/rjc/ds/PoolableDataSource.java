@@ -12,13 +12,11 @@
 
 package io.redis.rjc.ds;
 
-import io.redis.rjc.*;
+import io.redis.rjc.RedisException;
 import io.redis.rjc.protocol.Protocol;
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
-
-import java.sql.SQLException;
 
 /**
  * Provides a poolable implementation of <code>io.redis.rjc.ds.DataSource</code> based on <em>commons-pool</em>
@@ -124,7 +122,7 @@ public class PoolableDataSource implements DataSource {
         this.password = password;
     }
 
-    public synchronized void close() throws SQLException {
+    public synchronized void close() {
         closed = true;
         GenericObjectPool oldPool = connectionPool;
         connectionPool = null;

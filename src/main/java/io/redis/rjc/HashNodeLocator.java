@@ -10,7 +10,7 @@ public class HashNodeLocator implements NodeLocator {
 
     public static final int DEFAULT_WEIGHT = 1;
     private TreeMap<Long, RedisNode> shardedNodes;
-    private List<RedisNode> nodes;
+    private Collection<RedisNode> nodes;
     private HashAlgorithm algorithm;
 
     /**
@@ -28,35 +28,31 @@ public class HashNodeLocator implements NodeLocator {
     public HashNodeLocator() {
     }
 
-    public HashNodeLocator(List<RedisNode> nodes) {
+    public HashNodeLocator(Collection<RedisNode> nodes) {
         this(nodes, HashAlgorithm.MURMUR_HASH); // MD5 is really not good as we works
         // with 64-bits not 128
     }
 
-    public HashNodeLocator(List<RedisNode> nodes, HashAlgorithm algo) {
+    public HashNodeLocator(Collection<RedisNode> nodes, HashAlgorithm algo) {
         this.nodes = new ArrayList<RedisNode>(nodes);
         this.algorithm = algo;
         initialize();
     }
 
-    public HashNodeLocator(List<RedisNode> nodes, Pattern tagPattern) {
+    public HashNodeLocator(Collection<RedisNode> nodes, Pattern tagPattern) {
         this(nodes, HashAlgorithm.MURMUR_HASH, tagPattern); // MD5 is really not good
         // as we works with
         // 64-bits not 128
     }
 
-    public HashNodeLocator(List<RedisNode> nodes, HashAlgorithm algo, Pattern tagPattern) {
+    public HashNodeLocator(Collection<RedisNode> nodes, HashAlgorithm algo, Pattern tagPattern) {
         this.nodes = new ArrayList<RedisNode>(nodes);
         this.algorithm = algo;
         this.tagPattern = tagPattern;
         initialize();
     }
 
-    public List<RedisNode> getNodes() {
-        return Collections.unmodifiableList(nodes);
-    }
-
-    public void setNodes(List<RedisNode> nodes) {
+    public void setNodes(Collection<RedisNode> nodes) {
         this.nodes = new ArrayList<RedisNode>(nodes);
         initialize();
     }
@@ -85,8 +81,7 @@ public class HashNodeLocator implements NodeLocator {
         }
         shardedNodes = new TreeMap<Long, RedisNode>();
 
-        for (int i = 0; i != nodes.size(); ++i) {
-            final RedisNode node = nodes.get(i);
+        for (RedisNode node : nodes) {
             for (int n = 0; n < 160 * node.getWeight(); n++) {
                 this.shardedNodes.put(this.algorithm.hash(node.toString() + n), node);
             }
@@ -120,7 +115,7 @@ public class HashNodeLocator implements NodeLocator {
         return key;
     }
 
-    public Collection<? extends SingleRedisOperations> getShardedNodes() {
+    public Collection<? extends SingleRedisOperations> getNodes() {
         return Collections.unmodifiableCollection(shardedNodes.values());
     }
 }

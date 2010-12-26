@@ -8,5 +8,5 @@ import java.util.Collection;
 public interface NodeLocator {
     SingleRedisOperations getNode(String key);
 
-    Collection<? extends SingleRedisOperations> getShardedNodes();
+    Collection<? extends SingleRedisOperations> getNodes();
 }
