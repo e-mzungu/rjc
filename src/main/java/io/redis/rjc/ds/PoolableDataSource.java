@@ -35,18 +35,14 @@ public class PoolableDataSource implements DataSource {
 
 
     public RedisConnection getConnection() {
-        if (connectionPool == null) {
-            createPool();
-        }
-
         try {
-            return (RedisConnection) connectionPool.borrowObject();
+            return (RedisConnection) createPool().borrowObject();
         } catch (Exception e) {
             throw new RedisException("Cannot get a connection", e);
         }
     }
 
-    private synchronized void createPool() {
+    private synchronized GenericObjectPool createPool() {
         if (closed) {
             throw new RedisException("Data source is closed");
         }
@@ -67,6 +63,8 @@ public class PoolableDataSource implements DataSource {
             connectionPool = gop;
             createConnectionFactory();
         }
+
+        return connectionPool;
     }
 
     private void createConnectionFactory() {
