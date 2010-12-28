@@ -20,12 +20,19 @@ public class Client implements RedisCommands {
 
     private boolean isInMulti;
 
-    public boolean isInMulti() {
-        return isInMulti;
-    }
-
     public Client(RedisConnection conn) {
         this.conn = conn;
+    }
+
+    /**
+     * Closes underlying connection
+     */
+    public void close() {
+        conn.close();
+    }
+
+    public boolean isInMulti() {
+        return isInMulti;
     }
 
     public void ping() {

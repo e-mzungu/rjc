@@ -6,7 +6,7 @@ import io.redis.rjc.ds.RedisConnection;
 
 import java.util.*;
 
-public class RedisNode implements SingleRedisOperations {
+public class RedisNode implements SingleRedisOperations, Shard {
 
     private DataSource dataSource;
     private int weight = 1;

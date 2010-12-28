@@ -5,8 +5,8 @@ import java.util.Collection;
 /**
  * @author Evgeny Dolgov
  */
-public interface NodeLocator {
-    SingleRedisOperations getNode(String key);
+public interface NodeLocator<T> {
+    T getNode(String key);
 
-    Collection<? extends SingleRedisOperations> getNodes();
+    Collection<? extends T> getNodes();
 }

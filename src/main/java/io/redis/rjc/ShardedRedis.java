@@ -6,9 +6,9 @@ import java.util.*;
 
 public class ShardedRedis implements RedisOperations {
 
-    private final NodeLocator locator;
+    private final NodeLocator<RedisNode> locator;
 
-    public ShardedRedis(NodeLocator locator) {
+    public ShardedRedis(NodeLocator<RedisNode> locator) {
         this.locator = locator;
     }
 
