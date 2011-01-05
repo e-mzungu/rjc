@@ -6,9 +6,16 @@ import java.util.*;
 
 public class ShardedRedis implements RedisOperations {
 
-    private final NodeLocator<RedisNode> locator;
+    private NodeLocator<RedisNode> locator;
+
+    public ShardedRedis() {
+    }
 
     public ShardedRedis(NodeLocator<RedisNode> locator) {
+        this.locator = locator;
+    }
+
+    public void setLocator(NodeLocator<RedisNode> locator) {
         this.locator = locator;
     }
 
@@ -322,19 +329,20 @@ public class ShardedRedis implements RedisOperations {
     }
 
     public Long zremrangeByRank(final String key, int start, int end) {
-
         return locator.getNode(key).zremrangeByRank(key, start, end);
     }
 
     public Long zremrangeByScore(final String key, Number start, Number end) {
-
         return locator.getNode(key).zremrangeByScore(key, start, end);
     }
 
     public Long linsert(final String key, LIST_POSITION where, String pivot,
                         String value) {
-
         return locator.getNode(key).linsert(key, where, pivot, value);
+    }
+
+    public Long publish(String channel, String message) {
+        return locator.getNode(channel).publish(channel, message);
     }
 
     public SingleRedisOperations getNode(String key) {

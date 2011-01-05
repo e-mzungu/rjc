@@ -9,4 +9,6 @@ public interface Shard {
      * @return Shard weight
      */
     int getWeight();
+
+    String getShardId();
 }

@@ -150,4 +150,6 @@ public interface RedisOperations {
     Long zremrangeByScore(String key, Number start, Number end);
 
     Long linsert(String key, LIST_POSITION where, String pivot, String value);
+
+    Long publish(String channel, String message);
 }

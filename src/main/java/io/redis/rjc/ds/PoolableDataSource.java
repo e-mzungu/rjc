@@ -572,6 +572,4 @@ public class PoolableDataSource implements DataSource {
             return false;
         }
     }
-
-
 }

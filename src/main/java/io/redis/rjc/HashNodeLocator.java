@@ -21,9 +21,7 @@ public class HashNodeLocator<T> implements NodeLocator<T> {
      */
     private Pattern tagPattern = null;
     // the tag is anything between {}
-    public static final Pattern DEFAULT_KEY_TAG_PATTERN = Pattern
-            .compile("\\{(.+?)\\}");
-
+    public static final Pattern DEFAULT_KEY_TAG_PATTERN = Pattern.compile("\\{(.+?)\\}");
 
     public HashNodeLocator() {
     }
@@ -79,11 +77,24 @@ public class HashNodeLocator<T> implements NodeLocator<T> {
             shardedNodes = null;
             return;
         }
+
+        Set<String> nodesId = new HashSet<String>(nodes.size());
+        for (Shard node : nodes) {
+            if(node.getShardId() == null) {
+                throw new RedisException("Sharded node must have unique shard id and must not be null");
+            }
+            nodesId.add(node.getShardId());
+        }
+
+        if(nodes.size() != nodesId.size()) {
+            throw new RedisException("Sharded node must have unique shard id");
+        }
+
         shardedNodes = new TreeMap<Long, Shard>();
 
         for (Shard node : nodes) {
             for (int n = 0; n < 160 * node.getWeight(); n++) {
-                this.shardedNodes.put(this.algorithm.hash(node.toString() + n), node);
+                this.shardedNodes.put(this.algorithm.hash(node.getShardId() + n), node);
             }
         }
     }

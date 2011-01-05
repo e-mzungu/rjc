@@ -2,6 +2,7 @@ package io.redis.rjc.message;
 
 import io.redis.rjc.Client;
 import io.redis.rjc.RedisException;
+import io.redis.rjc.Shard;
 import io.redis.rjc.ds.DataSource;
 import io.redis.rjc.protocol.Protocol;
 import io.redis.rjc.util.SafeEncoder;
@@ -13,7 +14,7 @@ import java.util.*;
 /**
  * @author Evgeny Dolgov
  */
-public class RedisNodeSubscriber implements RedisSubscriber {
+public class RedisNodeSubscriber implements RedisSubscriber, Shard {
 
     private final static Logger LOG = LoggerFactory.getLogger(RedisNodeSubscriber.class);
 
@@ -23,6 +24,8 @@ public class RedisNodeSubscriber implements RedisSubscriber {
     private final Map<String, MessageListener> msgListenerMap = Collections.synchronizedMap(new HashMap<String, MessageListener>());
     private final Map<String, PMessageListener> pmsgListenerMap = Collections.synchronizedMap(new HashMap<String, PMessageListener>());
     private final Set<SubscribeListener> subListenerSet = Collections.synchronizedSet(new HashSet<SubscribeListener>());
+    private int weight = 1;
+    private String shardId;
 
     public RedisNodeSubscriber() {
     }
@@ -31,8 +34,40 @@ public class RedisNodeSubscriber implements RedisSubscriber {
         this.dataSource = dataSource;
     }
 
+    public RedisNodeSubscriber(DataSource dataSource, int weight) {
+        this.dataSource = dataSource;
+        this.weight = weight;
+    }
+
+    public RedisNodeSubscriber(DataSource dataSource, String shardId) {
+        this.dataSource = dataSource;
+        this.shardId = shardId;
+    }
+
+    public RedisNodeSubscriber(DataSource dataSource, int weight, String shardId) {
+        this.dataSource = dataSource;
+        this.weight = weight;
+        this.shardId = shardId;
+    }
+
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public String getShardId() {
+        return shardId;
+    }
+
+    public void setShardId(String shardId) {
+        this.shardId = shardId;
     }
 
     public void subscribe(String channel, MessageListener listener) {
@@ -73,8 +108,9 @@ public class RedisNodeSubscriber implements RedisSubscriber {
             client.setTimeoutInfinite();
         }
 
-        if (responseThread == null || responseThread.getState() == Thread.State.TERMINATED) {
-            responseThread = new ResponseThread();
+        if (responseThread == null || responseThread.getState() == Thread.State.TERMINATED ||
+                responseThread.isInterrupted()) {
+            responseThread = new ResponseThread(client);
             responseThread.start();
         }
 
@@ -103,11 +139,18 @@ public class RedisNodeSubscriber implements RedisSubscriber {
 
     private class ResponseThread extends Thread {
 
+        private Client _client;
+
+        private ResponseThread(Client client) {
+
+            this._client = client;
+        }
+
         public void run() {
             do {
                 List<Object> reply;
                 try {
-                    reply = client.getObjectMultiBulkReply();
+                    reply = _client.getObjectMultiBulkReply();
                 } catch (RedisException e) {
                     return;
                 }

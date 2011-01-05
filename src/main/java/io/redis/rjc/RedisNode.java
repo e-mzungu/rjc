@@ -10,6 +10,7 @@ public class RedisNode implements SingleRedisOperations, Shard {
 
     private DataSource dataSource;
     private int weight = 1;
+    private String shardId;
 
     public RedisNode() {
     }
@@ -21,6 +22,17 @@ public class RedisNode implements SingleRedisOperations, Shard {
     public RedisNode(DataSource dataSource, int weight) {
         this.dataSource = dataSource;
         this.weight = weight;
+    }
+
+    public RedisNode(DataSource dataSource, String shardId) {
+        this.dataSource = dataSource;
+        this.shardId = shardId;
+    }
+
+    public RedisNode(DataSource dataSource, int weight, String shardId) {
+        this.dataSource = dataSource;
+        this.weight = weight;
+        this.shardId = shardId;
     }
 
     public DataSource getDataSource() {
@@ -37,6 +49,14 @@ public class RedisNode implements SingleRedisOperations, Shard {
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    public String getShardId() {
+        return shardId;
+    }
+
+    public void setShardId(String shardId) {
+        this.shardId = shardId;
     }
 
     public String ping() {

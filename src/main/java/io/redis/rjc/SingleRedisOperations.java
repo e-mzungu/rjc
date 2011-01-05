@@ -7,6 +7,7 @@ import java.util.Set;
  * @author Evgeny Dolgov
  */
 public interface SingleRedisOperations extends RedisOperations {
+
     String ping();
 
     void quit();
@@ -70,8 +71,6 @@ public interface SingleRedisOperations extends RedisOperations {
     String auth(String password);
 
     List<Object> pipeline(Pipeline pipeline);
-
-    Long publish(String channel, String message);
 
     Long zunionstore(String dstkey, String... sets);
 
