@@ -2,7 +2,6 @@ package io.redis.rjc.message;
 
 import io.redis.rjc.Client;
 import io.redis.rjc.RedisException;
-import io.redis.rjc.Shard;
 import io.redis.rjc.ds.DataSource;
 import io.redis.rjc.protocol.Protocol;
 import io.redis.rjc.util.SafeEncoder;
@@ -14,7 +13,7 @@ import java.util.*;
 /**
  * @author Evgeny Dolgov
  */
-public class RedisNodeSubscriber implements RedisSubscriber, Shard {
+public class RedisNodeSubscriber implements RedisSubscriber {
 
     private final static Logger LOG = LoggerFactory.getLogger(RedisNodeSubscriber.class);
 
@@ -24,8 +23,6 @@ public class RedisNodeSubscriber implements RedisSubscriber, Shard {
     private final Map<String, MessageListener> msgListenerMap = Collections.synchronizedMap(new HashMap<String, MessageListener>());
     private final Map<String, PMessageListener> pmsgListenerMap = Collections.synchronizedMap(new HashMap<String, PMessageListener>());
     private final Set<SubscribeListener> subListenerSet = Collections.synchronizedSet(new HashSet<SubscribeListener>());
-    private int weight = 1;
-    private String shardId;
 
     public RedisNodeSubscriber() {
     }
@@ -34,40 +31,8 @@ public class RedisNodeSubscriber implements RedisSubscriber, Shard {
         this.dataSource = dataSource;
     }
 
-    public RedisNodeSubscriber(DataSource dataSource, int weight) {
-        this.dataSource = dataSource;
-        this.weight = weight;
-    }
-
-    public RedisNodeSubscriber(DataSource dataSource, String shardId) {
-        this.dataSource = dataSource;
-        this.shardId = shardId;
-    }
-
-    public RedisNodeSubscriber(DataSource dataSource, int weight, String shardId) {
-        this.dataSource = dataSource;
-        this.weight = weight;
-        this.shardId = shardId;
-    }
-
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
-
-    public int getWeight() {
-        return weight;
-    }
-
-    public String getShardId() {
-        return shardId;
-    }
-
-    public void setShardId(String shardId) {
-        this.shardId = shardId;
     }
 
     public void subscribe(String channel, MessageListener listener) {

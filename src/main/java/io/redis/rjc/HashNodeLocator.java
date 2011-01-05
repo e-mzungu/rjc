@@ -8,10 +8,10 @@ import java.util.regex.Pattern;
 
 public class HashNodeLocator<T> implements NodeLocator<T> {
 
-    public static final int DEFAULT_WEIGHT = 1;
-    private TreeMap<Long, Shard> shardedNodes;
-    private Collection<? extends Shard> nodes;
-    private HashAlgorithm algorithm;
+    private TreeMap<Long, Shard<T>> shardedNodes;
+    private Collection<? extends Shard<T>> shards;
+    private Collection<T> nodes;
+    private HashAlgorithm algorithm = HashAlgorithm.MURMUR_HASH;
 
     /**
      * The default pattern used for extracting a key tag. The pattern must have
@@ -26,32 +26,32 @@ public class HashNodeLocator<T> implements NodeLocator<T> {
     public HashNodeLocator() {
     }
 
-    public HashNodeLocator(Collection<? extends Shard> nodes) {
-        this(nodes, HashAlgorithm.MURMUR_HASH); // MD5 is really not good as we works
+    public HashNodeLocator(Collection<? extends Shard<T>> shards) {
+        this(shards, HashAlgorithm.MURMUR_HASH); // MD5 is really not good as we works
         // with 64-bits not 128
     }
 
-    public HashNodeLocator(Collection<? extends Shard> nodes, HashAlgorithm algo) {
-        this.nodes = new ArrayList<Shard>(nodes);
+    public HashNodeLocator(Collection<? extends Shard<T>> shards, HashAlgorithm algo) {
+        this.shards = new ArrayList<Shard<T>>(shards);
         this.algorithm = algo;
         initialize();
     }
 
-    public HashNodeLocator(Collection<? extends Shard> nodes, Pattern tagPattern) {
-        this(nodes, HashAlgorithm.MURMUR_HASH, tagPattern); // MD5 is really not good
+    public HashNodeLocator(Collection<? extends Shard<T>> shards, Pattern tagPattern) {
+        this(shards, HashAlgorithm.MURMUR_HASH, tagPattern); // MD5 is really not good
         // as we works with
         // 64-bits not 128
     }
 
-    public HashNodeLocator(Collection<? extends Shard> nodes, HashAlgorithm algo, Pattern tagPattern) {
-        this.nodes = new ArrayList<Shard>(nodes);
+    public HashNodeLocator(Collection<? extends Shard<T>> shards, HashAlgorithm algo, Pattern tagPattern) {
+        this.shards = new ArrayList<Shard<T>>(shards);
         this.algorithm = algo;
         this.tagPattern = tagPattern;
         initialize();
     }
 
-    public void setNodes(Collection<? extends Shard> nodes) {
-        this.nodes = new ArrayList<Shard>(nodes);
+    public void setShards(Collection<? extends Shard<T>> shards) {
+        this.shards = new ArrayList<Shard<T>>(shards);
         initialize();
     }
 
@@ -73,40 +73,44 @@ public class HashNodeLocator<T> implements NodeLocator<T> {
     }
 
     private void initialize() {
-        if (nodes == null || algorithm == null) {
+        if (shards == null || algorithm == null) {
             shardedNodes = null;
             return;
         }
 
-        Set<String> nodesId = new HashSet<String>(nodes.size());
-        for (Shard node : nodes) {
+        Set<String> nodesId = new HashSet<String>(shards.size());
+        for (Shard node : shards) {
             if(node.getShardId() == null) {
                 throw new RedisException("Sharded node must have unique shard id and must not be null");
             }
             nodesId.add(node.getShardId());
         }
 
-        if(nodes.size() != nodesId.size()) {
+        if(shards.size() != nodesId.size()) {
             throw new RedisException("Sharded node must have unique shard id");
         }
 
-        shardedNodes = new TreeMap<Long, Shard>();
+        nodes = new ArrayList<T>(shards.size());
+        for (Shard<T> shard : shards) {
+            nodes.add(shard.getNode());
+        }
 
-        for (Shard node : nodes) {
+        shardedNodes = new TreeMap<Long, Shard<T>>();
+
+        for (Shard<T> node : shards) {
             for (int n = 0; n < 160 * node.getWeight(); n++) {
                 this.shardedNodes.put(this.algorithm.hash(node.getShardId() + n), node);
             }
         }
     }
 
-    @SuppressWarnings({"unchecked"})
     public T getNode(String key) {
         key = getKeyTag(key);
-        SortedMap<Long, Shard> tail = shardedNodes.tailMap(algorithm.hash(key));
+        SortedMap<Long, Shard<T>> tail = shardedNodes.tailMap(algorithm.hash(key));
         if (tail.size() == 0) {
-            return (T) shardedNodes.get(shardedNodes.firstKey());
+            return shardedNodes.get(shardedNodes.firstKey()).getNode();
         }
-        return (T) tail.get(tail.firstKey());
+        return tail.get(tail.firstKey()).getNode();
     }
 
 
@@ -116,7 +120,7 @@ public class HashNodeLocator<T> implements NodeLocator<T> {
      *
      * @param key key
      * @return The tag if it exists, or the original key
-     * @see http://code.google.com/p/redis/wiki/FAQ#I'm_using_some_form_of_key_hashing_for_partitioning,_but_wh
+     * @see <a href="http://redis.io/topics/faq">I'm using some form of key hashing for partitioning, but what about SORT BY?</a>
      */
     private String getKeyTag(String key) {
         if (tagPattern != null) {
@@ -127,8 +131,7 @@ public class HashNodeLocator<T> implements NodeLocator<T> {
         return key;
     }
 
-    @SuppressWarnings({"unchecked"})
     public Collection<? extends T> getNodes() {
-        return (Collection<? extends T>) Collections.unmodifiableCollection(shardedNodes.values());
+        return Collections.unmodifiableCollection(nodes);
     }
 }

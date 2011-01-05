@@ -6,11 +6,9 @@ import io.redis.rjc.ds.RedisConnection;
 
 import java.util.*;
 
-public class RedisNode implements SingleRedisOperations, Shard {
+public class RedisNode implements SingleRedisOperations {
 
     private DataSource dataSource;
-    private int weight = 1;
-    private String shardId;
 
     public RedisNode() {
     }
@@ -19,44 +17,12 @@ public class RedisNode implements SingleRedisOperations, Shard {
         this.dataSource = dataSource;
     }
 
-    public RedisNode(DataSource dataSource, int weight) {
-        this.dataSource = dataSource;
-        this.weight = weight;
-    }
-
-    public RedisNode(DataSource dataSource, String shardId) {
-        this.dataSource = dataSource;
-        this.shardId = shardId;
-    }
-
-    public RedisNode(DataSource dataSource, int weight, String shardId) {
-        this.dataSource = dataSource;
-        this.weight = weight;
-        this.shardId = shardId;
-    }
-
     public DataSource getDataSource() {
         return dataSource;
     }
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    public int getWeight() {
-        return weight;
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
-    }
-
-    public String getShardId() {
-        return shardId;
-    }
-
-    public void setShardId(String shardId) {
-        this.shardId = shardId;
     }
 
     public String ping() {
@@ -3196,25 +3162,5 @@ public class RedisNode implements SingleRedisOperations, Shard {
                 return client.getStatusCodeReply();
             }
         });
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        RedisNode redisNode = (RedisNode) o;
-
-        if (weight != redisNode.weight) return false;
-        if (!dataSource.equals(redisNode.dataSource)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = dataSource.hashCode();
-        result = 31 * result + weight;
-        return result;
     }
 }
