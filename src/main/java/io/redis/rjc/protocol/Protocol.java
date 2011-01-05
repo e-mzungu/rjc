@@ -5,6 +5,7 @@ import io.redis.rjc.util.SafeEncoder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public final class Protocol {
@@ -150,6 +151,16 @@ public final class Protocol {
         Keyword() {
             str = this.name().toLowerCase();
             raw = SafeEncoder.encode(str);
+        }
+
+        public static Keyword find(byte[] bytes) {
+            for (Keyword keyword : values()) {
+                if(Arrays.equals(keyword.raw, bytes)) {
+                    return  keyword;
+                }
+            }
+
+            return null;
         }
 
     }

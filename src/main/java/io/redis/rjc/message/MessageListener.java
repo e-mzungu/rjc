@@ -1,4 +1,4 @@
-package io.redis.rjc;
+package io.redis.rjc.message;
 
 /**
  * @author Evgeny Dolgov
@@ -6,7 +6,4 @@ package io.redis.rjc;
 public interface MessageListener {
 
     void onMessage(String channel, String message);
-
-//    void onPMessage(String pattern, String channel,
-//            String message);
 }

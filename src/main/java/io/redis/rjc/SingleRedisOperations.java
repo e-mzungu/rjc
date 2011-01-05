@@ -71,11 +71,7 @@ public interface SingleRedisOperations extends RedisOperations {
 
     List<Object> pipeline(Pipeline pipeline);
 
-    void subscribe(RedisPubSub redisPubSub, String... channels);
-
     Long publish(String channel, String message);
-
-    void psubscribe(RedisPubSub redisPubSub, String... patterns);
 
     Long zunionstore(String dstkey, String... sets);
 

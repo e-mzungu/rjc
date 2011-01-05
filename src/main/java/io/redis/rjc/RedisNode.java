@@ -2267,35 +2267,11 @@ public class RedisNode implements SingleRedisOperations, Shard {
         });
     }
 
-    public void subscribe(final RedisPubSub redisPubSub,
-                          final String... channels) {
-        execute(new RedisCommand<Object>() {
-            public Object execute(Client client) {
-                client.setTimeoutInfinite();
-                redisPubSub.proceed(client, channels);
-                client.rollbackTimeout();
-                return null;
-            }
-        });
-    }
-
     public Long publish(final String channel, final String message) {
         return execute(new RedisCommand<Long>() {
             public Long execute(Client client) {
                 client.publish(channel, message);
                 return client.getIntegerReply();
-            }
-        });
-    }
-
-    public void psubscribe(final RedisPubSub redisPubSub,
-                           final String... patterns) {
-        execute(new RedisCommand<Object>() {
-            public Object execute(Client client) {
-                client.setTimeoutInfinite();
-                redisPubSub.proceedWithPatterns(client, patterns);
-                client.rollbackTimeout();
-                return null;
             }
         });
     }
