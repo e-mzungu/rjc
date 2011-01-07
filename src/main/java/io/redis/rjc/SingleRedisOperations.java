@@ -10,6 +10,8 @@ public interface SingleRedisOperations extends RedisOperations {
 
     String ping();
 
+    String randomKey();
+
     void quit();
 
     Long del(String... keys);

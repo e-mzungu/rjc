@@ -29,6 +29,11 @@
         <developerConnection>scm:git:git@github.com:e-mzungu/rjc.git</developerConnection>
     </scm>
 
+    <properties>
+        <!--redis hosts for testing purpose-->
+        <redis-hosts>redishost:6379,redishost:6380</redis-hosts>
+    </properties>
+
 
     <dependencies>
         <dependency>
@@ -88,6 +93,42 @@
                         <phase>verify</phase>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.7.1</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/IT*.java</exclude>
+                        <exclude>**/*IT.java</exclude>
+                        <exclude>**/*ITCase.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.7.1</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <redis-hosts>${redis-hosts}</redis-hosts>
+                    </systemPropertyVariables>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>

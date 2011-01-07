@@ -34,6 +34,15 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
+    public String randomKey() {
+        return execute(new RedisCommand<String>() {
+            public String execute(Client client) {
+                client.randomKey();
+                return client.getStatusCodeReply();
+            }
+        });
+    }
+
 
     private interface RedisCommand<R> {
         R execute(Client client);

@@ -30,6 +30,12 @@ public class SimpleDataSource implements DataSource{
         this.port = port;
     }
 
+    public SimpleDataSource(String host, int port, int timeout) {
+        this.host = host;
+        this.port = port;
+        this.timeout = timeout;
+    }
+
     public SimpleDataSource(String host, int port, int timeout, String password) {
         this.host = host;
         this.port = port;
