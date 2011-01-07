@@ -148,8 +148,6 @@ public interface RedisCommands extends MultiExecCommands {
 
     public void zscore(String key, String member);
 
-    public void watch(String... keys);
-
     public void sort(String key);
 
     public void sort(String key, SortingParams sortingParameters);
@@ -193,4 +191,14 @@ public interface RedisCommands extends MultiExecCommands {
     public void rpushx(String key, String value);
 
     void select(int index);
+
+    void debug(final DebugParams params);
+
+    void configResetStat();
+
+    void brpoplpush(String source, String destination, int timeout);
+
+    public void setbit(final String key, final int offset, final String value);
+
+    void getbit(String key, int offset);
 }

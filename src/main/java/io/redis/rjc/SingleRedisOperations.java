@@ -18,15 +18,11 @@ public interface SingleRedisOperations extends RedisOperations {
 
     String flushDB();
 
-    String randomBinaryKey();
-
     String rename(String oldkey, String newkey);
 
     Long renamenx(String oldkey, String newkey);
 
     Long dbSize();
-
-    String select(int index);
 
     Long move(String key, int dbIndex);
 
@@ -53,14 +49,6 @@ public interface SingleRedisOperations extends RedisOperations {
     Set<String> sdiff(String... keys);
 
     Long sdiffstore(String dstkey, String... keys);
-
-    String multi();
-
-    String discard();
-
-    String watch(String... key);
-
-    String unwatch();
 
     List<String> blpop(int timeout, String... keys);
 

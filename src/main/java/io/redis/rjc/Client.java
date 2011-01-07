@@ -1,7 +1,7 @@
 package io.redis.rjc;
 
-import io.redis.rjc.protocol.Protocol;
 import io.redis.rjc.ds.RedisConnection;
+import io.redis.rjc.protocol.Protocol;
 import io.redis.rjc.util.SafeEncoder;
 
 import java.util.ArrayList;
@@ -605,6 +605,22 @@ public class Client implements RedisCommands {
 
     public void debug(final DebugParams params) {
         conn.sendCommand(Protocol.Command.DEBUG, params.getCommand());
+    }
+
+    public void configResetStat() {
+        conn.sendCommand(Protocol.Command.CONFIG, Protocol.Keyword.RESETSTAT.name());
+    }
+
+    public void brpoplpush(String source, String destination, int timeout) {
+       conn.sendCommand(Protocol.Command.BRPOPLPUSH, source, destination, String.valueOf(timeout));
+    }
+
+    public void setbit(final String key, final int offset, final String value) {
+        conn.sendCommand(Protocol.Command.SETBIT, key, String.valueOf(offset), value);
+    }
+
+    public void getbit(String key, int offset) {
+        conn.sendCommand(Protocol.Command.GETBIT, key, String.valueOf(offset));
     }
 
     public String getStatusCodeReply() {

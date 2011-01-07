@@ -1,51 +1,16 @@
 package io.redis.rjc;
 
-import io.redis.rjc.Client.LIST_POSITION;
-import io.redis.rjc.ds.DataSource;
-import io.redis.rjc.ds.RedisConnection;
-
 import java.util.*;
 
-public class RedisNode implements SingleRedisOperations {
-    
-    private SessionFactory factory;
+/**
+ * @author Evgeny Dolgov
+ */
+class RedisSessionImpl implements Session {
+    private Client client;
 
-    public RedisNode() {
+    public RedisSessionImpl(Client client) {
+        this.client = client;
     }
-
-    public RedisNode(SessionFactory factory) {
-        this.factory = factory;
-    }
-
-    public SessionFactory getFactory() {
-        return factory;
-    }
-
-    public void setFactory(SessionFactory factory) {
-        this.factory = factory;
-    }
-
-    public String ping() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.ping();
-            }
-        });
-    }
-
-    public String randomKey() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.randomKey();
-                
-            }
-        });
-    }
-
-    private <R> R execute(RedisCallback<R> cmd) {
-        return new RedisTemplate<R>(factory).execute(cmd);
-    }
-
 
     /**
      * Set the string value as value of the key. The string can't be longer than
@@ -53,17 +18,13 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key   the key
-     * @param value the value
+     * @param key
+     * @param value
      * @return Status code reply
      */
-    public String set(final String key, final String value) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.set(key, value);
-                
-            }
-        });
+    public String set(final String key, String value) {
+        client.set(key, value);
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -73,46 +34,37 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key the key
+     * @param key
      * @return Bulk reply
      */
     public String get(final String key) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.get(key);
-                
-            }
-        });
+        client.get(key);
+        return client.getBulkReply();
     }
 
     /**
      * Ask the server to silently close the connection.
      */
+
     public void quit() {
-        execute(new RedisCallback<Object>() {
-            public Object doIt(Session session) {
-                session.quit();
-                return null;
-            }
-        });
+
+        client.quit();
     }
 
     /**
-     * Test if the specified key exists. The command returns "0" if the key
+     * Test if the specified key exists. The command returns "1" if the key
      * exists, otherwise "1" is returned. Note that even keys set with an empty
-     * string as value will return "1".
+     * string as value will return "0".
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key the key
-     * @return Integer reply, "1" if the key exists, otherwise "0"
+     * @param key
+     * @return Integer reply, "0" if the key exists, otherwise "1"
      */
     public Boolean exists(final String key) {
-        return execute(new RedisCallback<Boolean>() {
-            public Boolean doIt(Session session) {
-                return session.exists(key);
-            }
-        });
+
+        client.exists(key);
+        return client.getIntegerReply() == 1;
     }
 
     /**
@@ -121,17 +73,14 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param keys the keys
+     * @param keys
      * @return Integer reply, specifically: an integer greater than 0 if one or
      *         more keys were removed 0 if none of the specified key existed
      */
     public Long del(final String... keys) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.del(keys);
-            }
-        });
 
+        client.del(keys);
+        return client.getIntegerReply();
     }
 
     /**
@@ -141,7 +90,7 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key the key
+     * @param key
      * @return Status code reply, specifically: "none" if the key does not exist
      *         "string" if the key contains a String value "list" if the key
      *         contains a List value "set" if the key contains a Set value
@@ -149,12 +98,9 @@ public class RedisNode implements SingleRedisOperations {
      *         contains a Hash value
      */
     public String type(final String key) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.type(key);
-                
-            }
-        });
+
+        client.type(key);
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -163,13 +109,11 @@ public class RedisNode implements SingleRedisOperations {
      *
      * @return Status code reply
      */
+
     public String flushDB() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.flushDB();
-                
-            }
-        });
+
+        client.flushDB();
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -200,15 +144,12 @@ public class RedisNode implements SingleRedisOperations {
      * Time complexity: O(n) (with n being the number of keys in the DB, and
      * assuming keys and pattern of limited length)
      *
-     * @param pattern pattern
+     * @param pattern
      * @return Multi bulk reply
      */
     public Set<String> keys(final String pattern) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.keys(pattern);
-            }
-        });
+        client.keys(pattern);
+        return new HashSet<String>(client.getMultiBulkReply());
     }
 
     /**
@@ -219,13 +160,9 @@ public class RedisNode implements SingleRedisOperations {
      * @return Singe line reply, specifically the randomly selected key or an
      *         empty string is the database is empty
      */
-    public String randomBinaryKey() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.randomKey();
-                
-            }
-        });
+    public String randomKey() {
+        client.randomKey();
+        return client.getBulkReply();
     }
 
     /**
@@ -235,17 +172,14 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param oldkey oldkey
-     * @param newkey newkey
+     * @param oldkey
+     * @param newkey
      * @return Status code repy
      */
     public String rename(final String oldkey, final String newkey) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.rename(oldkey, newkey);
-                
-            }
-        });
+
+        client.rename(oldkey, newkey);
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -254,18 +188,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param oldkey oldkey
-     * @param newkey newkey
+     * @param oldkey
+     * @param newkey
      * @return Integer reply, specifically: 1 if the key was renamed 0 if the
      *         target key already exist
      */
     public Long renamenx(final String oldkey, final String newkey) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.renamenx(oldkey, newkey);
-                
-            }
-        });
+
+        client.renamenx(oldkey, newkey);
+        return client.getIntegerReply();
     }
 
     /**
@@ -273,13 +204,11 @@ public class RedisNode implements SingleRedisOperations {
      *
      * @return Integer reply
      */
+
     public Long dbSize() {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.dbSize();
-                
-            }
-        });
+
+        client.dbSize();
+        return client.getIntegerReply();
     }
 
     /**
@@ -300,8 +229,8 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key     the key
-     * @param seconds seconds
+     * @param key
+     * @param seconds
      * @return Integer reply, specifically: 1: the timeout was set. 0: the
      *         timeout was not set since the key already has an associated
      *         timeout (this may happen only in Redis versions < 2.1.3, Redis >=
@@ -310,12 +239,9 @@ public class RedisNode implements SingleRedisOperations {
      * @see <ahref="http://code.google.com/p/redis/wiki/ExpireCommand">ExpireCommand</a>
      */
     public Long expire(final String key, final int seconds) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.expire(key, seconds);
-                
-            }
-        });
+
+        client.expire(key, seconds);
+        return client.getIntegerReply();
     }
 
     /**
@@ -338,8 +264,8 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key      the key
-     * @param unixTime unix time
+     * @param key
+     * @param unixTime
      * @return Integer reply, specifically: 1: the timeout was set. 0: the
      *         timeout was not set since the key already has an associated
      *         timeout (this may happen only in Redis versions < 2.1.3, Redis >=
@@ -348,12 +274,9 @@ public class RedisNode implements SingleRedisOperations {
      * @see <ahref="http://code.google.com/p/redis/wiki/ExpireCommand">ExpireCommand</a>
      */
     public Long expireAt(final String key, final long unixTime) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.expireAt(key, unixTime);
-                
-            }
-        });
+
+        client.expireAt(key, unixTime);
+        return client.getIntegerReply();
     }
 
     /**
@@ -362,34 +285,29 @@ public class RedisNode implements SingleRedisOperations {
      * capability allows a Redis client to check how many seconds a given key
      * will continue to be part of the dataset.
      *
-     * @param key the key
+     * @param key
      * @return Integer reply, returns the remaining time to live in seconds of a
      *         key that has an EXPIRE. If the Key does not exists or does not
      *         have an associated expire, -1 is returned.
      */
     public Long ttl(final String key) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.ttl(key);
-                
-            }
-        });
+
+        client.ttl(key);
+        return client.getIntegerReply();
     }
 
     /**
      * Select the DB with having the specified zero-based numeric index. For
      * default every new client connection is automatically selected to DB 0.
      *
-     * @param index index
+     * @param index
      * @return Status code reply
      */
+
     public String select(final int index) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.select(index);
-                
-            }
-        });
+
+        client.select(index);
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -399,19 +317,16 @@ public class RedisNode implements SingleRedisOperations {
      * source key was not found at all, so it is possible to use MOVE as a
      * locking primitive.
      *
-     * @param key     the key
+     * @param key
      * @param dbIndex
      * @return Integer reply, specifically: 1 if the key was moved 0 if the key
      *         was not moved because already present on the target DB or was not
      *         found in the current DB.
      */
     public Long move(final String key, final int dbIndex) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.move(key, dbIndex);
-                
-            }
-        });
+
+        client.move(key, dbIndex);
+        return client.getIntegerReply();
     }
 
     /**
@@ -420,13 +335,11 @@ public class RedisNode implements SingleRedisOperations {
      *
      * @return Status code reply
      */
+
     public String flushAll() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.flushAll();
-                
-            }
-        });
+
+        client.flushAll();
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -436,17 +349,14 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key   the key
-     * @param value the value
+     * @param key
+     * @param value
      * @return Bulk reply
      */
     public String getSet(final String key, final String value) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.getSet(key, value);
-                
-            }
-        });
+
+        client.getSet(key, value);
+        return client.getBulkReply();
     }
 
     /**
@@ -456,16 +366,13 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1) for every key
      *
-     * @param keys the keys
+     * @param keys
      * @return Multi bulk reply
      */
     public List<String> mget(final String... keys) {
-        return execute(new RedisCallback<List<String>>() {
-            public List<String> doIt(Session session) {
-                return session.mget(keys);
-                
-            }
-        });
+
+        client.mget(keys);
+        return client.getMultiBulkReply();
     }
 
     /**
@@ -475,18 +382,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key   the key
-     * @param value the value
+     * @param key
+     * @param value
      * @return Integer reply, specifically: 1 if the key was set 0 if the key
      *         was not set
      */
     public Long setnx(final String key, final String value) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.setnx(key, value);
-                
-            }
-        });
+
+        client.setnx(key, value);
+        return client.getIntegerReply();
     }
 
     /**
@@ -496,18 +400,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key     the key
+     * @param key
      * @param seconds
-     * @param value   the value
+     * @param value
      * @return Status code reply
      */
     public String setex(final String key, final int seconds, final String value) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.setex(key, seconds, value);
-                
-            }
-        });
+
+        client.setex(key, seconds, value);
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -530,12 +431,9 @@ public class RedisNode implements SingleRedisOperations {
      * @see #msetnx(String...)
      */
     public String mset(final String... keysvalues) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.mset(keysvalues);
-                
-            }
-        });
+
+        client.mset(keysvalues);
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -559,12 +457,9 @@ public class RedisNode implements SingleRedisOperations {
      * @see #mset(String...)
      */
     public Long msetnx(final String... keysvalues) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.msetnx(keysvalues);
-                
-            }
-        });
+
+        client.msetnx(keysvalues);
+        return client.getIntegerReply();
     }
 
     /**
@@ -580,7 +475,7 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key     the key
+     * @param key
      * @param integer
      * @return Integer reply, this commands will reply with the new value of key
      *         after the increment.
@@ -589,12 +484,9 @@ public class RedisNode implements SingleRedisOperations {
      * @see #incrBy(String, int)
      */
     public Long decrBy(final String key, final int integer) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.decrBy(key, integer);
-                
-            }
-        });
+
+        client.decrBy(key, integer);
+        return client.getIntegerReply();
     }
 
     /**
@@ -611,7 +503,7 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key the key
+     * @param key
      * @return Integer reply, this commands will reply with the new value of key
      *         after the increment.
      * @see #incr(String)
@@ -619,42 +511,36 @@ public class RedisNode implements SingleRedisOperations {
      * @see #decrBy(String, int)
      */
     public Long decr(final String key) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.decr(key);
-                
-            }
-        });
+
+        client.decr(key);
+        return client.getIntegerReply();
     }
 
     /**
      * INCRBY work just like {@link #incr(String) INCR} but instead to increment
-     * by 1 the increment is integer.
+     * by 1 the increment is value.
      * <p/>
      * INCR commands are limited to 64 bit signed integers.
      * <p/>
      * Note: this is actually a string operation, that is, in Redis there are
-     * not "integer" types. Simply the string stored at the key is parsed as a
-     * base 10 64 bit signed integer, incremented, and then converted back as a
+     * not "value" types. Simply the string stored at the key is parsed as a
+     * base 10 64 bit signed value, incremented, and then converted back as a
      * string.
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key     the key
-     * @param integer
+     * @param key
+     * @param value
      * @return Integer reply, this commands will reply with the new value of key
      *         after the increment.
      * @see #incr(String)
      * @see #decr(String)
      * @see #decrBy(String, int)
      */
-    public Long incrBy(final String key, final int integer) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.incrBy(key, integer);
-                
-            }
-        });
+    public Long incrBy(final String key, final int value) {
+
+        client.incrBy(key, value);
+        return client.getIntegerReply();
     }
 
     /**
@@ -671,7 +557,7 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key the key
+     * @param key
      * @return Integer reply, this commands will reply with the new value of key
      *         after the increment.
      * @see #incrBy(String, int)
@@ -679,12 +565,9 @@ public class RedisNode implements SingleRedisOperations {
      * @see #decrBy(String, int)
      */
     public Long incr(final String key) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.incr(key);
-                
-            }
-        });
+
+        client.incr(key);
+        return client.getIntegerReply();
     }
 
     /**
@@ -698,18 +581,15 @@ public class RedisNode implements SingleRedisOperations {
      * since the dynamic string library used by Redis will double the free space
      * available on every reallocation.
      *
-     * @param key   the key
-     * @param value the value
+     * @param key
+     * @param value
      * @return Integer reply, specifically the total length of the string after
      *         the append operation.
      */
     public Long append(final String key, final String value) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.append(key, value);
-                
-            }
-        });
+
+        client.append(key, value);
+        return client.getIntegerReply();
     }
 
     /**
@@ -725,18 +605,15 @@ public class RedisNode implements SingleRedisOperations {
      * total length of the requested range). Note that the lookup part of this
      * command is O(1) so for small strings this is actually an O(1) command.
      *
-     * @param key   the key
+     * @param key
      * @param start
      * @param end
      * @return Bulk reply
      */
     public String substr(final String key, final int start, final int end) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.substr(key, start, end);
-                
-            }
-        });
+
+        client.substr(key, start, end);
+        return client.getBulkReply();
     }
 
     /**
@@ -746,20 +623,17 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(1)
      *
-     * @param key   the key
+     * @param key
      * @param field
-     * @param value the value
+     * @param value
      * @return If the field already exists, and the HSET just produced an update
      *         of the value, 0 is returned, otherwise if a new field is created
      *         1 is returned.
      */
     public Long hset(final String key, final String field, final String value) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.hset(key, field, value);
-                
-            }
-        });
+
+        client.hset(key, field, value);
+        return client.getIntegerReply();
     }
 
     /**
@@ -771,36 +645,30 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(1)
      *
-     * @param key   the key
+     * @param key
      * @param field
      * @return Bulk reply
      */
     public String hget(final String key, final String field) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.hget(key, field);
-                
-            }
-        });
+
+        client.hget(key, field);
+        return client.getBulkReply();
     }
 
     /**
      * Set the specified hash field to the specified value if the field not
      * exists. <b>Time complexity:</b> O(1)
      *
-     * @param key   the key
+     * @param key
      * @param field
-     * @param value the value
+     * @param value
      * @return If the field already exists, 0 is returned, otherwise if a new
      *         field is created 1 is returned.
      */
     public Long hsetnx(final String key, final String field, final String value) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.hsetnx(key, field, value);
-                
-            }
-        });
+
+        client.hsetnx(key, field, value);
+        return client.getIntegerReply();
     }
 
     /**
@@ -811,17 +679,14 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(N) (with N being the number of fields)
      *
-     * @param key  the key
+     * @param key
      * @param hash
      * @return Always OK because HMSET can't fail
      */
     public String hmset(final String key, final Map<String, String> hash) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.hmset(key, hash);
-                
-            }
-        });
+
+        client.hmset(key, hash);
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -832,18 +697,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(N) (with N being the number of fields)
      *
-     * @param key    the key
+     * @param key
      * @param fields
      * @return Multi Bulk Reply specifically a list of all the values associated
      *         with the specified fields, in the same order of the request.
      */
     public List<String> hmget(final String key, final String... fields) {
-        return execute(new RedisCallback<List<String>>() {
-            public List<String> doIt(Session session) {
-                return session.hmget(key, fields);
-                
-            }
-        });
+
+        client.hmget(key, fields);
+        return client.getMultiBulkReply();
     }
 
     /**
@@ -858,19 +720,16 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(1)
      *
-     * @param key   the key
+     * @param key
      * @param field
-     * @param value the value
+     * @param value
      * @return Integer reply The new value at field after the increment
      *         operation.
      */
     public Long hincrBy(final String key, final String field, final int value) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.hincrBy(key, field, value);
-                
-            }
-        });
+
+        client.hincrBy(key, field, value);
+        return client.getIntegerReply();
     }
 
     /**
@@ -878,17 +737,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(1)
      *
-     * @param key   the key
+     * @param key
      * @param field
      * @return Return 1 if the hash stored at key contains the specified field.
      *         Return 0 if the key is not found or the field is not present.
      */
     public Boolean hexists(final String key, final String field) {
-        return execute(new RedisCallback<Boolean>() {
-            public Boolean doIt(Session session) {
-                return session.hexists(key, field);
-            }
-        });
+
+        client.hexists(key, field);
+        return client.getIntegerReply() == 1;
     }
 
     /**
@@ -896,18 +753,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(1)
      *
-     * @param key   the key
+     * @param key
      * @param field
      * @return If the field was present in the hash it is deleted and 1 is
      *         returned, otherwise 0 is returned and no operation is performed.
      */
     public Long hdel(final String key, final String field) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.hdel(key, field);
-                
-            }
-        });
+
+        client.hdel(key, field);
+        return client.getIntegerReply();
     }
 
     /**
@@ -915,18 +769,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(1)
      *
-     * @param key the key
+     * @param key
      * @return The number of entries (fields) contained in the hash stored at
      *         key. If the specified key does not exist, 0 is returned assuming
      *         an empty hash.
      */
     public Long hlen(final String key) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.hlen(key);
-                
-            }
-        });
+
+        client.hlen(key);
+        return client.getIntegerReply();
     }
 
     /**
@@ -934,15 +785,14 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(N), where N is the total number of entries
      *
-     * @param key the key
+     * @param key
      * @return All the fields names contained into a hash.
      */
     public Set<String> hkeys(final String key) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.hkeys(key);
-            }
-        });
+
+        client.hkeys(key);
+        final List<String> lresult = client.getMultiBulkReply();
+        return new HashSet<String>(lresult);
     }
 
     /**
@@ -950,15 +800,14 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(N), where N is the total number of entries
      *
-     * @param key the key
+     * @param key
      * @return All the fields values contained into a hash.
      */
-    public Collection<String> hvals(final String key) {
-        return execute(new RedisCallback<Collection<String>>() {
-            public Collection<String> doIt(Session session) {
-                return session.hvals(key);
-            }
-        });
+    public List<String> hvals(final String key) {
+
+        client.hvals(key);
+        final List<String> lresult = client.getMultiBulkReply();
+        return lresult;
     }
 
     /**
@@ -966,15 +815,20 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(N), where N is the total number of entries
      *
-     * @param key the key
+     * @param key
      * @return All the fields and values contained into a hash.
      */
     public Map<String, String> hgetAll(final String key) {
-        return execute(new RedisCallback<Map<String, String>>() {
-            public Map<String, String> doIt(Session session) {
-                return session.hgetAll(key);
-            }
-        });
+
+        client.hgetAll(key);
+        final List<String> flatHash = client.getMultiBulkReply();
+        final Map<String, String> hash = new HashMap<String, String>();
+        final Iterator<String> iterator = flatHash.iterator();
+        while (iterator.hasNext()) {
+            hash.put(iterator.next(), iterator.next());
+        }
+
+        return hash;
     }
 
     /**
@@ -985,19 +839,16 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key    the key
+     * @param key
      * @param string
      * @return Integer reply, specifically, the number of elements inside the
      *         list after the push operation.
-     * @see RedisNode#lpush(String, String)
+     * @see RedisOperations#rpush(java.lang.String, java.lang.String)
      */
     public Long rpush(final String key, final String string) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.rpush(key, string);
-                
-            }
-        });
+
+        client.rpush(key, string);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1008,19 +859,16 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key    the key
+     * @param key
      * @param string
      * @return Integer reply, specifically, the number of elements inside the
      *         list after the push operation.
-     * @see RedisNode#rpush(String, String)
+     * @see RedisOperations#rpush(String, String)
      */
     public Long lpush(final String key, final String string) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.lpush(key, string);
-                
-            }
-        });
+
+        client.lpush(key, string);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1030,16 +878,13 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(1)
      *
-     * @param key the key
+     * @param key
      * @return The length of the list.
      */
     public Long llen(final String key) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.llen(key);
-                
-            }
-        });
+
+        client.llen(key);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1074,19 +919,16 @@ public class RedisNode implements SingleRedisOperations {
      * Time complexity: O(start+n) (with n being the length of the range and
      * start being the start offset)
      *
-     * @param key   the key
+     * @param key
      * @param start
      * @param end
      * @return Multi bulk reply, specifically a list of elements in the
      *         specified range.
      */
     public List<String> lrange(final String key, final int start, final int end) {
-        return execute(new RedisCallback<List<String>>() {
-            public List<String> doIt(Session session) {
-                return session.lrange(key, start, end);
-                
-            }
-        });
+
+        client.lrange(key, start, end);
+        return client.getMultiBulkReply();
     }
 
     /**
@@ -1118,18 +960,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(n) (with n being len of list - len of range)
      *
-     * @param key   the key
+     * @param key
      * @param start
      * @param end
      * @return Status code reply
      */
     public String ltrim(final String key, final int start, final int end) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.ltrim(key, start, end);
-                
-            }
-        });
+
+        client.ltrim(key, start, end);
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -1146,17 +985,14 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(n) (with n being the length of the list)
      *
-     * @param key   the key
+     * @param key
      * @param index
      * @return Bulk reply, specifically the requested element
      */
     public String lindex(final String key, final int index) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.lindex(key, index);
-                
-            }
-        });
+
+        client.lindex(key, index);
+        return client.getBulkReply();
     }
 
     /**
@@ -1173,19 +1009,16 @@ public class RedisNode implements SingleRedisOperations {
      * O(N) (with N being the length of the list), setting the first or last
      * elements of the list is O(1).
      *
-     * @param key   the key
+     * @param key
      * @param index
-     * @param value the value
+     * @param value
      * @return Status code reply
      * @see #lindex(String, int)
      */
     public String lset(final String key, final int index, final String value) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.lset(key, index, value);
-                
-            }
-        });
+
+        client.lset(key, index, value);
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -1201,19 +1034,16 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity: O(N) (with N being the length of the list)
      *
-     * @param key   the key
-     * @param count count
-     * @param value the value
+     * @param key
+     * @param count
+     * @param value
      * @return Integer Reply, specifically: The number of removed elements if
      *         the operation succeeded
      */
     public Long lrem(final String key, final int count, final String value) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.lrem(key, count, value);
-                
-            }
-        });
+
+        client.lrem(key, count, value);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1224,17 +1054,14 @@ public class RedisNode implements SingleRedisOperations {
      * If the key does not exist or the list is already empty the special value
      * 'nil' is returned.
      *
-     * @param key the key
+     * @param key
      * @return Bulk reply
      * @see #rpop(String)
      */
     public String lpop(final String key) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.lpop(key);
-                
-            }
-        });
+
+        client.lpop(key);
+        return client.getBulkReply();
     }
 
     /**
@@ -1245,17 +1072,14 @@ public class RedisNode implements SingleRedisOperations {
      * If the key does not exist or the list is already empty the special value
      * 'nil' is returned.
      *
-     * @param key the key
+     * @param key
      * @return Bulk reply
      * @see #lpop(String)
      */
     public String rpop(final String key) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.rpop(key);
-                
-            }
-        });
+
+        client.rpop(key);
+        return client.getBulkReply();
     }
 
     /**
@@ -1277,12 +1101,9 @@ public class RedisNode implements SingleRedisOperations {
      * @return Bulk reply
      */
     public String rpoplpush(final String srckey, final String dstkey) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.rpoplpush(srckey, dstkey);
-                
-            }
-        });
+
+        client.rpoplpush(srckey, dstkey);
+        return client.getBulkReply();
     }
 
     /**
@@ -1293,18 +1114,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity O(1)
      *
-     * @param key    the key
+     * @param key
      * @param member
      * @return Integer reply, specifically: 1 if the new element was added 0 if
      *         the element was already a member of the set
      */
     public Long sadd(final String key, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.sadd(key, member);
-                
-            }
-        });
+
+        client.sadd(key, member);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1313,15 +1131,14 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity O(N)
      *
-     * @param key the key
+     * @param key
      * @return Multi bulk reply
      */
     public Set<String> smembers(final String key) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.smembers(key);
-            }
-        });
+
+        client.smembers(key);
+        final List<String> members = client.getMultiBulkReply();
+        return new LinkedHashSet<String>(members);
     }
 
     /**
@@ -1331,18 +1148,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity O(1)
      *
-     * @param key    the key
+     * @param key
      * @param member
      * @return Integer reply, specifically: 1 if the new element was removed 0
      *         if the new element was not a member of the set
      */
     public Long srem(final String key, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.srem(key, member);
-                
-            }
-        });
+
+        client.srem(key, member);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1354,16 +1168,13 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity O(1)
      *
-     * @param key the key
+     * @param key
      * @return Bulk reply
      */
     public String spop(final String key) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.spop(key);
-                
-            }
-        });
+
+        client.spop(key);
+        return client.getBulkReply();
     }
 
     /**
@@ -1389,30 +1200,25 @@ public class RedisNode implements SingleRedisOperations {
      *         element was not found on the first set and no operation was
      *         performed
      */
-    public Long smove(final String srckey, final String dstkey, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.smove(srckey, dstkey, member);
-                
-            }
-        });
+    public Long smove(final String srckey, final String dstkey,
+                      final String member) {
+
+        client.smove(srckey, dstkey, member);
+        return client.getIntegerReply();
     }
 
     /**
      * Return the set cardinality (number of elements). If the key does not
      * exist 0 is returned, like for empty sets.
      *
-     * @param key the key
+     * @param key
      * @return Integer reply, specifically: the cardinality (number of elements)
      *         of the set as an integer.
      */
     public Long scard(final String key) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.scard(key);
-                
-            }
-        });
+
+        client.scard(key);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1421,18 +1227,16 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity O(1)
      *
-     * @param key    the key
+     * @param key
      * @param member
      * @return Integer reply, specifically: 1 if the element is a member of the
      *         set 0 if the element is not a member of the set OR if the key
      *         does not exist
      */
     public Boolean sismember(final String key, final String member) {
-        return execute(new RedisCallback<Boolean>() {
-            public Boolean doIt(Session session) {
-                return session.sismember(key, member);
-            }
-        });
+
+        client.sismember(key, member);
+        return client.getIntegerReply() == 1;
     }
 
     /**
@@ -1451,15 +1255,14 @@ public class RedisNode implements SingleRedisOperations {
      * Time complexity O(N*M) worst case where N is the cardinality of the
      * smallest set and M the number of sets
      *
-     * @param keys the keys
+     * @param keys
      * @return Multi bulk reply, specifically the list of common elements.
      */
     public Set<String> sinter(final String... keys) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.sinter(keys);
-            }
-        });
+
+        client.sinter(keys);
+        final List<String> members = client.getMultiBulkReply();
+        return new LinkedHashSet<String>(members);
     }
 
     /**
@@ -1470,16 +1273,13 @@ public class RedisNode implements SingleRedisOperations {
      * smallest set and M the number of sets
      *
      * @param dstkey
-     * @param keys   the keys
+     * @param keys
      * @return Status code reply
      */
     public Long sinterstore(final String dstkey, final String... keys) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.sinterstore(dstkey, keys);
-                
-            }
-        });
+
+        client.sinterstore(dstkey, keys);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1495,15 +1295,14 @@ public class RedisNode implements SingleRedisOperations {
      * Time complexity O(N) where N is the total number of elements in all the
      * provided sets
      *
-     * @param keys the keys
+     * @param keys
      * @return Multi bulk reply, specifically the list of common elements.
      */
     public Set<String> sunion(final String... keys) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.sunion(keys);
-            }
-        });
+
+        client.sunion(keys);
+        final List<String> members = client.getMultiBulkReply();
+        return new LinkedHashSet<String>(members);
     }
 
     /**
@@ -1515,16 +1314,13 @@ public class RedisNode implements SingleRedisOperations {
      * provided sets
      *
      * @param dstkey
-     * @param keys   the keys
+     * @param keys
      * @return Status code reply
      */
     public Long sunionstore(final String dstkey, final String... keys) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.sunionstore(dstkey, keys);
-                
-            }
-        });
+
+        client.sunionstore(dstkey, keys);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1546,16 +1342,15 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * O(N) with N being the total number of elements of all the sets
      *
-     * @param keys the keys
+     * @param keys
      * @return Return the members of a set resulting from the difference between
      *         the first set provided and all the successive sets.
      */
     public Set<String> sdiff(final String... keys) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.sdiff(keys);
-            }
-        });
+
+        client.sdiff(keys);
+        final List<String> members = client.getMultiBulkReply();
+        return new LinkedHashSet<String>(members);
     }
 
     /**
@@ -1563,16 +1358,13 @@ public class RedisNode implements SingleRedisOperations {
      * instead of being returned the resulting set is stored in dstkey.
      *
      * @param dstkey
-     * @param keys   the keys
+     * @param keys
      * @return Status code reply
      */
     public Long sdiffstore(final String dstkey, final String... keys) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.sdiffstore(dstkey, keys);
-                
-            }
-        });
+
+        client.sdiffstore(dstkey, keys);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1584,16 +1376,13 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity O(1)
      *
-     * @param key the key
+     * @param key
      * @return Bulk reply
      */
     public String srandmember(final String key) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.srandmember(key);
-                
-            }
-        });
+
+        client.srandmember(key);
+        return client.getBulkReply();
     }
 
     /**
@@ -1610,8 +1399,7 @@ public class RedisNode implements SingleRedisOperations {
      * Time complexity O(log(N)) with N being the number of elements in the
      * sorted set
      *
-     *
-     * @param key    the key
+     * @param key
      * @param score
      * @param member
      * @return Integer reply, specifically: 1 if the new element was added 0 if
@@ -1619,20 +1407,16 @@ public class RedisNode implements SingleRedisOperations {
      *         was updated
      */
     public Long zadd(final String key, final Number score, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zadd(key, score, member);
-                
-            }
-        });
+
+        client.zadd(key, score, member);
+        return client.getIntegerReply();
     }
 
     public Set<String> zrange(final String key, final int start, final int end) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.zrange(key, start, end);
-            }
-        });
+
+        client.zrange(key, start, end);
+        final List<String> members = client.getMultiBulkReply();
+        return new LinkedHashSet<String>(members);
     }
 
     /**
@@ -1643,18 +1427,15 @@ public class RedisNode implements SingleRedisOperations {
      * Time complexity O(log(N)) with N being the number of elements in the
      * sorted set
      *
-     * @param key    the key
+     * @param key
      * @param member
      * @return Integer reply, specifically: 1 if the new element was removed 0
      *         if the new element was not a member of the set
      */
     public Long zrem(final String key, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zrem(key, member);
-                
-            }
-        });
+
+        client.zrem(key, member);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1676,21 +1457,17 @@ public class RedisNode implements SingleRedisOperations {
      * Time complexity O(log(N)) with N being the number of elements in the
      * sorted set
      *
-     *
-     *
-     * @param key    the key
+     * @param key
      * @param score
      * @param member
      * @return The new score
      */
-    public String zincrby(final String key, final Number score,
+    public Double zincrby(final String key, final double score,
                           final String member) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.zincrby(key, score, member);
-                
-            }
-        });
+
+        client.zincrby(key, score, member);
+        String newscore = client.getBulkReply();
+        return Double.valueOf(newscore);
     }
 
     /**
@@ -1705,7 +1482,7 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * O(log(N))
      *
-     * @param key    the key
+     * @param key
      * @param member
      * @return Integer reply or a nil bulk reply, specifically: the rank of the
      *         element as an integer reply if the element exists. A nil bulk
@@ -1713,12 +1490,9 @@ public class RedisNode implements SingleRedisOperations {
      * @see #zrevrank(String, String)
      */
     public Long zrank(final String key, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zrank(key, member);
-                
-            }
-        });
+
+        client.zrank(key, member);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1733,7 +1507,7 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * O(log(N))
      *
-     * @param key    the key
+     * @param key
      * @param member
      * @return Integer reply or a nil bulk reply, specifically: the rank of the
      *         element as an integer reply if the element exists. A nil bulk
@@ -1741,39 +1515,30 @@ public class RedisNode implements SingleRedisOperations {
      * @see #zrank(String, String)
      */
     public Long zrevrank(final String key, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zrevrank(key, member);
-                
-            }
-        });
+
+        client.zrevrank(key, member);
+        return client.getIntegerReply();
     }
 
     public Set<String> zrevrange(final String key, final int start,
                                  final int end) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.zrevrange(key, start, end);
-            }
-        });
+
+        client.zrevrange(key, start, end);
+        final List<String> members = client.getMultiBulkReply();
+        return new LinkedHashSet<String>(members);
     }
 
     public Map<String, String> zrangeWithScores(final String key, final int start,
-                                       final int end) {
-        return execute(new RedisCallback<Map<String, String>>() {
-            public Map<String, String> doIt(Session session) {
-                return session.zrangeWithScores(key, start, end);
-            }
-        });
+                                                final int end) {
+        client.zrangeWithScores(key, start, end);
+        return getReplyAsMap(client);
     }
 
     public Map<String, String> zrevrangeWithScores(final String key, final int start,
-                                          final int end) {
-        return execute(new RedisCallback<Map<String, String>>() {
-            public Map<String, String> doIt(Session session) {
-                return session.zrevrangeWithScores(key, start, end);
-            }
-        });
+                                                   final int end) {
+
+        client.zrevrangeWithScores(key, start, end);
+        return getReplyAsMap(client);
     }
 
     /**
@@ -1782,16 +1547,13 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * Time complexity O(1)
      *
-     * @param key the key
+     * @param key
      * @return the cardinality (number of elements) of the set as an integer.
      */
     public Long zcard(final String key) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zcard(key);
-                
-            }
-        });
+
+        client.zcard(key);
+        return client.getIntegerReply();
     }
 
     /**
@@ -1801,18 +1563,27 @@ public class RedisNode implements SingleRedisOperations {
      * <p/>
      * <b>Time complexity:</b> O(1)
      *
-     *
-     * @param key    the key
+     * @param key
      * @param member
      * @return the score
      */
     public String zscore(final String key, final String member) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.zscore(key, member);
-                
-            }
-        });
+        client.zscore(key, member);
+        return client.getBulkReply();
+    }
+
+    public String watch(final String... keys) {
+        client.watch(keys);
+        return client.getStatusCodeReply();
+    }
+
+    public String unwatch() {
+        client.unwatch();
+        return client.getStatusCodeReply();
+    }
+
+    public void close() {
+        client.close();
     }
 
     /**
@@ -1822,7 +1593,7 @@ public class RedisNode implements SingleRedisOperations {
      * By default sorting is numeric with elements being compared as double
      * precision floating point numbers. This is the simplest form of SORT.
      *
-     * @param key the key
+     * @param key
      * @return Assuming the Set/List at key contains a list of numbers, the
      *         return value will be the list of numbers ordered from the
      *         smallest to the biggest number.
@@ -1831,12 +1602,9 @@ public class RedisNode implements SingleRedisOperations {
      * @see #sort(String, SortingParams, String)
      */
     public List<String> sort(final String key) {
-        return execute(new RedisCallback<List<String>>() {
-            public List<String> doIt(Session session) {
-                return session.sort(key);
-                
-            }
-        });
+
+        client.sort(key);
+        return client.getMultiBulkReply();
     }
 
     /**
@@ -1908,7 +1676,7 @@ public class RedisNode implements SingleRedisOperations {
      * -> [3, x, 2, y, 1, z]
      * </pre>
      *
-     * @param key               the key
+     * @param key
      * @param sortingParameters
      * @return a list of sorted elements.
      * @see #sort(String)
@@ -1916,12 +1684,9 @@ public class RedisNode implements SingleRedisOperations {
      */
     public List<String> sort(final String key,
                              final SortingParams sortingParameters) {
-        return execute(new RedisCallback<List<String>>() {
-            public List<String> doIt(Session session) {
-                return session.sort(key, sortingParameters);
-                
-            }
-        });
+
+        client.sort(key, sortingParameters);
+        return client.getMultiBulkReply();
     }
 
     /**
@@ -1985,7 +1750,7 @@ public class RedisNode implements SingleRedisOperations {
      * Time complexity: O(1)
      *
      * @param timeout
-     * @param keys    the keys
+     * @param keys
      * @return BLPOP returns a two-elements array via a multi bulk reply in
      *         order to return both the unblocking key and the popped value.
      *         <p/>
@@ -1996,18 +1761,25 @@ public class RedisNode implements SingleRedisOperations {
      * @see #brpop(int, String...)
      */
     public List<String> blpop(final int timeout, final String... keys) {
-        return execute(new RedisCallback<List<String>>() {
-            public List<String> doIt(Session session) {
-                return session.blpop(timeout, keys);
-            }
-        });
+
+        List<String> args = new ArrayList<String>();
+        for (String arg : keys) {
+            args.add(arg);
+        }
+        args.add(String.valueOf(timeout));
+
+        client.blpop(args.toArray(new String[args.size()]));
+        client.setTimeoutInfinite();
+        final List<String> multiBulkReply = client.getMultiBulkReply();
+        client.rollbackTimeout();
+        return multiBulkReply;
     }
 
     /**
      * Sort a Set or a List accordingly to the specified parameters and store
      * the result at dstkey.
      *
-     * @param key               the key
+     * @param key
      * @param sortingParameters
      * @param dstkey
      * @return The number of elements of the list at dstkey.
@@ -2017,12 +1789,9 @@ public class RedisNode implements SingleRedisOperations {
      */
     public Long sort(final String key, final SortingParams sortingParameters,
                      final String dstkey) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.sort(key, sortingParameters, dstkey);
-                
-            }
-        });
+
+        client.sort(key, sortingParameters, dstkey);
+        return client.getIntegerReply();
     }
 
     /**
@@ -2033,7 +1802,7 @@ public class RedisNode implements SingleRedisOperations {
      * elements being compared as double precision floating point numbers. This
      * is the simplest form of SORT.
      *
-     * @param key    the key
+     * @param key
      * @param dstkey
      * @return The number of elements of the list at dstkey.
      * @see #sort(String)
@@ -2041,12 +1810,9 @@ public class RedisNode implements SingleRedisOperations {
      * @see #sort(String, SortingParams, String)
      */
     public Long sort(final String key, final String dstkey) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.sort(key, dstkey);
-                
-            }
-        });
+
+        client.sort(key, dstkey);
+        return client.getIntegerReply();
     }
 
     /**
@@ -2110,7 +1876,7 @@ public class RedisNode implements SingleRedisOperations {
      * Time complexity: O(1)
      *
      * @param timeout
-     * @param keys    the keys
+     * @param keys
      * @return BLPOP returns a two-elements array via a multi bulk reply in
      *         order to return both the unblocking key and the popped value.
      *         <p/>
@@ -2121,11 +1887,19 @@ public class RedisNode implements SingleRedisOperations {
      * @see #blpop(int, String...)
      */
     public List<String> brpop(final int timeout, final String... keys) {
-        return execute(new RedisCallback<List<String>>() {
-            public List<String> doIt(Session session) {
-                return session.brpop(timeout, keys);
-            }
-        });
+
+        List<String> args = new ArrayList<String>();
+        for (String arg : keys) {
+            args.add(arg);
+        }
+        args.add(String.valueOf(timeout));
+
+        client.brpop(args.toArray(new String[args.size()]));
+        client.setTimeoutInfinite();
+        List<String> multiBulkReply = client.getMultiBulkReply();
+        client.rollbackTimeout();
+
+        return multiBulkReply;
     }
 
     /**
@@ -2143,39 +1917,22 @@ public class RedisNode implements SingleRedisOperations {
      * @param password
      * @return Status code reply
      */
+
     public String auth(final String password) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.auth(password);
-                
-            }
-        });
+
+        client.auth(password);
+        return client.getStatusCodeReply();
     }
 
-    public List<Object> pipeline(final Pipeline pipeline) {
-        return execute(new RedisCallback<List<Object>>() {
-            public List<Object> doIt(Session session) {
-                return session.pipeline(pipeline);
-            }
-        });
-    }
-
-    public Long publish(final String channel, final String message) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.publish(channel, message);
-                
-            }
-        });
+    public Long publish(String channel, String message) {
+        client.publish(channel, message);
+        return client.getIntegerReply();
     }
 
     public Long zcount(final String key, final Number min, final Number max) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zcount(key, min, max);
-                
-            }
-        });
+
+        client.zcount(key, min, max);
+        return client.getIntegerReply();
     }
 
     /**
@@ -2234,11 +1991,8 @@ public class RedisNode implements SingleRedisOperations {
      * @see #zcount(String, Number, Number)
      */
     public Set<String> zrangeByScore(final String key, final Number min, final Number max) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.zrangeByScore(key, min, max);
-            }
-        });
+        client.zrangeByScore(key, min, max);
+        return new LinkedHashSet<String>(client.getMultiBulkReply());
     }
 
     /**
@@ -2298,11 +2052,8 @@ public class RedisNode implements SingleRedisOperations {
      */
     public Set<String> zrangeByScore(final String key, final Number min,
                                      final Number max, final int offset, final int count) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
-                return session.zrangeByScore(key, min, max, offset, count);
-            }
-        });
+        client.zrangeByScore(key, min, max, offset, count);
+        return new LinkedHashSet<String>(client.getMultiBulkReply());
     }
 
     /**
@@ -2361,12 +2112,10 @@ public class RedisNode implements SingleRedisOperations {
      * @see #zcount(String, Number, Number)
      */
     public Map<String, String> zrangeByScoreWithScores(final String key,
-                                              final Number min, final Number max) {
-        return execute(new RedisCallback<Map<String, String>>() {
-            public Map<String, String> doIt(Session session) {
-                return session.zrangeByScoreWithScores(key, min, max);
-            }
-        });
+                                                       final Number min, final Number max) {
+
+        client.zrangeByScoreWithScores(key, min, max);
+        return getReplyAsMap(client);
     }
 
     /**
@@ -2425,13 +2174,11 @@ public class RedisNode implements SingleRedisOperations {
      * @see #zcount(String, Number, Number)
      */
     public Map<String, String> zrangeByScoreWithScores(final String key,
-                                              final Number min, final Number max, final int offset,
-                                              final int count) {
-        return execute(new RedisCallback<Map<String, String>>() {
-            public Map<String, String> doIt(Session session) {
-                return session.zrangeByScoreWithScores(key, min, max, offset, count);
-            }
-        });
+                                                       final Number min, final Number max, final int offset,
+                                                       final int count) {
+
+        client.zrangeByScoreWithScores(key, min, max, offset, count);
+        return getReplyAsMap(client);
     }
 
     private Map<String, String> getReplyAsMap(Client client) {
@@ -2443,6 +2190,7 @@ public class RedisNode implements SingleRedisOperations {
         }
         return result;
     }
+
 
     /**
      * Remove all elements in the sorted set at key with rank between start and
@@ -2457,13 +2205,344 @@ public class RedisNode implements SingleRedisOperations {
      * operation
      */
     public Long zremrangeByRank(final String key, final int start, final int end) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zremrangeByRank(key, start, end);
-                
-            }
-        });
+
+        client.zremrangeByRank(key, start, end);
+        return client.getIntegerReply();
     }
+
+    /**
+     * Remove all the elements in the sorted set at key with a score between min
+     * and max (including elements with score equal to min or max).
+     * <p/>
+     * <b>Time complexity:</b>
+     * <p/>
+     * O(log(N))+O(M) with N being the number of elements in the sorted set and
+     * M the number of elements removed by the operation
+     *
+     * @param key
+     * @param start
+     * @param end
+     * @return Integer reply, specifically the number of elements removed.
+     */
+    public Long zremrangeByScore(final String key, final double start,
+                                 final double end) {
+
+        client.zremrangeByScore(key, start, end);
+        return client.getIntegerReply();
+    }
+
+    /**
+     * Creates a union or intersection of N sorted sets given by keys k1 through
+     * kN, and stores it at dstkey. It is mandatory to provide the number of
+     * input keys N, before passing the input keys and the other (optional)
+     * arguments.
+     * <p/>
+     * As the terms imply, the {@link #zinterstore(String, String...)
+     * ZINTERSTORE} command requires an element to be present in each of the
+     * given inputs to be inserted in the result. The
+     * {@link #zunionstore(String, String...) ZUNIONSTORE} command inserts all
+     * elements across all inputs.
+     * <p/>
+     * Using the WEIGHTS option, it is possible to add weight to each input
+     * sorted set. This means that the score of each element in the sorted set
+     * is first multiplied by this weight before being passed to the
+     * aggregation. When this option is not given, all weights default to 1.
+     * <p/>
+     * With the AGGREGATE option, it's possible to specify how the results of
+     * the union or intersection are aggregated. This option defaults to SUM,
+     * where the score of an element is summed across the inputs where it
+     * exists. When this option is set to be either MIN or MAX, the resulting
+     * set will contain the minimum or maximum score of an element across the
+     * inputs where it exists.
+     * <p/>
+     * <b>Time complexity:</b> O(N) + O(M log(M)) with N being the sum of the
+     * sizes of the input sorted sets, and M being the number of elements in the
+     * resulting sorted set
+     *
+     * @param dstkey
+     * @param sets
+     * @return Integer reply, specifically the number of elements in the sorted
+     *         set at dstkey
+     * @see #zunionstore(String, String...)
+     * @see #zunionstore(String, ZParams, String...)
+     * @see #zinterstore(String, String...)
+     * @see #zinterstore(String, ZParams, String...)
+     */
+    public Long zunionstore(final String dstkey, final String... sets) {
+
+        client.zunionstore(dstkey, sets);
+        return client.getIntegerReply();
+    }
+
+    /**
+     * Creates a union or intersection of N sorted sets given by keys k1 through
+     * kN, and stores it at dstkey. It is mandatory to provide the number of
+     * input keys N, before passing the input keys and the other (optional)
+     * arguments.
+     * <p/>
+     * As the terms imply, the {@link #zinterstore(String, String...)
+     * ZINTERSTORE} command requires an element to be present in each of the
+     * given inputs to be inserted in the result. The
+     * {@link #zunionstore(String, String...) ZUNIONSTORE} command inserts all
+     * elements across all inputs.
+     * <p/>
+     * Using the WEIGHTS option, it is possible to add weight to each input
+     * sorted set. This means that the score of each element in the sorted set
+     * is first multiplied by this weight before being passed to the
+     * aggregation. When this option is not given, all weights default to 1.
+     * <p/>
+     * With the AGGREGATE option, it's possible to specify how the results of
+     * the union or intersection are aggregated. This option defaults to SUM,
+     * where the score of an element is summed across the inputs where it
+     * exists. When this option is set to be either MIN or MAX, the resulting
+     * set will contain the minimum or maximum score of an element across the
+     * inputs where it exists.
+     * <p/>
+     * <b>Time complexity:</b> O(N) + O(M log(M)) with N being the sum of the
+     * sizes of the input sorted sets, and M being the number of elements in the
+     * resulting sorted set
+     *
+     * @param dstkey
+     * @param sets
+     * @param params
+     * @return Integer reply, specifically the number of elements in the sorted
+     *         set at dstkey
+     * @see #zunionstore(String, String...)
+     * @see #zunionstore(String, ZParams, String...)
+     * @see #zinterstore(String, String...)
+     * @see #zinterstore(String, ZParams, String...)
+     */
+    public Long zunionstore(final String dstkey, final ZParams params,
+                            final String... sets) {
+
+        client.zunionstore(dstkey, params, sets);
+        return client.getIntegerReply();
+    }
+
+    /**
+     * Creates a union or intersection of N sorted sets given by keys k1 through
+     * kN, and stores it at dstkey. It is mandatory to provide the number of
+     * input keys N, before passing the input keys and the other (optional)
+     * arguments.
+     * <p/>
+     * As the terms imply, the {@link #zinterstore(String, String...)
+     * ZINTERSTORE} command requires an element to be present in each of the
+     * given inputs to be inserted in the result. The
+     * {@link #zunionstore(String, String...) ZUNIONSTORE} command inserts all
+     * elements across all inputs.
+     * <p/>
+     * Using the WEIGHTS option, it is possible to add weight to each input
+     * sorted set. This means that the score of each element in the sorted set
+     * is first multiplied by this weight before being passed to the
+     * aggregation. When this option is not given, all weights default to 1.
+     * <p/>
+     * With the AGGREGATE option, it's possible to specify how the results of
+     * the union or intersection are aggregated. This option defaults to SUM,
+     * where the score of an element is summed across the inputs where it
+     * exists. When this option is set to be either MIN or MAX, the resulting
+     * set will contain the minimum or maximum score of an element across the
+     * inputs where it exists.
+     * <p/>
+     * <b>Time complexity:</b> O(N) + O(M log(M)) with N being the sum of the
+     * sizes of the input sorted sets, and M being the number of elements in the
+     * resulting sorted set
+     *
+     * @param dstkey
+     * @param sets
+     * @return Integer reply, specifically the number of elements in the sorted
+     *         set at dstkey
+     * @see #zunionstore(String, String...)
+     * @see #zunionstore(String, ZParams, String...)
+     * @see #zinterstore(String, String...)
+     * @see #zinterstore(String, ZParams, String...)
+     */
+    public Long zinterstore(final String dstkey, final String... sets) {
+
+        client.zinterstore(dstkey, sets);
+        return client.getIntegerReply();
+    }
+
+    /**
+     * Creates a union or intersection of N sorted sets given by keys k1 through
+     * kN, and stores it at dstkey. It is mandatory to provide the number of
+     * input keys N, before passing the input keys and the other (optional)
+     * arguments.
+     * <p/>
+     * As the terms imply, the {@link #zinterstore(String, String...)
+     * ZINTERSTORE} command requires an element to be present in each of the
+     * given inputs to be inserted in the result. The
+     * {@link #zunionstore(String, String...) ZUNIONSTORE} command inserts all
+     * elements across all inputs.
+     * <p/>
+     * Using the WEIGHTS option, it is possible to add weight to each input
+     * sorted set. This means that the score of each element in the sorted set
+     * is first multiplied by this weight before being passed to the
+     * aggregation. When this option is not given, all weights default to 1.
+     * <p/>
+     * With the AGGREGATE option, it's possible to specify how the results of
+     * the union or intersection are aggregated. This option defaults to SUM,
+     * where the score of an element is summed across the inputs where it
+     * exists. When this option is set to be either MIN or MAX, the resulting
+     * set will contain the minimum or maximum score of an element across the
+     * inputs where it exists.
+     * <p/>
+     * <b>Time complexity:</b> O(N) + O(M log(M)) with N being the sum of the
+     * sizes of the input sorted sets, and M being the number of elements in the
+     * resulting sorted set
+     *
+     * @param dstkey
+     * @param sets
+     * @param params
+     * @return Integer reply, specifically the number of elements in the sorted
+     *         set at dstkey
+     * @see #zunionstore(String, String...)
+     * @see #zunionstore(String, ZParams, String...)
+     * @see #zinterstore(String, String...)
+     * @see #zinterstore(String, ZParams, String...)
+     */
+    public Long zinterstore(final String dstkey, final ZParams params,
+                            final String... sets) {
+
+        client.zinterstore(dstkey, params, sets);
+        return client.getIntegerReply();
+    }
+
+    public Long strlen(final String key) {
+        client.strlen(key);
+        return client.getIntegerReply();
+    }
+
+    public Long lpushx(final String key, final String string) {
+        client.lpushx(key, string);
+        return client.getIntegerReply();
+    }
+
+    /**
+     * Undo a {@link #expire(String, int) expire} at turning the expire key into
+     * a normal key.
+     * <p/>
+     * Time complexity: O(1)
+     *
+     * @param key
+     * @return Integer reply, specifically: 1: the key is now persist. 0: the
+     *         key is not persist (only happens when key not set).
+     */
+    public Long persist(final String key) {
+        client.persist(key);
+        return client.getIntegerReply();
+    }
+
+    public Long rpushx(final String key, final String string) {
+        client.rpushx(key, string);
+        return client.getIntegerReply();
+    }
+
+    public String echo(final String string) {
+        client.echo(string);
+        return client.getBulkReply();
+    }
+
+    public Long linsert(final String key, final Client.LIST_POSITION where,
+                        final String pivot, final String value) {
+        client.linsert(key, where, pivot, value);
+        return client.getIntegerReply();
+    }
+
+    /**
+     * Pop a value from a list, push it to another list and return it; or block
+     * until one is available
+     *
+     * @param source
+     * @param destination
+     * @param timeout
+     * @return the element
+     */
+    public String brpoplpush(String source, String destination, int timeout) {
+        client.brpoplpush(source, destination, timeout);
+        return client.getBulkReply();
+    }
+
+    /**
+     * Sets or clears the bit at offset in the string value stored at key
+     *
+     * @param key
+     * @param offset
+     * @param value
+     * @return
+     */
+    public Long setbit(String key, int offset, String value) {
+        client.setbit(key, offset, value);
+        return client.getIntegerReply();
+    }
+
+    /**
+     * Returns the bit value at offset in the string value stored at key
+     *
+     * @param key
+     * @param offset
+     * @return
+     */
+    public Long getbit(String key, int offset) {
+        client.getbit(key, offset);
+        return client.getIntegerReply();
+    }
+
+
+    public String ping() {
+
+        client.ping();
+        return client.getStatusCodeReply();
+
+    }
+
+
+    /**
+     * If member already exists in the sorted set adds the increment to its
+     * score and updates the position of the element in the sorted set
+     * accordingly. If member does not already exist in the sorted set it is
+     * added with increment as score (that is, like if the previous score was
+     * virtually zero). If key does not exist a new sorted set with the
+     * specified member as sole member is crated. If the key exists but does not
+     * hold a sorted set value an error is returned.
+     * <p/>
+     * The score value can be the string representation of a double precision
+     * floating point number. It's possible to provide a negative value to
+     * perform a decrement.
+     * <p/>
+     * For an introduction to sorted sets check the Introduction to Redis data
+     * types page.
+     * <p/>
+     * Time complexity O(log(N)) with N being the number of elements in the
+     * sorted set
+     *
+     * @param key    the key
+     * @param score
+     * @param member
+     * @return The new score
+     */
+    public String zincrby(final String key, final Number score,
+                          final String member) {
+        client.zincrby(key, score, member);
+        return client.getBulkReply();
+    }
+
+
+    public String multi() {
+        client.multi();
+        return client.getStatusCodeReply();
+    }
+
+    public String discard() {
+        client.discard();
+        return client.getStatusCodeReply();
+    }
+
+
+    public List<Object> pipeline(final Pipeline pipeline) {
+        pipeline.execute(client);
+        return client.getAll();
+    }
+
 
     /**
      * Remove all the elements in the sorted set at key with a score between min
@@ -2481,187 +2560,11 @@ public class RedisNode implements SingleRedisOperations {
      */
     public Long zremrangeByScore(final String key, final Number start,
                                  final Number end) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zremrangeByScore(key, start, end);
-                
-            }
-        });
+
+        client.zremrangeByScore(key, start, end);
+        return client.getIntegerReply();
     }
 
-    /**
-     * Creates a union or intersection of N sorted sets given by keys k1 through
-     * kN, and stores it at dstkey. It is mandatory to provide the number of
-     * input keys N, before passing the input keys and the other (optional)
-     * arguments.
-     * <p/>
-     * As the terms imply, the {@link #zinterstore(String, String...)
-     * ZINTERSTORE} command requires an element to be present in each of the
-     * given inputs to be inserted in the result. The
-     * {@link #zunionstore(String, String...) ZUNIONSTORE} command inserts all
-     * elements across all inputs.
-     * <p/>
-     * Using the WEIGHTS option, it is possible to add weight to each input
-     * sorted set. This means that the score of each element in the sorted set
-     * is first multiplied by this weight before being passed to the
-     * aggregation. When this option is not given, all weights default to 1.
-     * <p/>
-     * With the AGGREGATE option, it's possible to specify how the results of
-     * the union or intersection are aggregated. This option defaults to SUM,
-     * where the score of an element is summed across the inputs where it
-     * exists. When this option is set to be either MIN or MAX, the resulting
-     * set will contain the minimum or maximum score of an element across the
-     * inputs where it exists.
-     * <p/>
-     * <b>Time complexity:</b> O(N) + O(M log(M)) with N being the sum of the
-     * sizes of the input sorted sets, and M being the number of elements in the
-     * resulting sorted set
-     *
-     * @param dstkey
-     * @param sets
-     * @return Integer reply, specifically the number of elements in the sorted
-     *         set at dstkey
-     * @see #zunionstore(String, ZParams, String...)
-     */
-    public Long zunionstore(final String dstkey, final String... sets) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zunionstore(dstkey, sets);
-                
-            }
-        });
-    }
-
-    /**
-     * Creates a union or intersection of N sorted sets given by keys k1 through
-     * kN, and stores it at dstkey. It is mandatory to provide the number of
-     * input keys N, before passing the input keys and the other (optional)
-     * arguments.
-     * <p/>
-     * As the terms imply, the {@link #zinterstore(String, String...)
-     * ZINTERSTORE} command requires an element to be present in each of the
-     * given inputs to be inserted in the result. The
-     * {@link #zunionstore(String, String...) ZUNIONSTORE} command inserts all
-     * elements across all inputs.
-     * <p/>
-     * Using the WEIGHTS option, it is possible to add weight to each input
-     * sorted set. This means that the score of each element in the sorted set
-     * is first multiplied by this weight before being passed to the
-     * aggregation. When this option is not given, all weights default to 1.
-     * <p/>
-     * With the AGGREGATE option, it's possible to specify how the results of
-     * the union or intersection are aggregated. This option defaults to SUM,
-     * where the score of an element is summed across the inputs where it
-     * exists. When this option is set to be either MIN or MAX, the resulting
-     * set will contain the minimum or maximum score of an element across the
-     * inputs where it exists.
-     * <p/>
-     * <b>Time complexity:</b> O(N) + O(M log(M)) with N being the sum of the
-     * sizes of the input sorted sets, and M being the number of elements in the
-     * resulting sorted set
-     *
-     * @param dstkey
-     * @param sets
-     * @param params
-     * @return Integer reply, specifically the number of elements in the sorted
-     *         set at dstkey
-     * @see #zunionstore(String, String...)
-     */
-    public Long zunionstore(final String dstkey, final ZParams params, final String... sets) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zunionstore(dstkey, params, sets);
-                
-            }
-        });
-    }
-
-    /**
-     * Creates a union or intersection of N sorted sets given by keys k1 through
-     * kN, and stores it at dstkey. It is mandatory to provide the number of
-     * input keys N, before passing the input keys and the other (optional)
-     * arguments.
-     * <p/>
-     * As the terms imply, the {@link #zinterstore(String, String...)
-     * ZINTERSTORE} command requires an element to be present in each of the
-     * given inputs to be inserted in the result. The
-     * {@link #zunionstore(String, String...) ZUNIONSTORE} command inserts all
-     * elements across all inputs.
-     * <p/>
-     * Using the WEIGHTS option, it is possible to add weight to each input
-     * sorted set. This means that the score of each element in the sorted set
-     * is first multiplied by this weight before being passed to the
-     * aggregation. When this option is not given, all weights default to 1.
-     * <p/>
-     * With the AGGREGATE option, it's possible to specify how the results of
-     * the union or intersection are aggregated. This option defaults to SUM,
-     * where the score of an element is summed across the inputs where it
-     * exists. When this option is set to be either MIN or MAX, the resulting
-     * set will contain the minimum or maximum score of an element across the
-     * inputs where it exists.
-     * <p/>
-     * <b>Time complexity:</b> O(N) + O(M log(M)) with N being the sum of the
-     * sizes of the input sorted sets, and M being the number of elements in the
-     * resulting sorted set
-     *
-     * @param dstkey
-     * @param sets
-     * @return Integer reply, specifically the number of elements in the sorted
-     *         set at dstkey
-     * @see #zunionstore(String, String...)
-     * @see #zunionstore(String, ZParams, String...)
-     */
-    public Long zinterstore(final String dstkey, final String... sets) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zinterstore(dstkey, sets);
-                
-            }
-        });
-    }
-
-    /**
-     * Creates a union or intersection of N sorted sets given by keys k1 through
-     * kN, and stores it at dstkey. It is mandatory to provide the number of
-     * input keys N, before passing the input keys and the other (optional)
-     * arguments.
-     * <p/>
-     * As the terms imply, the {@link #zinterstore(String, String...)
-     * ZINTERSTORE} command requires an element to be present in each of the
-     * given inputs to be inserted in the result. The
-     * {@link #zunionstore(String, String...) ZUNIONSTORE} command inserts all
-     * elements across all inputs.
-     * <p/>
-     * Using the WEIGHTS option, it is possible to add weight to each input
-     * sorted set. This means that the score of each element in the sorted set
-     * is first multiplied by this weight before being passed to the
-     * aggregation. When this option is not given, all weights default to 1.
-     * <p/>
-     * With the AGGREGATE option, it's possible to specify how the results of
-     * the union or intersection are aggregated. This option defaults to SUM,
-     * where the score of an element is summed across the inputs where it
-     * exists. When this option is set to be either MIN or MAX, the resulting
-     * set will contain the minimum or maximum score of an element across the
-     * inputs where it exists.
-     * <p/>
-     * <b>Time complexity:</b> O(N) + O(M log(M)) with N being the sum of the
-     * sizes of the input sorted sets, and M being the number of elements in the
-     * resulting sorted set
-     *
-     * @param dstkey
-     * @param sets
-     * @param params
-     * @return Integer reply, specifically the number of elements in the sorted
-     *         set at dstkey
-     */
-    public Long zinterstore(final String dstkey, final ZParams params, final String... sets) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.zinterstore(dstkey, params, sets);
-                
-            }
-        });
-    }
 
     /**
      * Synchronously save the DB on disk.
@@ -2680,12 +2583,9 @@ public class RedisNode implements SingleRedisOperations {
      * @return Status code reply
      */
     public String save() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.save();
-                
-            }
-        });
+
+        client.save();
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -2699,12 +2599,8 @@ public class RedisNode implements SingleRedisOperations {
      * @return Status code reply
      */
     public String bgsave() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.bgsave();
-                
-            }
-        });
+        client.bgsave();
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -2726,12 +2622,8 @@ public class RedisNode implements SingleRedisOperations {
      * @return Status code reply
      */
     public String bgrewriteaof() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.bgrewriteaof();
-                
-            }
-        });
+        client.bgrewriteaof();
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -2746,12 +2638,8 @@ public class RedisNode implements SingleRedisOperations {
      * @return Integer reply, specifically an UNIX time stamp.
      */
     public Long lastsave() {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.lastsave();
-                
-            }
-        });
+        client.lastsave();
+        return client.getIntegerReply();
     }
 
     /**
@@ -2767,11 +2655,14 @@ public class RedisNode implements SingleRedisOperations {
      *         the server quits and the connection is closed.
      */
     public String shutdown() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.shutdown();
-            }
-        });
+        client.shutdown();
+        String status = null;
+        try {
+            status = client.getStatusCodeReply();
+        } catch (RedisException ex) {
+            status = null;
+        }
+        return status;
     }
 
     /**
@@ -2815,12 +2706,8 @@ public class RedisNode implements SingleRedisOperations {
      * @return Bulk reply
      */
     public String info() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.info();
-                
-            }
-        });
+        client.info();
+        return client.getBulkReply();
     }
 
     /**
@@ -2834,12 +2721,11 @@ public class RedisNode implements SingleRedisOperations {
      * @param redisMonitor
      */
     public void monitor(final RedisMonitor redisMonitor) {
-        execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                session.monitor(redisMonitor);
-                return null;
-            }
-        });
+        client.monitor();
+        do {
+            String command = client.getBulkReply();
+            redisMonitor.onCommand(command);
+        } while (client.isConnected());
     }
 
     /**
@@ -2868,21 +2754,13 @@ public class RedisNode implements SingleRedisOperations {
      * @return Status code reply
      */
     public String slaveof(final String host, final int port) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.slaveof(host, port);
-                
-            }
-        });
+        client.slaveof(host, port);
+        return client.getStatusCodeReply();
     }
 
     public String slaveofNoOne() {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.slaveofNoOne();
-                
-            }
-        });
+        client.slaveofNoOne();
+        return client.getStatusCodeReply();
     }
 
     /**
@@ -2922,12 +2800,8 @@ public class RedisNode implements SingleRedisOperations {
      * @return Bulk reply.
      */
     public List<String> configGet(final String pattern) {
-        return execute(new RedisCallback<List<String>>() {
-            public List<String> doIt(Session session) {
-                return session.configGet(pattern);
-                
-            }
-        });
+        client.configGet(pattern);
+        return client.getMultiBulkReply();
     }
 
     /**
@@ -2965,94 +2839,17 @@ public class RedisNode implements SingleRedisOperations {
      * @return Status code reply
      */
     public String configSet(final String parameter, final String value) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.configSet(parameter, value);
-                
-            }
-        });
-    }
-
-    public Long strlen(final String key) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.strlen(key);
-                
-            }
-        });
+        client.configSet(parameter, value);
+        return client.getStatusCodeReply();
     }
 
     public void sync() {
-        execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                session.sync();
-                return null;
-            }
-        });
-    }
 
-    public Long lpushx(final String key, final String string) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.lpushx(key, string);
-                
-            }
-        });
-    }
-
-    /**
-     * Undo a {@link #expire(String, int) expire} at turning the expire key into
-     * a normal key.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key the key
-     * @return Integer reply, specifically: 1: the key is now persist. 0: the
-     *         key is not persist (only happens when key not set).
-     */
-    public Long persist(final String key) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.persist(key);
-                
-            }
-        });
-    }
-
-    public Long rpushx(final String key, final String string) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.rpushx(key, string);
-                
-            }
-        });
-    }
-
-    public String echo(final String string) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.echo(string);
-                
-            }
-        });
-    }
-
-    public Long linsert(final String key, final LIST_POSITION where,
-                        final String pivot, final String value) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
-                return session.linsert(key, where, pivot, value);
-                
-            }
-        });
+        client.sync();
     }
 
     public String debug(final DebugParams params) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.debug(params);
-                
-            }
-        });
+        client.debug(params);
+        return client.getStatusCodeReply();
     }
 }
