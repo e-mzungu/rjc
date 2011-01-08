@@ -137,13 +137,13 @@ public interface RedisOperations {
 
     Long zcount(String key, Number min, Number max);
 
-    Set<String> zrangeByScore(String key, Number min, Number max);
+    Set<String> zrangeByScore(String key, String min, String max);
 
-    Set<String> zrangeByScore(String key, Number min, Number max, int offset, int count);
+    Set<String> zrangeByScore(String key, String min, String max, int offset, int count);
 
-    Map<String, String> zrangeByScoreWithScores(String key, Number min, Number max);
+    Map<String, String> zrangeByScoreWithScores(String key, String min, String max);
 
-    Map<String, String> zrangeByScoreWithScores(String key, Number min, Number max, int offset, int count);
+    Map<String, String> zrangeByScoreWithScores(String key, String min, String max, int offset, int count);
 
     Long zremrangeByRank(String key, int start, int end);
 

@@ -309,21 +309,21 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).zcount(key, min, max);
     }
 
-    public Set<String> zrangeByScore(final String key, Number min, Number max) {
+    public Set<String> zrangeByScore(final String key, String min, String max) {
 
         return locator.getNode(key).zrangeByScore(key, min, max);
     }
 
-    public Set<String> zrangeByScore(final String key, Number min, Number max, int offset, int count) {
+    public Set<String> zrangeByScore(final String key, String min, String max, int offset, int count) {
         return locator.getNode(key).zrangeByScore(key, min, max, offset, count);
     }
 
-    public Map<String, String> zrangeByScoreWithScores(final String key, Number min, Number max) {
+    public Map<String, String> zrangeByScoreWithScores(final String key, String min, String max) {
         return locator.getNode(key).zrangeByScoreWithScores(key, min, max);
     }
 
-    public Map<String, String> zrangeByScoreWithScores(final String key, Number min,
-                                              Number max, int offset, int count) {
+    public Map<String, String> zrangeByScoreWithScores(final String key, String min,
+                                              String max, int offset, int count) {
 
         return locator.getNode(key).zrangeByScoreWithScores(key, min, max, offset, count);
     }

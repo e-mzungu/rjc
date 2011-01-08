@@ -467,20 +467,20 @@ public class Client implements RedisCommands {
         conn.sendCommand(Protocol.Command.ZCOUNT, key, String.valueOf(min), String.valueOf(max));
     }
 
-    public void zrangeByScore(final String key, final Number min, final Number max) {
-        conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, String.valueOf(min), String.valueOf(max));
+    public void zrangeByScore(final String key, final String min, final String max) {
+        conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, min, max);
     }
 
-    public void zrangeByScore(final String key, final Number min, final Number max, final int offset, int count) {
-        conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, String.valueOf(min), String.valueOf(max), Protocol.Keyword.LIMIT.str, String.valueOf(offset), String.valueOf(count));
+    public void zrangeByScore(final String key, final String min, final String max, final int offset, int count) {
+        conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, min, max, Protocol.Keyword.LIMIT.str, String.valueOf(offset), String.valueOf(count));
     }
 
-    public void zrangeByScoreWithScores(final String key, final Number min, final Number max) {
+    public void zrangeByScoreWithScores(final String key, final String min, final String max) {
         conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, String.valueOf(min), String.valueOf(max), Protocol.Keyword.WITHSCORES.str);
     }
 
-    public void zrangeByScoreWithScores(final String key, final Number min,
-                                        final Number max, final int offset, final int count) {
+    public void zrangeByScoreWithScores(final String key, final String min,
+                                        final String max, final int offset, final int count) {
         conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, String.valueOf(min), String.valueOf(max), Protocol.Keyword.LIMIT.str, String.valueOf(offset), String.valueOf(count), Protocol.Keyword.WITHSCORES.str);
     }
 

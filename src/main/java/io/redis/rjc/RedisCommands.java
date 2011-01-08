@@ -162,13 +162,13 @@ public interface RedisCommands extends MultiExecCommands {
 
     public void zcount(String key, Number min, Number max);
 
-    public void zrangeByScore(String key, Number min, Number max);
+    public void zrangeByScore(String key, String min, String max);
 
-    public void zrangeByScore(String key, Number min, Number max, int offset, int count);
+    public void zrangeByScore(String key, String min, String max, int offset, int count);
 
-    public void zrangeByScoreWithScores(String key, Number min, Number max);
+    public void zrangeByScoreWithScores(String key, String min, String max);
 
-    public void zrangeByScoreWithScores(String key, Number min, Number max, int offset, int count);
+    public void zrangeByScoreWithScores(String key, String min, String max, int offset, int count);
 
     public void zremrangeByRank(String key, int start, int end);
 

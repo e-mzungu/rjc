@@ -2194,13 +2194,13 @@ public class RedisNode implements SingleRedisOperations {
      * does not involve further computation).
      * <p/>
      * Using the optional
-     * {@link #zrangeByScore(String, Number, Number, int, int) LIMIT} it's
+     * {@link RedisOperations#zrangeByScore(String, String, String, int, int) LIMIT} it's
      * possible to get only a range of the matching elements in an SQL-alike
      * way. Note that if offset is large the commands needs to traverse the list
      * for offset elements and this adds up to the O(M) figure.
      * <p/>
      * The {@link #zcount(String, Number, Number) ZCOUNT} command is similar to
-     * {@link #zrangeByScore(String, Number, Number) ZRANGEBYSCORE} but instead
+     * {@link RedisOperations#zrangeByScore(String, String, String) ZRANGEBYSCORE} but instead
      * of returning the actual elements in the specified interval, it just
      * returns the number of matching elements.
      * <p/>
@@ -2229,18 +2229,19 @@ public class RedisNode implements SingleRedisOperations {
      * (for instance you always ask for the first ten elements with LIMIT) you
      * can consider it O(log(N))
      *
+     *
      * @param key the key
      * @param min
      * @param max
      * @return Multi bulk reply specifically a list of elements in the specified
      *         score range.
-     * @see #zrangeByScore(String, Number, Number)
-     * @see #zrangeByScore(String, Number, Number, int, int)
-     * @see #zrangeByScoreWithScores(String, Number, Number)
-     * @see #zrangeByScoreWithScores(String, Number, Number, int, int)
+     * @see RedisOperations#zrangeByScore(String, String, String)
+     * @see RedisOperations#zrangeByScore(String, String, String, int, int)
+     * @see RedisOperations#zrangeByScoreWithScores(String, String, String)
+     * @see RedisOperations#zrangeByScoreWithScores(String, String, String, int, int)
      * @see #zcount(String, Number, Number)
      */
-    public Set<String> zrangeByScore(final String key, final Number min, final Number max) {
+    public Set<String> zrangeByScore(final String key, final String min, final String max) {
         return execute(new RedisCallback<Set<String>>() {
             public Set<String> doIt(Session session) {
                 return session.zrangeByScore(key, min, max);
@@ -2257,13 +2258,13 @@ public class RedisNode implements SingleRedisOperations {
      * does not involve further computation).
      * <p/>
      * Using the optional
-     * {@link #zrangeByScore(String, Number, Number, int, int) LIMIT} it's
+     * {@link RedisOperations#zrangeByScore(String, String, String, int, int) LIMIT} it's
      * possible to get only a range of the matching elements in an SQL-alike
      * way. Note that if offset is large the commands needs to traverse the list
      * for offset elements and this adds up to the O(M) figure.
      * <p/>
      * The {@link #zcount(String, Number, Number) ZCOUNT} command is similar to
-     * {@link #zrangeByScore(String, Number, Number) ZRANGEBYSCORE} but instead
+     * {@link RedisOperations#zrangeByScore(String, String, String) ZRANGEBYSCORE} but instead
      * of returning the actual elements in the specified interval, it just
      * returns the number of matching elements.
      * <p/>
@@ -2292,19 +2293,20 @@ public class RedisNode implements SingleRedisOperations {
      * (for instance you always ask for the first ten elements with LIMIT) you
      * can consider it O(log(N))
      *
+     *
      * @param key the key
      * @param min
      * @param max
      * @return Multi bulk reply specifically a list of elements in the specified
      *         score range.
-     * @see #zrangeByScore(String, Number, Number)
-     * @see #zrangeByScore(String, Number, Number, int, int)
-     * @see #zrangeByScoreWithScores(String, Number, Number)
-     * @see #zrangeByScoreWithScores(String, Number, Number, int, int)
+     * @see RedisOperations#zrangeByScore(String, String, String)
+     * @see RedisOperations#zrangeByScore(String, String, String, int, int)
+     * @see RedisOperations#zrangeByScoreWithScores(String, String, String)
+     * @see RedisOperations#zrangeByScoreWithScores(String, String, String, int, int)
      * @see #zcount(String, Number, Number)
      */
-    public Set<String> zrangeByScore(final String key, final Number min,
-                                     final Number max, final int offset, final int count) {
+    public Set<String> zrangeByScore(final String key, final String min,
+                                     final String max, final int offset, final int count) {
         return execute(new RedisCallback<Set<String>>() {
             public Set<String> doIt(Session session) {
                 return session.zrangeByScore(key, min, max, offset, count);
@@ -2321,13 +2323,13 @@ public class RedisNode implements SingleRedisOperations {
      * does not involve further computation).
      * <p/>
      * Using the optional
-     * {@link #zrangeByScore(String, Number, Number, int, int) LIMIT} it's
+     * {@link RedisOperations#zrangeByScore(String, String, String, int, int) LIMIT} it's
      * possible to get only a range of the matching elements in an SQL-alike
      * way. Note that if offset is large the commands needs to traverse the list
      * for offset elements and this adds up to the O(M) figure.
      * <p/>
      * The {@link #zcount(String, Number, Number) ZCOUNT} command is similar to
-     * {@link #zrangeByScore(String, Number, Number) ZRANGEBYSCORE} but instead
+     * {@link RedisOperations#zrangeByScore(String, String, String) ZRANGEBYSCORE} but instead
      * of returning the actual elements in the specified interval, it just
      * returns the number of matching elements.
      * <p/>
@@ -2356,19 +2358,20 @@ public class RedisNode implements SingleRedisOperations {
      * (for instance you always ask for the first ten elements with LIMIT) you
      * can consider it O(log(N))
      *
+     *
      * @param key the key
      * @param min
      * @param max
      * @return Multi bulk reply specifically a list of elements in the specified
      *         score range.
-     * @see #zrangeByScore(String, Number, Number)
-     * @see #zrangeByScore(String, Number, Number, int, int)
-     * @see #zrangeByScoreWithScores(String, Number, Number)
-     * @see #zrangeByScoreWithScores(String, Number, Number, int, int)
+     * @see RedisOperations#zrangeByScore(String, String, String)
+     * @see RedisOperations#zrangeByScore(String, String, String, int, int)
+     * @see RedisOperations#zrangeByScoreWithScores(String, String, String)
+     * @see RedisOperations#zrangeByScoreWithScores(String, String, String, int, int)
      * @see #zcount(String, Number, Number)
      */
     public Map<String, String> zrangeByScoreWithScores(final String key,
-                                                       final Number min, final Number max) {
+                                                       final String min, final String max) {
         return execute(new RedisCallback<Map<String, String>>() {
             public Map<String, String> doIt(Session session) {
                 return session.zrangeByScoreWithScores(key, min, max);
@@ -2385,13 +2388,13 @@ public class RedisNode implements SingleRedisOperations {
      * does not involve further computation).
      * <p/>
      * Using the optional
-     * {@link #zrangeByScore(String, Number, Number, int, int) LIMIT} it's
+     * {@link RedisOperations#zrangeByScore(String, String, String, int, int) LIMIT} it's
      * possible to get only a range of the matching elements in an SQL-alike
      * way. Note that if offset is large the commands needs to traverse the list
      * for offset elements and this adds up to the O(M) figure.
      * <p/>
      * The {@link #zcount(String, Number, Number) ZCOUNT} command is similar to
-     * {@link #zrangeByScore(String, Number, Number) ZRANGEBYSCORE} but instead
+     * {@link RedisOperations#zrangeByScore(String, String, String) ZRANGEBYSCORE} but instead
      * of returning the actual elements in the specified interval, it just
      * returns the number of matching elements.
      * <p/>
@@ -2420,19 +2423,20 @@ public class RedisNode implements SingleRedisOperations {
      * (for instance you always ask for the first ten elements with LIMIT) you
      * can consider it O(log(N))
      *
+     *
      * @param key the key
      * @param min
      * @param max
      * @return Multi bulk reply specifically a list of elements in the specified
      *         score range.
-     * @see #zrangeByScore(String, Number, Number)
-     * @see #zrangeByScore(String, Number, Number, int, int)
-     * @see #zrangeByScoreWithScores(String, Number, Number)
-     * @see #zrangeByScoreWithScores(String, Number, Number, int, int)
+     * @see RedisOperations#zrangeByScore(String, String, String)
+     * @see RedisOperations#zrangeByScore(String, String, String, int, int)
+     * @see RedisOperations#zrangeByScoreWithScores(String, String, String)
+     * @see RedisOperations#zrangeByScoreWithScores(String, String, String, int, int)
      * @see #zcount(String, Number, Number)
      */
     public Map<String, String> zrangeByScoreWithScores(final String key,
-                                                       final Number min, final Number max, final int offset,
+                                                       final String min, final String max, final int offset,
                                                        final int count) {
         return execute(new RedisCallback<Map<String, String>>() {
             public Map<String, String> doIt(Session session) {
