@@ -12,12 +12,19 @@ public abstract class SingleNodeTestBase {
     protected static HostAndPortUtil.HostAndPort hnp = HostAndPortUtil.getRedisServers().get(0);
 
     protected Session session;
+    private SessionFactory factory;
 
     @Before
     public void setUp() throws Exception {
-        this.session = new SessionFactoryImpl(new SimpleDataSource(hnp.host, hnp.port, 500)).create();
-        this.session.configSet("timeout", "300");
+        factory = new SessionFactoryImpl(new SimpleDataSource(hnp.host, hnp.port, 500));
+        this.session = createSession();
         this.session.flushAll();
+    }
+
+    protected Session createSession() {
+        Session result = factory.create();
+        result.configSet("timeout", "300");
+        return result;
     }
 
     @After

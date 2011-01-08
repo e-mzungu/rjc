@@ -1411,8 +1411,7 @@ class RedisSessionImpl implements Session {
     public Set<String> zrange(final String key, final int start, final int end) {
 
         client.zrange(key, start, end);
-        final List<String> members = client.getMultiBulkReply();
-        return new LinkedHashSet<String>(members);
+        return new LinkedHashSet<String>(client.getMultiBulkReply());
     }
 
     /**
@@ -1576,6 +1575,11 @@ class RedisSessionImpl implements Session {
     public String unwatch() {
         client.unwatch();
         return client.getStatusCodeReply();
+    }
+
+    public List<Object> exec() {
+        client.exec();
+        return client.getObjectMultiBulkReply();
     }
 
     public void close() {

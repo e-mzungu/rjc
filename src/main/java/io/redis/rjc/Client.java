@@ -4,10 +4,7 @@ import io.redis.rjc.ds.RedisConnection;
 import io.redis.rjc.protocol.Protocol;
 import io.redis.rjc.util.SafeEncoder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Client implements RedisCommands {
 
@@ -628,26 +625,50 @@ public class Client implements RedisCommands {
     }
 
     public String getBulkReply() {
+        if(isInMulti()) {
+            conn.getStatusCodeReply();
+            return null;
+        }
         return conn.getBulkReply();
     }
 
     public byte[] getBinaryBulkReply() {
+        if(isInMulti()) {
+            conn.getStatusCodeReply();
+            return null;
+        }
         return conn.getBinaryBulkReply();
     }
 
     public Long getIntegerReply() {
+        if(isInMulti()) {
+            conn.getStatusCodeReply();
+            return null;
+        }
         return conn.getIntegerReply();
     }
 
     public List<String> getMultiBulkReply() {
+        if(isInMulti()) {
+            conn.getStatusCodeReply();
+            return Collections.emptyList();
+        }
         return conn.getMultiBulkReply();
     }
 
     public List<byte[]> getBinaryMultiBulkReply() {
+        if(isInMulti()) {
+            conn.getStatusCodeReply();
+            return Collections.emptyList();
+        }
         return conn.getBinaryMultiBulkReply();
     }
 
     public List<Object> getObjectMultiBulkReply() {
+        if(isInMulti()) {
+            conn.getStatusCodeReply();
+            return Collections.emptyList();
+        }
         return conn.getObjectMultiBulkReply();
     }
 
