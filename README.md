@@ -18,7 +18,7 @@ Then include maven dependency to you project
         <dependency>
             <groupId>io.redis</groupId>
             <artifactId>rjc</artifactId>
-            <version>0.5.2</version>
+            <version>0.5.3</version>
         </dependency>
 
 # Quick start
