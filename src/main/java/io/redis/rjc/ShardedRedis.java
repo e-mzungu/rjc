@@ -6,16 +6,16 @@ import java.util.*;
 
 public class ShardedRedis implements RedisOperations {
 
-    private NodeLocator<SingleRedisOperations> locator;
+    private NodeLocator<RedisOperations> locator;
 
     public ShardedRedis() {
     }
 
-    public ShardedRedis(NodeLocator<SingleRedisOperations> locator) {
+    public ShardedRedis(NodeLocator<RedisOperations> locator) {
         this.locator = locator;
     }
 
-    public void setLocator(NodeLocator<SingleRedisOperations> locator) {
+    public void setLocator(NodeLocator<RedisOperations> locator) {
         this.locator = locator;
     }
 
@@ -85,7 +85,7 @@ public class ShardedRedis implements RedisOperations {
 
     public Set<String> keys(String pattern) {
         Set<String> result = new HashSet<String>();
-        for (SingleRedisOperations node : locator.getNodes()) {
+        for (RedisOperations node : locator.getNodes()) {
             result.addAll(node.keys(pattern));
         }
         return result;
@@ -345,8 +345,11 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(channel).publish(channel, message);
     }
 
-    public SingleRedisOperations getNode(String key) {
-        return locator.getNode(key);
+    public Long getBit(String key, int offset) {
+        return locator.getNode(key).getBit(key, offset);
     }
 
+    public Long setBit(String key, int offset, String value) {
+        return locator.getNode(key).setBit(key, offset, value);
+    }
 }

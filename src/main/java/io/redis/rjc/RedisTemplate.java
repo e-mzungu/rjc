@@ -3,7 +3,7 @@ package io.redis.rjc;
 /**
  * @author Evgeny Dolgov
  */
-public class RedisTemplate<T> {
+public class RedisTemplate {
 
     private SessionFactory factory;
 
@@ -22,7 +22,7 @@ public class RedisTemplate<T> {
         this.factory = factory;
     }
 
-    public T execute(RedisCallback<T> action) {
+    public<T> T execute(RedisCallback<T> action) {
         Session session = factory.create();
         try {
             return action.doIt(session);

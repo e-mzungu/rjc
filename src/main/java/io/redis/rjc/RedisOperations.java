@@ -152,4 +152,14 @@ public interface RedisOperations {
     Long linsert(String key, LIST_POSITION where, String pivot, String value);
 
     Long publish(String channel, String message);
+
+    /**
+     * @since 2.1.8.
+     */
+    Long getBit(String key, int offset);
+
+    /**
+     * @since 2.1.8.
+     */
+    Long setBit(String key, int offset, String value);
 }

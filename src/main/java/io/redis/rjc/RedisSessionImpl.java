@@ -1,5 +1,7 @@
 package io.redis.rjc;
 
+import io.redis.rjc.ds.RedisConnection;
+
 import java.util.*;
 
 /**
@@ -8,8 +10,8 @@ import java.util.*;
 class RedisSessionImpl implements Session {
     private Client client;
 
-    public RedisSessionImpl(Client client) {
-        this.client = client;
+    public RedisSessionImpl(RedisConnection connection) {
+        this.client = new Client(connection);
     }
 
     /**
@@ -47,7 +49,6 @@ class RedisSessionImpl implements Session {
      */
 
     public void quit() {
-
         client.quit();
     }
 
@@ -62,7 +63,6 @@ class RedisSessionImpl implements Session {
      * @return Integer reply, "0" if the key exists, otherwise "1"
      */
     public Boolean exists(final String key) {
-
         client.exists(key);
         return client.getIntegerReply() == 1;
     }
@@ -78,7 +78,6 @@ class RedisSessionImpl implements Session {
      *         more keys were removed 0 if none of the specified key existed
      */
     public Long del(final String... keys) {
-
         client.del(keys);
         return client.getIntegerReply();
     }
@@ -98,7 +97,6 @@ class RedisSessionImpl implements Session {
      *         contains a Hash value
      */
     public String type(final String key) {
-
         client.type(key);
         return client.getStatusCodeReply();
     }
@@ -109,9 +107,7 @@ class RedisSessionImpl implements Session {
      *
      * @return Status code reply
      */
-
     public String flushDB() {
-
         client.flushDB();
         return client.getStatusCodeReply();
     }
@@ -2470,7 +2466,7 @@ class RedisSessionImpl implements Session {
      * @param value
      * @return
      */
-    public Long setbit(String key, int offset, String value) {
+    public Long setBit(String key, int offset, String value) {
         client.setbit(key, offset, value);
         return client.getIntegerReply();
     }
@@ -2482,7 +2478,7 @@ class RedisSessionImpl implements Session {
      * @param offset
      * @return
      */
-    public Long getbit(String key, int offset) {
+    public Long getBit(String key, int offset) {
         client.getbit(key, offset);
         return client.getIntegerReply();
     }

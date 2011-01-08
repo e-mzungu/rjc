@@ -25,6 +25,6 @@ public class SessionFactoryImpl implements SessionFactory {
     }
 
     public Session create() {
-        return new RedisSessionImpl(new Client(dataSource.getConnection()));
+        return new RedisSessionImpl(dataSource.getConnection());
     }
 }
