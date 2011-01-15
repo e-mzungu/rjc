@@ -62,6 +62,13 @@ public class PoolableDataSource implements DataSource {
             gop.setTestWhileIdle(testWhileIdle);
             connectionPool = gop;
             createConnectionFactory();
+            try {
+                for (int i = 0; i < initialSize; i++) {
+                    connectionPool.addObject();
+                }
+            } catch (Exception e) {
+                throw new RedisException("Error preloading the connection pool", e);
+            }
         }
 
         return connectionPool;
@@ -83,6 +90,7 @@ public class PoolableDataSource implements DataSource {
         PoolableRedisConnection conn = null;
         try {
             conn = (PoolableRedisConnection) connectionFactory.makeObject();
+            connectionFactory.validateObject(conn);
         } finally {
             connectionFactory.destroyObject(conn);
         }
@@ -237,8 +245,6 @@ public class PoolableDataSource implements DataSource {
     /**
      * The initial number of connections that are created when the pool
      * is started.
-     *
-     * @since 1.2
      */
     protected int initialSize = 0;
 
