@@ -14,8 +14,6 @@ public interface SingleRedisOperations extends RedisOperations {
 
     void quit();
 
-    Long del(String... keys);
-
     String flushDB();
 
     String rename(String oldkey, String newkey);

@@ -6,16 +6,16 @@ import java.util.*;
 
 public class ShardedRedis implements RedisOperations {
 
-    private NodeLocator<RedisOperations> locator;
+    private NodeLocator<? extends RedisOperations> locator;
 
     public ShardedRedis() {
     }
 
-    public ShardedRedis(NodeLocator<RedisOperations> locator) {
+    public ShardedRedis(NodeLocator<? extends RedisOperations> locator) {
         this.locator = locator;
     }
 
-    public void setLocator(NodeLocator<RedisOperations> locator) {
+    public void setLocator(NodeLocator<? extends RedisOperations> locator) {
         this.locator = locator;
     }
 
@@ -29,6 +29,14 @@ public class ShardedRedis implements RedisOperations {
 
     public Boolean exists(final String key) {
         return locator.getNode(key).exists(key);
+    }
+
+    public Long del(String... keys) {
+        long result = 0;
+        for (RedisOperations node : locator.getNodes()) {
+            result += node.del(keys);
+        }
+        return result;
     }
 
     public String type(final String key) {
@@ -323,7 +331,7 @@ public class ShardedRedis implements RedisOperations {
     }
 
     public Map<String, String> zrangeByScoreWithScores(final String key, String min,
-                                              String max, int offset, int count) {
+                                                       String max, int offset, int count) {
 
         return locator.getNode(key).zrangeByScoreWithScores(key, min, max, offset, count);
     }
