@@ -123,7 +123,7 @@ public enum HashAlgorithm {
 				break;
             case MURMUR_HASH:
                 rv = MurmurHash.hash64A(SafeEncoder.encode(k), 0x1234ABCD);
-
+                break;
 			default:
 				assert false;
 		}
