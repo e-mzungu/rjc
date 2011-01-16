@@ -1,4 +1,4 @@
-package io.redis.rjc;
+package io.redis.rjc.sharding;
 
 /**
  * @author Evgeny Dolgov

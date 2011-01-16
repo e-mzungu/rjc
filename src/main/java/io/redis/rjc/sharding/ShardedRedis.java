@@ -1,6 +1,8 @@
-package io.redis.rjc;
+package io.redis.rjc.sharding;
 
 import io.redis.rjc.Client.LIST_POSITION;
+import io.redis.rjc.RedisOperations;
+import io.redis.rjc.SortingParams;
 
 import java.util.*;
 

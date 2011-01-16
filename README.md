@@ -1,7 +1,7 @@
 # RJC
 RJC is a [Redis](http://redis.io/) Java client.
 
-It provides connection pooling in Apache DBCP style, sharding, pipelines and messages.
+It provides connection pooling in Apache DBCP style, sharding, pipelines, transactions and messages.
 
 It's aimed to work in multi threading environments.
 
@@ -18,7 +18,7 @@ Then include maven dependency to you project
         <dependency>
             <groupId>io.redis</groupId>
             <artifactId>rjc</artifactId>
-            <version>0.5.3</version>
+            <version>0.5.4</version>
         </dependency>
 
 # Quick start

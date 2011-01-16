@@ -1,5 +1,6 @@
-package io.redis.rjc;
+package io.redis.rjc.sharding;
 
+import io.redis.rjc.RedisException;
 import io.redis.rjc.util.HashAlgorithm;
 
 import java.util.*;

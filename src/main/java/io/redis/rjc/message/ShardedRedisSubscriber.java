@@ -1,6 +1,6 @@
 package io.redis.rjc.message;
 
-import io.redis.rjc.NodeLocator;
+import io.redis.rjc.sharding.NodeLocator;
 
 /**
  * @author Evgeny Dolgov
