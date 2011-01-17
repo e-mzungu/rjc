@@ -1,13 +1,17 @@
 /*
- * Copyright 2009 - 2010 Scartel Star Lab LLC, Russia
- * Copyright 2009 - 2010 Seconca Holdings Limited, Cyprus
+ * Copyright 2010-2011. Evgeny Dolgov
  *
- * This source code is Scartel Star Lab Confidential Proprietary
- * This software is protected by copyright.  All rights and titles are reserved.
- * You shall not use, copy, distribute, modify, decompile, disassemble or reverse
- * engineer the software. Otherwise this violation would be treated by law and
- * would be subject to legal prosecution.  Legal use of the software provides
- * receipt of a license from the right holder only.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package io.redis.rjc;

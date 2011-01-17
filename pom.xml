@@ -12,8 +12,8 @@
 
     <licenses>
         <license>
-            <name>RJC License</name>
-            <url>http://github.com/e-mzungu/rjc/raw/master/LICENSE.txt</url>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -96,7 +96,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>attach-sources</id>
+                        <id>attach-javadoc</id>
                         <phase>verify</phase>
                         <goals>
                             <goal>jar</goal>
