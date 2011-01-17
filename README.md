@@ -11,7 +11,7 @@ See code examples in the project [wiki page](https://github.com/e-mzungu/rjc/wik
 
 # How to use it with Maven
 Check out master branch and doIt:
-    mvn install
+    mvn install -DskipITs
 or [download](https://github.com/e-mzungu/rjc/downloads) jar file and install it into you repository.
 
 Then include maven dependency to you project
