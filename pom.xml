@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
-    <groupId>io.redis</groupId>
+    <groupId>org.idevlab</groupId>
     <artifactId>rjc</artifactId>
     <version>0.5.5-SNAPSHOT</version>
     <name>RJC</name>
