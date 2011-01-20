@@ -249,12 +249,11 @@ public class ITAllKindOfValuesCommandsTest extends SingleNodeTestBase {
 
     @Test
     public void persist() {
-        //todo: Available since 2.1.2.
-//        session.setex("foo", 60 * 60, "bar");
-//        assertTrue(session.ttl("foo") > 0);
-//        long status = session.persist("foo");
-//        assertEquals(1, status);
-//        assertEquals(-1, session.ttl("foo").intValue());
+        session.setex("foo", 60 * 60, "bar");
+        assertTrue(session.ttl("foo") > 0);
+        long status = session.persist("foo");
+        assertEquals(1, status);
+        assertEquals(-1, session.ttl("foo").intValue());
     }
 
     @Test

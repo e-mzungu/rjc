@@ -18,6 +18,8 @@ package org.idevlab.rjc;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * @author Evgeny Dolgov
@@ -25,10 +27,10 @@ import org.junit.Test;
 public class ITBitCommandsTest extends SingleNodeTestBase {
     @Test
     public void setAndGetBit() {
-//        long bit = session.setBit("foo", 0, "1");
-//        assertEquals(0, bit);
-//
-//        bit = session.getBit("foo", 0);
-//        assertEquals(1, bit);
+        long bit = session.setBit("foo", 0, "1");
+        assertEquals(0, bit);
+
+        bit = session.getBit("foo", 0);
+        assertEquals(1, bit);
     }
 }
