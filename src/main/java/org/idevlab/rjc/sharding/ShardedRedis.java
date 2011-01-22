@@ -45,7 +45,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).get(key);
     }
 
-    public Boolean exists(final String key) {
+    public boolean exists(final String key) {
         return locator.getNode(key).exists(key);
     }
 
@@ -61,11 +61,11 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).type(key);
     }
 
-    public Long expire(final String key, final int seconds) {
+    public boolean expire(final String key, final int seconds) {
         return locator.getNode(key).expire(key, seconds);
     }
 
-    public Long expireAt(final String key, final long unixTime) {
+    public boolean expireAt(final String key, final long unixTime) {
         return locator.getNode(key).expireAt(key, unixTime);
     }
 
@@ -117,7 +117,7 @@ public class ShardedRedis implements RedisOperations {
         return result;
     }
 
-    public Long persist(String key) {
+    public boolean persist(String key) {
         return locator.getNode(key).persist(key);
     }
 

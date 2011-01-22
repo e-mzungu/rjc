@@ -140,12 +140,12 @@ public class ITAllKindOfValuesCommandsTest extends SingleNodeTestBase {
     @Test
     public void renamenx() {
         session.set("foo", "bar");
-        long status = session.renamenx("foo", "bar");
-        assertEquals(1, status);
+        boolean status = session.renamenx("foo", "bar");
+        assertTrue(status);
 
         session.set("foo", "bar");
         status = session.renamenx("foo", "bar");
-        assertEquals(0, status);
+        assertFalse(status);
     }
 
     @Test
@@ -160,25 +160,25 @@ public class ITAllKindOfValuesCommandsTest extends SingleNodeTestBase {
 
     @Test
     public void expire() {
-        long status = session.expire("foo", 20);
-        assertEquals(0, status);
+        boolean status = session.expire("foo", 20);
+        assertFalse(status);
 
         session.set("foo", "bar");
         status = session.expire("foo", 20);
-        assertEquals(1, status);
+        assertTrue(status);
     }
 
     @Test
     public void expireAt() {
         long unixTime = (System.currentTimeMillis() / 1000L) + 20;
 
-        long status = session.expireAt("foo", unixTime);
-        assertEquals(0, status);
+        boolean status = session.expireAt("foo", unixTime);
+        assertFalse(status);
 
         session.set("foo", "bar");
         unixTime = (System.currentTimeMillis() / 1000L) + 20;
         status = session.expireAt("foo", unixTime);
-        assertEquals(1, status);
+        assertTrue(status);
     }
 
     @Test
@@ -208,12 +208,12 @@ public class ITAllKindOfValuesCommandsTest extends SingleNodeTestBase {
 
     @Test
     public void move() {
-        long status = session.move("foo", 1);
-        assertEquals(0, status);
+        boolean status = session.move("foo", 1);
+        assertFalse(status);
 
         session.set("foo", "bar");
         status = session.move("foo", 1);
-        assertEquals(1, status);
+        assertTrue(status);
         assertEquals(null, session.get("foo"));
 
         session.select(1);
@@ -251,8 +251,8 @@ public class ITAllKindOfValuesCommandsTest extends SingleNodeTestBase {
     public void persist() {
         session.setex("foo", 60 * 60, "bar");
         assertTrue(session.ttl("foo") > 0);
-        long status = session.persist("foo");
-        assertEquals(1, status);
+        boolean status = session.persist("foo");
+        assertTrue(status);
         assertEquals(-1, session.ttl("foo").intValue());
     }
 

@@ -30,265 +30,73 @@ class RedisSessionImpl implements Session {
         this.client = new Client(connection);
     }
 
-    /**
-     * Set the string value as value of the key. The string can't be longer than
-     * 1073741824 bytes (1 GB).
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param value
-     * @return Status code reply
-     */
     public String set(final String key, String value) {
         client.set(key, value);
         return client.getStatusCodeReply();
     }
 
-    /**
-     * Get the value of the specified key. If the key does not exist the special
-     * value 'nil' is returned. If the value stored at key is not a string an
-     * error is returned because GET can only handle string values.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @return Bulk reply
-     */
     public String get(final String key) {
         client.get(key);
         return client.getBulkReply();
     }
 
-    /**
-     * Ask the server to silently close the connection.
-     */
-
     public void quit() {
         client.quit();
     }
 
-    /**
-     * Test if the specified key exists. The command returns "1" if the key
-     * exists, otherwise "1" is returned. Note that even keys set with an empty
-     * string as value will return "0".
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @return Integer reply, "0" if the key exists, otherwise "1"
-     */
-    public Boolean exists(final String key) {
+
+    public boolean exists(final String key) {
         client.exists(key);
         return client.getIntegerReply() == 1;
     }
-
-    /**
-     * Remove the specified keys. If a given key does not exist no operation is
-     * performed for this key. The command returns the number of keys removed.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param keys
-     * @return Integer reply, specifically: an integer greater than 0 if one or
-     *         more keys were removed 0 if none of the specified key existed
-     */
     public Long del(final String... keys) {
         client.del(keys);
         return client.getIntegerReply();
     }
 
-    /**
-     * Return the type of the value stored at key in form of a string. The type
-     * can be one of "none", "string", "list", "set". "none" is returned if the
-     * key does not exist.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @return Status code reply, specifically: "none" if the key does not exist
-     *         "string" if the key contains a String value "list" if the key
-     *         contains a List value "set" if the key contains a Set value
-     *         "zset" if the key contains a Sorted Set value "hash" if the key
-     *         contains a Hash value
-     */
     public String type(final String key) {
         client.type(key);
         return client.getStatusCodeReply();
     }
 
-    /**
-     * Delete all the keys of the currently selected DB. This command never
-     * fails.
-     *
-     * @return Status code reply
-     */
     public String flushDB() {
         client.flushDB();
         return client.getStatusCodeReply();
     }
 
-    /**
-     * Returns all the keys matching the glob-style pattern as space separated
-     * strings. For example if you have in the database the keys "foo" and
-     * "foobar" the command "KEYS foo*" will return "foo foobar".
-     * <p/>
-     * Note that while the time complexity for this operation is O(n) the
-     * constant times are pretty low. For example Redis running on an entry
-     * level laptop can scan a 1 million keys database in 40 milliseconds.
-     * <b>Still it's better to consider this one of the slow commands that may
-     * ruin the DB performance if not used with care.</b>
-     * <p/>
-     * In other words this command is intended only for debugging and special
-     * operations like creating a script to change the DB schema. Don't use it
-     * in your normal code. Use Redis Sets in order to group together a subset
-     * of objects.
-     * <p/>
-     * Glob style patterns examples:
-     * <ul>
-     * <li>h?llo will match hello hallo hhllo
-     * <li>h*llo will match hllo heeeello
-     * <li>h[ae]llo will match hello and hallo, but not hillo
-     * </ul>
-     * <p/>
-     * Use \ to escape special chars if you want to match them verbatim.
-     * <p/>
-     * Time complexity: O(n) (with n being the number of keys in the DB, and
-     * assuming keys and pattern of limited length)
-     *
-     * @param pattern
-     * @return Multi bulk reply
-     */
     public Set<String> keys(final String pattern) {
         client.keys(pattern);
         return new HashSet<String>(client.getMultiBulkReply());
     }
 
-    /**
-     * Return a randomly selected key from the currently selected DB.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @return Singe line reply, specifically the randomly selected key or an
-     *         empty string is the database is empty
-     */
     public String randomKey() {
         client.randomKey();
         return client.getBulkReply();
     }
 
-    /**
-     * Atomically renames the key oldkey to newkey. If the source and
-     * destination name are the same an error is returned. If newkey already
-     * exists it is overwritten.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param oldkey
-     * @param newkey
-     * @return Status code repy
-     */
-    public String rename(final String oldkey, final String newkey) {
-
-        client.rename(oldkey, newkey);
+    public String rename(final String key, final String newKey) {
+        client.rename(key, newKey);
         return client.getStatusCodeReply();
     }
 
-    /**
-     * Rename oldkey into newkey but fails if the destination key newkey already
-     * exists.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param oldkey
-     * @param newkey
-     * @return Integer reply, specifically: 1 if the key was renamed 0 if the
-     *         target key already exist
-     */
-    public Long renamenx(final String oldkey, final String newkey) {
-
-        client.renamenx(oldkey, newkey);
-        return client.getIntegerReply();
+    public boolean renamenx(final String key, final String newKey) {
+        client.renamenx(key, newKey);
+        return client.getIntegerReply() == 1;
     }
 
-    /**
-     * Return the number of keys in the currently selected database.
-     *
-     * @return Integer reply
-     */
-
     public Long dbSize() {
-
         client.dbSize();
         return client.getIntegerReply();
     }
 
-    /**
-     * Set a timeout on the specified key. After the timeout the key will be
-     * automatically deleted by the server. A key with an associated timeout is
-     * said to be volatile in Redis terminology.
-     * <p/>
-     * Voltile keys are stored on disk like the other keys, the timeout is
-     * persistent too like all the other aspects of the dataset. Saving a
-     * dataset containing expires and stopping the server does not stop the flow
-     * of time as Redis stores on disk the time when the key will no longer be
-     * available as Unix time, and not the remaining seconds.
-     * <p/>
-     * Since Redis 2.1.3 you can update the value of the timeout of a key
-     * already having an expire set. It is also possible to undo the expire at
-     * all turning the key into a normal key using the {@link #persist(String)
-     * PERSIST} command.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param seconds
-     * @return Integer reply, specifically: 1: the timeout was set. 0: the
-     *         timeout was not set since the key already has an associated
-     *         timeout (this may happen only in Redis versions < 2.1.3, Redis >=
-     *         2.1.3 will happily update the timeout), or the key does not
-     *         exist.
-     * @see <ahref="http://code.google.com/p/redis/wiki/ExpireCommand">ExpireCommand</a>
-     */
-    public Long expire(final String key, final int seconds) {
-
+    public boolean expire(final String key, final int seconds) {
         client.expire(key, seconds);
-        return client.getIntegerReply();
+        return client.getIntegerReply() == 1;
     }
 
-    /**
-     * EXPIREAT works exctly like {@link #expire(String, int) EXPIRE} but
-     * instead to get the number of seconds representing the Time To Live of the
-     * key as a second argument (that is a relative way of specifing the TTL),
-     * it takes an absolute one in the form of a UNIX timestamp (Number of
-     * seconds elapsed since 1 Gen 1970).
-     * <p/>
-     * EXPIREAT was introduced in order to implement the Append Only File
-     * persistence mode so that EXPIRE commands are automatically translated
-     * into EXPIREAT commands for the append only file. Of course EXPIREAT can
-     * also used by programmers that need a way to simply specify that a given
-     * key should expire at a given time in the future.
-     * <p/>
-     * Since Redis 2.1.3 you can update the value of the timeout of a key
-     * already having an expire set. It is also possible to undo the expire at
-     * all turning the key into a normal key using the {@link #persist(String)
-     * PERSIST} command.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param unixTime
-     * @return Integer reply, specifically: 1: the timeout was set. 0: the
-     *         timeout was not set since the key already has an associated
-     *         timeout (this may happen only in Redis versions < 2.1.3, Redis >=
-     *         2.1.3 will happily update the timeout), or the key does not
-     *         exist.
-     * @see <ahref="http://code.google.com/p/redis/wiki/ExpireCommand">ExpireCommand</a>
-     */
-    public Long expireAt(final String key, final long unixTime) {
-
+    public boolean expireAt(final String key, final long unixTime) {
         client.expireAt(key, unixTime);
-        return client.getIntegerReply();
+        return client.getIntegerReply() == 1;
     }
 
     /**
@@ -317,28 +125,14 @@ class RedisSessionImpl implements Session {
      */
 
     public String select(final int index) {
-
         client.select(index);
         return client.getStatusCodeReply();
     }
 
-    /**
-     * Move the specified key from the currently selected DB to the specified
-     * destination DB. Note that this command returns 1 only if the key was
-     * successfully moved, and 0 if the target key was already there or if the
-     * source key was not found at all, so it is possible to use MOVE as a
-     * locking primitive.
-     *
-     * @param key
-     * @param dbIndex
-     * @return Integer reply, specifically: 1 if the key was moved 0 if the key
-     *         was not moved because already present on the target DB or was not
-     *         found in the current DB.
-     */
-    public Long move(final String key, final int dbIndex) {
 
+    public Boolean move(final String key, final int dbIndex) {
         client.move(key, dbIndex);
-        return client.getIntegerReply();
+        return client.getIntegerReply() == 1;
     }
 
     /**
@@ -349,7 +143,6 @@ class RedisSessionImpl implements Session {
      */
 
     public String flushAll() {
-
         client.flushAll();
         return client.getStatusCodeReply();
     }
@@ -1602,180 +1395,16 @@ class RedisSessionImpl implements Session {
         client.close();
     }
 
-    /**
-     * Sort a Set or a List.
-     * <p/>
-     * Sort the elements contained in the List, Set, or Sorted Set value at key.
-     * By default sorting is numeric with elements being compared as double
-     * precision floating point numbers. This is the simplest form of SORT.
-     *
-     * @param key
-     * @return Assuming the Set/List at key contains a list of numbers, the
-     *         return value will be the list of numbers ordered from the
-     *         smallest to the biggest number.
-     * @see #sort(String, String)
-     * @see #sort(String, SortingParams)
-     * @see #sort(String, SortingParams, String)
-     */
     public List<String> sort(final String key) {
-
         client.sort(key);
         return client.getMultiBulkReply();
     }
 
-    /**
-     * Sort a Set or a List accordingly to the specified parameters.
-     * <p/>
-     * <b>examples:</b>
-     * <p/>
-     * Given are the following sets and key/values:
-     * <p/>
-     * <pre>
-     * x = [1, 2, 3]
-     * y = [a, b, c]
-     * <p/>
-     * k1 = z
-     * k2 = y
-     * k3 = x
-     * <p/>
-     * w1 = 9
-     * w2 = 8
-     * w3 = 7
-     * </pre>
-     * <p/>
-     * Sort Order:
-     * <p/>
-     * <pre>
-     * sort(x) or sort(x, sp.asc())
-     * -> [1, 2, 3]
-     * <p/>
-     * sort(x, sp.desc())
-     * -> [3, 2, 1]
-     * <p/>
-     * sort(y)
-     * -> [c, a, b]
-     * <p/>
-     * sort(y, sp.alpha())
-     * -> [a, b, c]
-     * <p/>
-     * sort(y, sp.alpha().desc())
-     * -> [c, a, b]
-     * </pre>
-     * <p/>
-     * Limit (e.g. for Pagination):
-     * <p/>
-     * <pre>
-     * sort(x, sp.limit(0, 2))
-     * -> [1, 2]
-     * <p/>
-     * sort(y, sp.alpha().desc().limit(1, 2))
-     * -> [b, a]
-     * </pre>
-     * <p/>
-     * Sorting by external keys:
-     * <p/>
-     * <pre>
-     * sort(x, sb.by(w*))
-     * -> [3, 2, 1]
-     * <p/>
-     * sort(x, sb.by(w*).desc())
-     * -> [1, 2, 3]
-     * </pre>
-     * <p/>
-     * Getting external keys:
-     * <p/>
-     * <pre>
-     * sort(x, sp.by(w*).get(k*))
-     * -> [x, y, z]
-     * <p/>
-     * sort(x, sp.by(w*).get(#).get(k*))
-     * -> [3, x, 2, y, 1, z]
-     * </pre>
-     *
-     * @param key
-     * @param sortingParameters
-     * @return a list of sorted elements.
-     * @see #sort(String)
-     * @see #sort(String, SortingParams, String)
-     */
-    public List<String> sort(final String key,
-                             final SortingParams sortingParameters) {
-
+    public List<String> sort(final String key, final SortingParams sortingParameters) {
         client.sort(key, sortingParameters);
         return client.getMultiBulkReply();
     }
 
-    /**
-     * BLPOP (and BRPOP) is a blocking list pop primitive. You can see this
-     * commands as blocking versions of LPOP and RPOP able to block if the
-     * specified keys don't exist or contain empty lists.
-     * <p/>
-     * The following is a description of the exact semantic. We describe BLPOP
-     * but the two commands are identical, the only difference is that BLPOP
-     * pops the element from the left (head) of the list, and BRPOP pops from
-     * the right (tail).
-     * <p/>
-     * <b>Non blocking behavior</b>
-     * <p/>
-     * When BLPOP is called, if at least one of the specified keys contain a non
-     * empty list, an element is popped from the head of the list and returned
-     * to the caller together with the name of the key (BLPOP returns a two
-     * elements array, the first element is the key, the second the popped
-     * value).
-     * <p/>
-     * Keys are scanned from left to right, so for instance if you issue BLPOP
-     * list1 list2 list3 0 against a dataset where list1 does not exist but
-     * list2 and list3 contain non empty lists, BLPOP guarantees to return an
-     * element from the list stored at list2 (since it is the first non empty
-     * list starting from the left).
-     * <p/>
-     * <b>Blocking behavior</b>
-     * <p/>
-     * If none of the specified keys exist or contain non empty lists, BLPOP
-     * blocks until some other client performs a LPUSH or an RPUSH operation
-     * against one of the lists.
-     * <p/>
-     * Once new data is present on one of the lists, the client finally returns
-     * with the name of the key unblocking it and the popped value.
-     * <p/>
-     * When blocking, if a non-zero timeout is specified, the client will
-     * unblock returning a nil special value if the specified amount of seconds
-     * passed without a push operation against at least one of the specified
-     * keys.
-     * <p/>
-     * The timeout argument is interpreted as an integer value. A timeout of
-     * zero means instead to block forever.
-     * <p/>
-     * <b>Multiple clients blocking for the same keys</b>
-     * <p/>
-     * Multiple clients can block for the same key. They are put into a queue,
-     * so the first to be served will be the one that started to wait earlier,
-     * in a first-blpopping first-served fashion.
-     * <p/>
-     * <b>blocking POP inside a MULTI/EXEC transaction</b>
-     * <p/>
-     * BLPOP and BRPOP can be used with pipelining (sending multiple commands
-     * and reading the replies in batch), but it does not make sense to use
-     * BLPOP or BRPOP inside a MULTI/EXEC block (a Redis transaction).
-     * <p/>
-     * The behavior of BLPOP inside MULTI/EXEC when the list is empty is to
-     * return a multi-bulk nil reply, exactly what happens when the timeout is
-     * reached. If you like science fiction, think at it like if inside
-     * MULTI/EXEC the time will flow at infinite speed :)
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param timeout
-     * @param keys
-     * @return BLPOP returns a two-elements array via a multi bulk reply in
-     *         order to return both the unblocking key and the popped value.
-     *         <p/>
-     *         When a non-zero timeout is specified, and the BLPOP operation
-     *         timed out, the return value is a nil multi bulk reply. Most
-     *         client values will return false or nil accordingly to the
-     *         programming language used.
-     * @see #brpop(int, String...)
-     */
     public List<String> blpop(final int timeout, final String... keys) {
 
         List<String> args = new ArrayList<String>();
@@ -1995,7 +1624,6 @@ class RedisSessionImpl implements Session {
      * (for instance you always ask for the first ten elements with LIMIT) you
      * can consider it O(log(N))
      *
-     *
      * @param key the key
      * @param min
      * @param max
@@ -2055,7 +1683,6 @@ class RedisSessionImpl implements Session {
      * M the number of elements returned by the command, so if M is constant
      * (for instance you always ask for the first ten elements with LIMIT) you
      * can consider it O(log(N))
-     *
      *
      * @param key the key
      * @param min
@@ -2118,7 +1745,6 @@ class RedisSessionImpl implements Session {
      * (for instance you always ask for the first ten elements with LIMIT) you
      * can consider it O(log(N))
      *
-     *
      * @param key the key
      * @param min
      * @param max
@@ -2180,7 +1806,6 @@ class RedisSessionImpl implements Session {
      * M the number of elements returned by the command, so if M is constant
      * (for instance you always ask for the first ten elements with LIMIT) you
      * can consider it O(log(N))
-     *
      *
      * @param key the key
      * @param min
@@ -2437,19 +2062,9 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply();
     }
 
-    /**
-     * Undo a {@link #expire(String, int) expire} at turning the expire key into
-     * a normal key.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @return Integer reply, specifically: 1: the key is now persist. 0: the
-     *         key is not persist (only happens when key not set).
-     */
-    public Long persist(final String key) {
+    public boolean persist(final String key) {
         client.persist(key);
-        return client.getIntegerReply();
+        return client.getIntegerReply() == 1;
     }
 
     public Long rpushx(final String key, final String string) {

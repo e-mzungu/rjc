@@ -26,19 +26,56 @@ public interface SingleRedisOperations extends RedisOperations {
 
     String ping();
 
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Return a random key from the currently selected database.
+     *
+     * @return the random key, or null when the database is empty.
+     */
     String randomKey();
 
     void quit();
 
     String flushDB();
 
-    String rename(String oldkey, String newkey);
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Renames key to newKey. It returns an error when the source and destination names are the same,
+     * or when key does not exist. If newKey already exists it is overwritten.
+     *
+     * @param key    a key
+     * @param newKey new key
+     * @return status code reply
+     */
+    String rename(String key, String newKey);
 
-    Long renamenx(String oldkey, String newkey);
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Renames key to newKey if newKey does not yet exist. It returns an error under the same conditions as RENAME.
+     *
+     * @param key    a key
+     * @param newKey new key
+     * @return true if key was renamed to newKey or false if newKey already exists
+     */
+    boolean renamenx(String key, String newKey);
 
     Long dbSize();
 
-    Long move(String key, int dbIndex);
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Move key from the currently selected database (see SELECT) to the speficied destination database.
+     * When key already exists in the destination database, or it does not exist in the source database,
+     * it does nothing. It is possible to use MOVE as a locking primitive because of this.
+     *
+     * @param key     a key
+     * @param dbIndex database index
+     * @return true if key was moved otherwise false
+     */
+    Boolean move(String key, int dbIndex);
 
     String flushAll();
 

@@ -16,8 +16,6 @@
 
 package org.idevlab.rjc;
 
-import org.idevlab.rjc.Client.LIST_POSITION;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -31,16 +29,85 @@ public interface RedisOperations {
 
     String get(String key);
 
-    Boolean exists(String key);
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Determine if a key exists
+     *
+     * @param key a key
+     * @return true if a key exists otherwise false
+     */
+    boolean exists(String key);
 
+    /**
+     * Time complexity: O(N) where N is the number of keys that will be removed.
+     * When a key to remove holds a value other than a string, the individual complexity for
+     * this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
+     * Removing a single key that holds a string value is O(1).
+     * <p/>
+     * Removes the specified keys. A key is ignored if it does not exist.
+     *
+     * @param keys keys
+     * @return The number of keys that were removed.
+     */
     Long del(String... keys);
 
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Returns the string representation of the type of the value stored at key.
+     * The different types that can be returned are: string, list, set, zset and hash.
+     *
+     * @param key a key
+     * @return type of key, or none when key does not exist.
+     */
     String type(String key);
 
-    Long expire(String key, int seconds);
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Set a timeout on key. After the timeout has expired, the key will automatically be deleted.
+     * A key with an associated timeout is said to be volatile in Redis terminology.
+     * <p/>
+     * For Redis versions < 2.1.3, existing timeouts cannot be overwritten.
+     * So, if key already has an associated timeout, it will do nothing and return 0.
+     * Since Redis 2.1.3, you can update the timeout of a key.
+     * It is also possible to remove the timeout using the PERSIST command.
+     * See the page on key expiry for more information.
+     *
+     * @param key     a key
+     * @param seconds key timeout
+     * @return true if the timeout was set otherwise false
+     */
+    boolean expire(String key, int seconds);
 
-    Long expireAt(String key, long unixTime);
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Set a timeout on key. After the timeout has expired, the key will automatically be deleted.
+     * A key with an associated timeout is said to be volatile in Redis terminology.
+     * EXPIREAT has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds
+     * representing the TTL (time to live), it takes an absolute UNIX timestamp (seconds since January 1, 1970).
+     * <p/>
+     * <h5>Background</h5>
+     * EXPIREAT was introduced in order to convert relative timeouts to absolute timeouts for the AOF persistence mode. Of course, it can be used directly to specify that a given key should expire at a given time in the future.
+     *
+     * @param key      a key
+     * @param unixTime an absolute UNIX timestamp (seconds since January 1, 1970)
+     * @return true if the timeout was set otherwise false
+     */
+    boolean expireAt(String key, long unixTime);
 
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Returns the remaining time to live of a key that has a timeout.
+     * This introspection capability allows a Redis client to check how many seconds
+     * a given key will continue to be part of the dataset.
+     *
+     * @param key a key
+     * @return TTL in seconds or -1 when key does not exist or does not have a timeout.
+     */
     Long ttl(String key);
 
     String getSet(String key, String value);
@@ -61,9 +128,43 @@ public interface RedisOperations {
 
     String substr(String key, int start, int end);
 
+    /**
+     * Time complexity: O(N) with N being the number of keys in the database, under the assumption that
+     * the key names in the database and the given pattern have limited length.
+     * <p/>
+     * Returns all keys matching pattern.
+     * <p/>
+     * While the time complexity for this operation is O(N), the constant times are fairly low.
+     * For example, Redis running on an entry level laptop can scan a 1 million key database in 40 milliseconds.
+     * <p/>
+     * Warning: consider KEYS as a command that should only be used in production environments with extreme care.
+     * It may ruin performance when it is executed against large databases.
+     * This command is intended for debugging and special operations, such as changing your keyspace layout.
+     * Don't use KEYS in your regular application code. If you're looking for a way to find keys
+     * in a subset of your keyspace, consider using sets.
+     * <p/>
+     * Supported glob-style patterns:
+     * <ul>
+     * <li>h?llo matches hello, hallo and hxllo</li>
+     * <li>h*llo matches hllo and heeeello</li>
+     * <li>h[ae]llo matches hello and hallo, but not hillo</li>
+     * </ul>
+     * Use \ to escape special characters if you want to match them verbatim.
+     *
+     * @param pattern pattern
+     * @return list of keys matching pattern.
+     */
     Set<String> keys(String pattern);
 
-    Long persist(final String key);
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Remove the existing timeout on key.
+     *
+     * @param key a key
+     * @return true if the timeout was removed otherwise false
+     */
+    boolean persist(final String key);
 
     Long hset(String key, String field, String value);
 
@@ -149,8 +250,32 @@ public interface RedisOperations {
 
     String zscore(String key, String member);
 
+    /**
+     * Time complexity: O(N*log(N)) where N is the number of elements returned.
+     * When the elements are not sorted, complexity is O(N).
+     * <p/>
+     * Returns the elements contained in the list, set or sorted set at key.
+     * By default, sorting is numeric and elements are compared by their value
+     * interpreted as double precision floating point number.
+     *
+     * @param key a key
+     * @return list of sorted elements.
+     */
     List<String> sort(String key);
 
+    /**
+     * Time complexity: O(N*log(N)) where N is the number of elements returned.
+     * When the elements are not sorted, complexity is O(N).
+     * <p/>
+     * Returns the elements contained in the list, set or sorted set at key.
+     * By default, sorting is numeric and elements are compared by their value
+     * interpreted as double precision floating point number.
+     *
+     * @param key               a key
+     * @param sortingParameters sorting parameters
+     * @return list of sorted elements.
+     * @see <a href="http://redis.io/commands/sort">SORT command</a>
+     */
     List<String> sort(String key, SortingParams sortingParameters);
 
     Long zcount(String key, Number min, Number max);
@@ -167,7 +292,7 @@ public interface RedisOperations {
 
     Long zremrangeByScore(String key, Number start, Number end);
 
-    Long linsert(String key, LIST_POSITION where, String pivot, String value);
+    Long linsert(String key, Client.LIST_POSITION where, String pivot, String value);
 
     Long publish(String channel, String message);
 
