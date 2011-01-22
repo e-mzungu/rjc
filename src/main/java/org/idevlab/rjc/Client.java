@@ -168,8 +168,12 @@ public class Client implements RedisCommands {
         conn.sendCommand(Protocol.Command.APPEND, key, value);
     }
 
-    public void substr(final String key, final int start, final int end) {
-        conn.sendCommand(Protocol.Command.SUBSTR, key, String.valueOf(start), String.valueOf(end));
+    public void getRange(final String key, final int start, final int end) {
+        conn.sendCommand(Protocol.Command.GETRANGE, key, String.valueOf(start), String.valueOf(end));
+    }
+
+    public void setRange(String key, int offset, String value) {
+        conn.sendCommand(Protocol.Command.SETRANGE, key, String.valueOf(offset), value);
     }
 
     public void hset(final String key, String field, String value) {

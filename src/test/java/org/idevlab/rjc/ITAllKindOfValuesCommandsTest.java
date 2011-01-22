@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Evgeny Dolgov
@@ -260,6 +261,5 @@ public class ITAllKindOfValuesCommandsTest extends SingleNodeTestBase {
     public void echo() {
         String result = session.echo("hello world");
         assertEquals("hello world", result);
-    } 
-
+    }
 }

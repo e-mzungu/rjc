@@ -77,7 +77,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).getSet(key, value);
     }
 
-    public Long setnx(final String key, final String value) {
+    public boolean setnx(final String key, final String value) {
         return locator.getNode(key).setnx(key, value);
     }
 
@@ -85,16 +85,16 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).setex(key, seconds, value);
     }
 
-    public Long decrBy(final String key, int integer) {
-        return locator.getNode(key).decrBy(key, integer);
+    public Long decrBy(final String key, int value) {
+        return locator.getNode(key).decrBy(key, value);
     }
 
     public Long decr(final String key) {
         return locator.getNode(key).decr(key);
     }
 
-    public Long incrBy(final String key, int integer) {
-        return locator.getNode(key).incrBy(key, integer);
+    public Long incrBy(final String key, int value) {
+        return locator.getNode(key).incrBy(key, value);
     }
 
     public Long incr(final String key) {
@@ -105,8 +105,16 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).append(key, value);
     }
 
-    public String substr(final String key, int start, int end) {
-        return locator.getNode(key).substr(key, start, end);
+    public String getRange(final String key, int start, int end) {
+        return locator.getNode(key).getRange(key, start, end);
+    }
+
+    public Long setRange(String key, int offset, String value) {
+        return locator.getNode(key).setRange(key, offset, value);
+    }
+
+    public Long strlen(String key) {
+        return locator.getNode(key).strlen(key);
     }
 
     public Set<String> keys(String pattern) {

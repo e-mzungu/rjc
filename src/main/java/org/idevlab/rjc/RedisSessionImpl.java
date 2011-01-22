@@ -49,6 +49,7 @@ class RedisSessionImpl implements Session {
         client.exists(key);
         return client.getIntegerReply() == 1;
     }
+
     public Long del(final String... keys) {
         client.del(keys);
         return client.getIntegerReply();
@@ -99,30 +100,11 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply() == 1;
     }
 
-    /**
-     * The TTL command returns the remaining time to live in seconds of a key
-     * that has an {@link #expire(String, int) EXPIRE} set. This introspection
-     * capability allows a Redis client to check how many seconds a given key
-     * will continue to be part of the dataset.
-     *
-     * @param key
-     * @return Integer reply, returns the remaining time to live in seconds of a
-     *         key that has an EXPIRE. If the Key does not exists or does not
-     *         have an associated expire, -1 is returned.
-     */
     public Long ttl(final String key) {
 
         client.ttl(key);
         return client.getIntegerReply();
     }
-
-    /**
-     * Select the DB with having the specified zero-based numeric index. For
-     * default every new client connection is automatically selected to DB 0.
-     *
-     * @param index
-     * @return Status code reply
-     */
 
     public String select(final int index) {
         client.select(index);
@@ -135,464 +117,133 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply() == 1;
     }
 
-    /**
-     * Delete all the keys of all the existing databases, not just the currently
-     * selected one. This command never fails.
-     *
-     * @return Status code reply
-     */
-
     public String flushAll() {
         client.flushAll();
         return client.getStatusCodeReply();
     }
 
-    /**
-     * GETSET is an atomic set this value and return the old value command. Set
-     * key to the string value and return the old value stored at key. The
-     * string can't be longer than 1073741824 bytes (1 GB).
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param value
-     * @return Bulk reply
-     */
     public String getSet(final String key, final String value) {
-
         client.getSet(key, value);
         return client.getBulkReply();
     }
 
-    /**
-     * Get the values of all the specified keys. If one or more keys dont exist
-     * or is not of type String, a 'nil' value is returned instead of the value
-     * of the specified key, but the operation never fails.
-     * <p/>
-     * Time complexity: O(1) for every key
-     *
-     * @param keys
-     * @return Multi bulk reply
-     */
     public List<String> mget(final String... keys) {
-
         client.mget(keys);
         return client.getMultiBulkReply();
     }
 
-    /**
-     * SETNX works exactly like {@link #set(String, String) SET} with the only
-     * difference that if the key already exists no operation is performed.
-     * SETNX actually means "SET if Not eXists".
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param value
-     * @return Integer reply, specifically: 1 if the key was set 0 if the key
-     *         was not set
-     */
-    public Long setnx(final String key, final String value) {
-
+    public boolean setnx(final String key, final String value) {
         client.setnx(key, value);
-        return client.getIntegerReply();
+        return client.getIntegerReply() == 1;
     }
 
-    /**
-     * The command is exactly equivalent to the following group of commands:
-     * {@link #set(String, String) SET} + {@link #expire(String, int) EXPIRE}.
-     * The operation is atomic.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param seconds
-     * @param value
-     * @return Status code reply
-     */
     public String setex(final String key, final int seconds, final String value) {
-
         client.setex(key, seconds, value);
         return client.getStatusCodeReply();
     }
 
-    /**
-     * Set the the respective keys to the respective values. MSET will replace
-     * old values with new values, while {@link #msetnx(String...) MSETNX} will
-     * not perform any operation at all even if just a single key already
-     * exists.
-     * <p/>
-     * Because of this semantic MSETNX can be used in order to set different
-     * keys representing different fields of an unique logic object in a way
-     * that ensures that either all the fields or none at all are set.
-     * <p/>
-     * Both MSET and MSETNX are atomic operations. This means that for instance
-     * if the keys A and B are modified, another client talking to Redis can
-     * either see the changes to both A and B at once, or no modification at
-     * all.
-     *
-     * @param keysvalues
-     * @return Status code reply Basically +OK as MSET can't fail
-     * @see #msetnx(String...)
-     */
     public String mset(final String... keysvalues) {
-
         client.mset(keysvalues);
         return client.getStatusCodeReply();
     }
 
-    /**
-     * Set the the respective keys to the respective values.
-     * {@link #mset(String...) MSET} will replace old values with new values,
-     * while MSETNX will not perform any operation at all even if just a single
-     * key already exists.
-     * <p/>
-     * Because of this semantic MSETNX can be used in order to set different
-     * keys representing different fields of an unique logic object in a way
-     * that ensures that either all the fields or none at all are set.
-     * <p/>
-     * Both MSET and MSETNX are atomic operations. This means that for instance
-     * if the keys A and B are modified, another client talking to Redis can
-     * either see the changes to both A and B at once, or no modification at
-     * all.
-     *
-     * @param keysvalues
-     * @return Integer reply, specifically: 1 if the all the keys were set 0 if
-     *         no key was set (at least one key already existed)
-     * @see #mset(String...)
-     */
-    public Long msetnx(final String... keysvalues) {
-
+    public boolean msetnx(final String... keysvalues) {
         client.msetnx(keysvalues);
+        return client.getIntegerReply() == 1;
+    }
+
+    public Long decrBy(final String key, final int value) {
+        client.decrBy(key, value);
         return client.getIntegerReply();
     }
 
-    /**
-     * IDECRBY work just like {@link #decr(String) INCR} but instead to
-     * decrement by 1 the decrement is integer.
-     * <p/>
-     * INCR commands are limited to 64 bit signed integers.
-     * <p/>
-     * Note: this is actually a string operation, that is, in Redis there are
-     * not "integer" types. Simply the string stored at the key is parsed as a
-     * base 10 64 bit signed integer, incremented, and then converted back as a
-     * string.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param integer
-     * @return Integer reply, this commands will reply with the new value of key
-     *         after the increment.
-     * @see #incr(String)
-     * @see #decr(String)
-     * @see #incrBy(String, int)
-     */
-    public Long decrBy(final String key, final int integer) {
-
-        client.decrBy(key, integer);
-        return client.getIntegerReply();
-    }
-
-    /**
-     * Decrement the number stored at key by one. If the key does not exist or
-     * contains a value of a wrong type, set the key to the value of "0" before
-     * to perform the decrement operation.
-     * <p/>
-     * INCR commands are limited to 64 bit signed integers.
-     * <p/>
-     * Note: this is actually a string operation, that is, in Redis there are
-     * not "integer" types. Simply the string stored at the key is parsed as a
-     * base 10 64 bit signed integer, incremented, and then converted back as a
-     * string.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @return Integer reply, this commands will reply with the new value of key
-     *         after the increment.
-     * @see #incr(String)
-     * @see #incrBy(String, int)
-     * @see #decrBy(String, int)
-     */
     public Long decr(final String key) {
-
         client.decr(key);
         return client.getIntegerReply();
     }
 
-    /**
-     * INCRBY work just like {@link #incr(String) INCR} but instead to increment
-     * by 1 the increment is value.
-     * <p/>
-     * INCR commands are limited to 64 bit signed integers.
-     * <p/>
-     * Note: this is actually a string operation, that is, in Redis there are
-     * not "value" types. Simply the string stored at the key is parsed as a
-     * base 10 64 bit signed value, incremented, and then converted back as a
-     * string.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param value
-     * @return Integer reply, this commands will reply with the new value of key
-     *         after the increment.
-     * @see #incr(String)
-     * @see #decr(String)
-     * @see #decrBy(String, int)
-     */
     public Long incrBy(final String key, final int value) {
 
         client.incrBy(key, value);
         return client.getIntegerReply();
     }
 
-    /**
-     * Increment the number stored at key by one. If the key does not exist or
-     * contains a value of a wrong type, set the key to the value of "0" before
-     * to perform the increment operation.
-     * <p/>
-     * INCR commands are limited to 64 bit signed integers.
-     * <p/>
-     * Note: this is actually a string operation, that is, in Redis there are
-     * not "integer" types. Simply the string stored at the key is parsed as a
-     * base 10 64 bit signed integer, incremented, and then converted back as a
-     * string.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @return Integer reply, this commands will reply with the new value of key
-     *         after the increment.
-     * @see #incrBy(String, int)
-     * @see #decr(String)
-     * @see #decrBy(String, int)
-     */
     public Long incr(final String key) {
 
         client.incr(key);
         return client.getIntegerReply();
     }
 
-    /**
-     * If the key already exists and is a string, this command appends the
-     * provided value at the end of the string. If the key does not exist it is
-     * created and set as an empty string, so APPEND will be very similar to SET
-     * in this special case.
-     * <p/>
-     * Time complexity: O(1). The amortized time complexity is O(1) assuming the
-     * appended value is small and the already present value is of any size,
-     * since the dynamic string library used by Redis will double the free space
-     * available on every reallocation.
-     *
-     * @param key
-     * @param value
-     * @return Integer reply, specifically the total length of the string after
-     *         the append operation.
-     */
     public Long append(final String key, final String value) {
 
         client.append(key, value);
         return client.getIntegerReply();
     }
 
-    /**
-     * Return a subset of the string from offset start to offset end (both
-     * offsets are inclusive). Negative offsets can be used in order to provide
-     * an offset starting from the end of the string. So -1 means the last char,
-     * -2 the penultimate and so forth.
-     * <p/>
-     * The function handles out of range requests without raising an error, but
-     * just limiting the resulting range to the actual length of the string.
-     * <p/>
-     * Time complexity: O(start+n) (with start being the start index and n the
-     * total length of the requested range). Note that the lookup part of this
-     * command is O(1) so for small strings this is actually an O(1) command.
-     *
-     * @param key
-     * @param start
-     * @param end
-     * @return Bulk reply
-     */
-    public String substr(final String key, final int start, final int end) {
-
-        client.substr(key, start, end);
+    public String getRange(final String key, final int start, final int end) {
+        client.getRange(key, start, end);
         return client.getBulkReply();
     }
 
-    /**
-     * Set the specified hash field to the specified value.
-     * <p/>
-     * If key does not exist, a new key holding a hash is created.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key
-     * @param field
-     * @param value
-     * @return If the field already exists, and the HSET just produced an update
-     *         of the value, 0 is returned, otherwise if a new field is created
-     *         1 is returned.
-     */
+    public Long setRange(String key, int offset, String value) {
+        client.setRange(key, offset, value);
+        return client.getIntegerReply();
+    }
+
     public Long hset(final String key, final String field, final String value) {
 
         client.hset(key, field, value);
         return client.getIntegerReply();
     }
 
-    /**
-     * If key holds a hash, retrieve the value associated to the specified
-     * field.
-     * <p/>
-     * If the field is not found or the key does not exist, a special 'nil'
-     * value is returned.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key
-     * @param field
-     * @return Bulk reply
-     */
     public String hget(final String key, final String field) {
 
         client.hget(key, field);
         return client.getBulkReply();
     }
 
-    /**
-     * Set the specified hash field to the specified value if the field not
-     * exists. <b>Time complexity:</b> O(1)
-     *
-     * @param key
-     * @param field
-     * @param value
-     * @return If the field already exists, 0 is returned, otherwise if a new
-     *         field is created 1 is returned.
-     */
     public Long hsetnx(final String key, final String field, final String value) {
 
         client.hsetnx(key, field, value);
         return client.getIntegerReply();
     }
 
-    /**
-     * Set the respective fields to the respective values. HMSET replaces old
-     * values with new values.
-     * <p/>
-     * If key does not exist, a new key holding a hash is created.
-     * <p/>
-     * <b>Time complexity:</b> O(N) (with N being the number of fields)
-     *
-     * @param key
-     * @param hash
-     * @return Always OK because HMSET can't fail
-     */
     public String hmset(final String key, final Map<String, String> hash) {
 
         client.hmset(key, hash);
         return client.getStatusCodeReply();
     }
 
-    /**
-     * Retrieve the values associated to the specified fields.
-     * <p/>
-     * If some of the specified fields do not exist, nil values are returned.
-     * Non existing keys are considered like empty hashes.
-     * <p/>
-     * <b>Time complexity:</b> O(N) (with N being the number of fields)
-     *
-     * @param key
-     * @param fields
-     * @return Multi Bulk Reply specifically a list of all the values associated
-     *         with the specified fields, in the same order of the request.
-     */
     public List<String> hmget(final String key, final String... fields) {
 
         client.hmget(key, fields);
         return client.getMultiBulkReply();
     }
 
-    /**
-     * Increment the number stored at field in the hash at key by value. If key
-     * does not exist, a new key holding a hash is created. If field does not
-     * exist or holds a string, the value is set to 0 before applying the
-     * operation. Since the value argument is signed you can use this command to
-     * perform both increments and decrements.
-     * <p/>
-     * The range of values supported by HINCRBY is limited to 64 bit signed
-     * integers.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key
-     * @param field
-     * @param value
-     * @return Integer reply The new value at field after the increment
-     *         operation.
-     */
     public Long hincrBy(final String key, final String field, final int value) {
 
         client.hincrBy(key, field, value);
         return client.getIntegerReply();
     }
 
-    /**
-     * Test for existence of a specified field in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key
-     * @param field
-     * @return Return 1 if the hash stored at key contains the specified field.
-     *         Return 0 if the key is not found or the field is not present.
-     */
     public Boolean hexists(final String key, final String field) {
 
         client.hexists(key, field);
         return client.getIntegerReply() == 1;
     }
 
-    /**
-     * Remove the specified field from an hash stored at key.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key
-     * @param field
-     * @return If the field was present in the hash it is deleted and 1 is
-     *         returned, otherwise 0 is returned and no operation is performed.
-     */
     public Long hdel(final String key, final String field) {
 
         client.hdel(key, field);
         return client.getIntegerReply();
     }
 
-    /**
-     * Return the number of items in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key
-     * @return The number of entries (fields) contained in the hash stored at
-     *         key. If the specified key does not exist, 0 is returned assuming
-     *         an empty hash.
-     */
     public Long hlen(final String key) {
 
         client.hlen(key);
         return client.getIntegerReply();
     }
 
-    /**
-     * Return all the fields in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(N), where N is the total number of entries
-     *
-     * @param key
-     * @return All the fields names contained into a hash.
-     */
     public Set<String> hkeys(final String key) {
 
         client.hkeys(key);
@@ -600,14 +251,6 @@ class RedisSessionImpl implements Session {
         return new HashSet<String>(lresult);
     }
 
-    /**
-     * Return all the values in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(N), where N is the total number of entries
-     *
-     * @param key
-     * @return All the fields values contained into a hash.
-     */
     public List<String> hvals(final String key) {
 
         client.hvals(key);
@@ -615,14 +258,6 @@ class RedisSessionImpl implements Session {
         return lresult;
     }
 
-    /**
-     * Return all the fields and associated values in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(N), where N is the total number of entries
-     *
-     * @param key
-     * @return All the fields and values contained into a hash.
-     */
     public Map<String, String> hgetAll(final String key) {
 
         client.hgetAll(key);
@@ -636,56 +271,17 @@ class RedisSessionImpl implements Session {
         return hash;
     }
 
-    /**
-     * Add the string value to the head (LPUSH) or tail (RPUSH) of the list
-     * stored at key. If the key does not exist an empty list is created just
-     * before the append operation. If the key exists but is not a List an error
-     * is returned.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param string
-     * @return Integer reply, specifically, the number of elements inside the
-     *         list after the push operation.
-     * @see RedisOperations#rpush(java.lang.String, java.lang.String)
-     */
     public Long rpush(final String key, final String string) {
-
         client.rpush(key, string);
         return client.getIntegerReply();
     }
 
-    /**
-     * Add the string value to the head (LPUSH) or tail (RPUSH) of the list
-     * stored at key. If the key does not exist an empty list is created just
-     * before the append operation. If the key exists but is not a List an error
-     * is returned.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @param string
-     * @return Integer reply, specifically, the number of elements inside the
-     *         list after the push operation.
-     * @see RedisOperations#rpush(String, String)
-     */
     public Long lpush(final String key, final String string) {
 
         client.lpush(key, string);
         return client.getIntegerReply();
     }
 
-    /**
-     * Return the length of the list stored at the specified key. If the key
-     * does not exist zero is returned (the same behaviour as for empty lists).
-     * If the value stored at key is not a list an error is returned.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key
-     * @return The length of the list.
-     */
     public Long llen(final String key) {
 
         client.llen(key);

@@ -79,11 +79,46 @@ public interface SingleRedisOperations extends RedisOperations {
 
     String flushAll();
 
+    /**
+     * Time complexity: O(N) where N is the number of keys to retrieve
+     * <p/>
+     * Returns the values of all specified keys. For every key that does not hold a string value or does not
+     * exist, the special value nil is returned. Because of this, the operation never fails.
+     *
+     * @param keys the keys
+     * @return list of values at the specified keys.
+     */
     List<String> mget(String... keys);
 
+    /**
+     * Time complexity: O(N) where N is the number of keys to set
+     * <p/>
+     * Sets the given keys to their respective values. MSET replaces existing values with new values,
+     * just as regular SET. See MSETNX if you don't want to overwrite existing values.
+     * MSET is atomic, so all given keys are set at once. It is not possible for clients to see
+     * that some of the keys were updated while others are unchanged.
+     *
+     * @param keysvalues array of keys and values, for instance {"key1", "value1", "key2", "value2"}
+     * @return always OK since MSET can't fail.
+     */
     String mset(String... keysvalues);
 
-    Long msetnx(String... keysvalues);
+    /**
+     * Time complexity: O(N) where N is the number of keys to set
+     * <p/>
+     * Sets the given keys to their respective values. MSETNX will not perform
+     * any operation at all even if just a single key already exists.
+     * <p/>
+     * Because of this semantic MSETNX can be used in order to set different keys representing different fields
+     * of an unique logic object in a way that ensures that either all the fields or none at all are set.
+     * <p/>
+     * MSETNX is atomic, so all given keys are set at once. It is not possible for clients to see
+     * that some of the keys were updated while others are unchanged.
+     *
+     * @param keysvalues array of keys and values, for instance {"key1", "value1", "key2", "value2"}
+     * @return true if the all the keys were set or false if no key was set (at least one key already existed).
+     */
+    boolean msetnx(String... keysvalues);
 
     String rpoplpush(String srckey, String dstkey);
 
@@ -142,8 +177,6 @@ public interface SingleRedisOperations extends RedisOperations {
     List<String> configGet(String pattern);
 
     String configSet(String parameter, String value);
-
-    Long strlen(String key);
 
     void sync();
 

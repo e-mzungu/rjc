@@ -74,9 +74,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Ask the server to silently close the connection.
-     */
     public void quit() {
         execute(new RedisCallback<Object>() {
             public Object doIt(Session session) {
@@ -181,15 +178,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public String select(final int index) {
-        return execute(new RedisCallback<String>() {
-            public String doIt(Session session) {
-                return session.select(index);
-
-            }
-        });
-    }
-
     public Boolean move(final String key, final int dbIndex) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
@@ -217,16 +205,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Get the values of all the specified keys. If one or more keys dont exist
-     * or is not of type String, a 'nil' value is returned instead of the value
-     * of the specified key, but the operation never fails.
-     * <p/>
-     * Time complexity: O(1) for every key
-     *
-     * @param keys the keys
-     * @return Multi bulk reply
-     */
     public List<String> mget(final String... keys) {
         return execute(new RedisCallback<List<String>>() {
             public List<String> doIt(Session session) {
@@ -236,39 +214,15 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * SETNX works exactly like {@link #set(String, String) SET} with the only
-     * difference that if the key already exists no operation is performed.
-     * SETNX actually means "SET if Not eXists".
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key   the key
-     * @param value the value
-     * @return Integer reply, specifically: 1 if the key was set 0 if the key
-     *         was not set
-     */
-    public Long setnx(final String key, final String value) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
+    public boolean setnx(final String key, final String value) {
+        return execute(new RedisCallback<Boolean>() {
+            public Boolean doIt(Session session) {
                 return session.setnx(key, value);
 
             }
         });
     }
 
-    /**
-     * The command is exactly equivalent to the following group of commands:
-     * {@link #set(String, String) SET} + {@link #expire(String, int) EXPIRE}.
-     * The operation is atomic.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key     the key
-     * @param seconds
-     * @param value   the value
-     * @return Status code reply
-     */
     public String setex(final String key, final int seconds, final String value) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
@@ -278,25 +232,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Set the the respective keys to the respective values. MSET will replace
-     * old values with new values, while {@link #msetnx(String...) MSETNX} will
-     * not perform any operation at all even if just a single key already
-     * exists.
-     * <p/>
-     * Because of this semantic MSETNX can be used in order to set different
-     * keys representing different fields of an unique logic object in a way
-     * that ensures that either all the fields or none at all are set.
-     * <p/>
-     * Both MSET and MSETNX are atomic operations. This means that for instance
-     * if the keys A and B are modified, another client talking to Redis can
-     * either see the changes to both A and B at once, or no modification at
-     * all.
-     *
-     * @param keysvalues
-     * @return Status code reply Basically +OK as MSET can't fail
-     * @see #msetnx(String...)
-     */
     public String mset(final String... keysvalues) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
@@ -306,86 +241,23 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Set the the respective keys to the respective values.
-     * {@link #mset(String...) MSET} will replace old values with new values,
-     * while MSETNX will not perform any operation at all even if just a single
-     * key already exists.
-     * <p/>
-     * Because of this semantic MSETNX can be used in order to set different
-     * keys representing different fields of an unique logic object in a way
-     * that ensures that either all the fields or none at all are set.
-     * <p/>
-     * Both MSET and MSETNX are atomic operations. This means that for instance
-     * if the keys A and B are modified, another client talking to Redis can
-     * either see the changes to both A and B at once, or no modification at
-     * all.
-     *
-     * @param keysvalues
-     * @return Integer reply, specifically: 1 if the all the keys were set 0 if
-     *         no key was set (at least one key already existed)
-     * @see #mset(String...)
-     */
-    public Long msetnx(final String... keysvalues) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
+    public boolean msetnx(final String... keysvalues) {
+        return execute(new RedisCallback<Boolean>() {
+            public Boolean doIt(Session session) {
                 return session.msetnx(keysvalues);
-
             }
         });
     }
 
-    /**
-     * IDECRBY work just like {@link #decr(String) INCR} but instead to
-     * decrement by 1 the decrement is integer.
-     * <p/>
-     * INCR commands are limited to 64 bit signed integers.
-     * <p/>
-     * Note: this is actually a string operation, that is, in Redis there are
-     * not "integer" types. Simply the string stored at the key is parsed as a
-     * base 10 64 bit signed integer, incremented, and then converted back as a
-     * string.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key     the key
-     * @param integer
-     * @return Integer reply, this commands will reply with the new value of key
-     *         after the increment.
-     * @see #incr(String)
-     * @see #decr(String)
-     * @see #incrBy(String, int)
-     */
-    public Long decrBy(final String key, final int integer) {
+    public Long decrBy(final String key, final int value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
-                return session.decrBy(key, integer);
+                return session.decrBy(key, value);
 
             }
         });
     }
 
-    /**
-     * Decrement the number stored at key by one. If the key does not exist or
-     * contains a value of a wrong type, set the key to the value of "0" before
-     * to perform the decrement operation.
-     * <p/>
-     * INCR commands are limited to 64 bit signed integers.
-     * <p/>
-     * Note: this is actually a string operation, that is, in Redis there are
-     * not "integer" types. Simply the string stored at the key is parsed as a
-     * base 10 64 bit signed integer, incremented, and then converted back as a
-     * string.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key the key
-     * @return Integer reply, this commands will reply with the new value of key
-     *         after the increment.
-     * @see #incr(String)
-     * @see #incrBy(String, int)
-     * @see #decrBy(String, int)
-     */
     public Long decr(final String key) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -395,132 +267,48 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * INCRBY work just like {@link #incr(String) INCR} but instead to increment
-     * by 1 the increment is integer.
-     * <p/>
-     * INCR commands are limited to 64 bit signed integers.
-     * <p/>
-     * Note: this is actually a string operation, that is, in Redis there are
-     * not "integer" types. Simply the string stored at the key is parsed as a
-     * base 10 64 bit signed integer, incremented, and then converted back as a
-     * string.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key     the key
-     * @param integer
-     * @return Integer reply, this commands will reply with the new value of key
-     *         after the increment.
-     * @see #incr(String)
-     * @see #decr(String)
-     * @see #decrBy(String, int)
-     */
-    public Long incrBy(final String key, final int integer) {
+    public Long incrBy(final String key, final int value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
-                return session.incrBy(key, integer);
+                return session.incrBy(key, value);
 
             }
         });
     }
 
-    /**
-     * Increment the number stored at key by one. If the key does not exist or
-     * contains a value of a wrong type, set the key to the value of "0" before
-     * to perform the increment operation.
-     * <p/>
-     * INCR commands are limited to 64 bit signed integers.
-     * <p/>
-     * Note: this is actually a string operation, that is, in Redis there are
-     * not "integer" types. Simply the string stored at the key is parsed as a
-     * base 10 64 bit signed integer, incremented, and then converted back as a
-     * string.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key the key
-     * @return Integer reply, this commands will reply with the new value of key
-     *         after the increment.
-     * @see #incrBy(String, int)
-     * @see #decr(String)
-     * @see #decrBy(String, int)
-     */
     public Long incr(final String key) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.incr(key);
-
             }
         });
     }
 
-    /**
-     * If the key already exists and is a string, this command appends the
-     * provided value at the end of the string. If the key does not exist it is
-     * created and set as an empty string, so APPEND will be very similar to SET
-     * in this special case.
-     * <p/>
-     * Time complexity: O(1). The amortized time complexity is O(1) assuming the
-     * appended value is small and the already present value is of any size,
-     * since the dynamic string library used by Redis will double the free space
-     * available on every reallocation.
-     *
-     * @param key   the key
-     * @param value the value
-     * @return Integer reply, specifically the total length of the string after
-     *         the append operation.
-     */
     public Long append(final String key, final String value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.append(key, value);
-
             }
         });
     }
 
-    /**
-     * Return a subset of the string from offset start to offset end (both
-     * offsets are inclusive). Negative offsets can be used in order to provide
-     * an offset starting from the end of the string. So -1 means the last char,
-     * -2 the penultimate and so forth.
-     * <p/>
-     * The function handles out of range requests without raising an error, but
-     * just limiting the resulting range to the actual length of the string.
-     * <p/>
-     * Time complexity: O(start+n) (with start being the start index and n the
-     * total length of the requested range). Note that the lookup part of this
-     * command is O(1) so for small strings this is actually an O(1) command.
-     *
-     * @param key   the key
-     * @param start
-     * @param end
-     * @return Bulk reply
-     */
-    public String substr(final String key, final int start, final int end) {
+    public String getRange(final String key, final int start, final int end) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
-                return session.substr(key, start, end);
+                return session.getRange(key, start, end);
+            }
+        });
+    }
+
+    public Long setRange(final String key, final int offset, final String value) {
+        return execute(new RedisCallback<Long>() {
+            public Long doIt(Session session) {
+                return session.setRange(key, offset, value);
 
             }
         });
     }
 
-    /**
-     * Set the specified hash field to the specified value.
-     * <p/>
-     * If key does not exist, a new key holding a hash is created.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key   the key
-     * @param field
-     * @param value the value
-     * @return If the field already exists, and the HSET just produced an update
-     *         of the value, 0 is returned, otherwise if a new field is created
-     *         1 is returned.
-     */
     public Long hset(final String key, final String field, final String value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -530,19 +318,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * If key holds a hash, retrieve the value associated to the specified
-     * field.
-     * <p/>
-     * If the field is not found or the key does not exist, a special 'nil'
-     * value is returned.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key   the key
-     * @param field
-     * @return Bulk reply
-     */
     public String hget(final String key, final String field) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
@@ -552,16 +327,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Set the specified hash field to the specified value if the field not
-     * exists. <b>Time complexity:</b> O(1)
-     *
-     * @param key   the key
-     * @param field
-     * @param value the value
-     * @return If the field already exists, 0 is returned, otherwise if a new
-     *         field is created 1 is returned.
-     */
     public Long hsetnx(final String key, final String field, final String value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -571,86 +336,30 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Set the respective fields to the respective values. HMSET replaces old
-     * values with new values.
-     * <p/>
-     * If key does not exist, a new key holding a hash is created.
-     * <p/>
-     * <b>Time complexity:</b> O(N) (with N being the number of fields)
-     *
-     * @param key  the key
-     * @param hash
-     * @return Always OK because HMSET can't fail
-     */
     public String hmset(final String key, final Map<String, String> hash) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
                 return session.hmset(key, hash);
-
             }
         });
     }
 
-    /**
-     * Retrieve the values associated to the specified fields.
-     * <p/>
-     * If some of the specified fields do not exist, nil values are returned.
-     * Non existing keys are considered like empty hashes.
-     * <p/>
-     * <b>Time complexity:</b> O(N) (with N being the number of fields)
-     *
-     * @param key    the key
-     * @param fields
-     * @return Multi Bulk Reply specifically a list of all the values associated
-     *         with the specified fields, in the same order of the request.
-     */
     public List<String> hmget(final String key, final String... fields) {
         return execute(new RedisCallback<List<String>>() {
             public List<String> doIt(Session session) {
                 return session.hmget(key, fields);
-
             }
         });
     }
 
-    /**
-     * Increment the number stored at field in the hash at key by value. If key
-     * does not exist, a new key holding a hash is created. If field does not
-     * exist or holds a string, the value is set to 0 before applying the
-     * operation. Since the value argument is signed you can use this command to
-     * perform both increments and decrements.
-     * <p/>
-     * The range of values supported by HINCRBY is limited to 64 bit signed
-     * integers.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key   the key
-     * @param field
-     * @param value the value
-     * @return Integer reply The new value at field after the increment
-     *         operation.
-     */
     public Long hincrBy(final String key, final String field, final int value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.hincrBy(key, field, value);
-
             }
         });
     }
 
-    /**
-     * Test for existence of a specified field in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key   the key
-     * @param field
-     * @return Return 1 if the hash stored at key contains the specified field.
-     *         Return 0 if the key is not found or the field is not present.
-     */
     public Boolean hexists(final String key, final String field) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
@@ -659,16 +368,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Remove the specified field from an hash stored at key.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key   the key
-     * @param field
-     * @return If the field was present in the hash it is deleted and 1 is
-     *         returned, otherwise 0 is returned and no operation is performed.
-     */
     public Long hdel(final String key, final String field) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -678,16 +377,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Return the number of items in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(1)
-     *
-     * @param key the key
-     * @return The number of entries (fields) contained in the hash stored at
-     *         key. If the specified key does not exist, 0 is returned assuming
-     *         an empty hash.
-     */
     public Long hlen(final String key) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -697,14 +386,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Return all the fields in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(N), where N is the total number of entries
-     *
-     * @param key the key
-     * @return All the fields names contained into a hash.
-     */
     public Set<String> hkeys(final String key) {
         return execute(new RedisCallback<Set<String>>() {
             public Set<String> doIt(Session session) {
@@ -713,14 +394,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Return all the values in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(N), where N is the total number of entries
-     *
-     * @param key the key
-     * @return All the fields values contained into a hash.
-     */
     public Collection<String> hvals(final String key) {
         return execute(new RedisCallback<Collection<String>>() {
             public Collection<String> doIt(Session session) {
@@ -729,14 +402,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Return all the fields and associated values in a hash.
-     * <p/>
-     * <b>Time complexity:</b> O(N), where N is the total number of entries
-     *
-     * @param key the key
-     * @return All the fields and values contained into a hash.
-     */
     public Map<String, String> hgetAll(final String key) {
         return execute(new RedisCallback<Map<String, String>>() {
             public Map<String, String> doIt(Session session) {
@@ -745,20 +410,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Add the string value to the head (LPUSH) or tail (RPUSH) of the list
-     * stored at key. If the key does not exist an empty list is created just
-     * before the append operation. If the key exists but is not a List an error
-     * is returned.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key    the key
-     * @param string
-     * @return Integer reply, specifically, the number of elements inside the
-     *         list after the push operation.
-     * @see RedisNode#lpush(String, String)
-     */
     public Long rpush(final String key, final String string) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -768,20 +419,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Add the string value to the head (LPUSH) or tail (RPUSH) of the list
-     * stored at key. If the key does not exist an empty list is created just
-     * before the append operation. If the key exists but is not a List an error
-     * is returned.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key    the key
-     * @param string
-     * @return Integer reply, specifically, the number of elements inside the
-     *         list after the push operation.
-     * @see RedisNode#rpush(String, String)
-     */
     public Long lpush(final String key, final String string) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -791,16 +428,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Return the length of the list stored at the specified key. If the key
-     * does not exist zero is returned (the same behaviour as for empty lists).
-     * If the value stored at key is not a list an error is returned.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param key the key
-     * @return The length of the list.
-     */
     public Long llen(final String key) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -810,87 +437,14 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Return the specified elements of the list stored at the specified key.
-     * Start and end are zero-based indexes. 0 is the first element of the list
-     * (the list head), 1 the next element and so on.
-     * <p/>
-     * For example LRANGE foobar 0 2 will return the first three elements of the
-     * list.
-     * <p/>
-     * start and end can also be negative numbers indicating offsets from the
-     * end of the list. For example -1 is the last element of the list, -2 the
-     * penultimate element and so on.
-     * <p/>
-     * <b>Consistency with range functions in various programming languages</b>
-     * <p/>
-     * Note that if you have a list of numbers from 0 to 100, LRANGE 0 10 will
-     * return 11 elements, that is, rightmost item is included. This may or may
-     * not be consistent with behavior of range-related functions in your
-     * programming language of choice (think Ruby's Range.new, Array#slice or
-     * Python's range() function).
-     * <p/>
-     * LRANGE behavior is consistent with one of Tcl.
-     * <p/>
-     * <b>Out-of-range indexes</b>
-     * <p/>
-     * Indexes out of range will not produce an error: if start is over the end
-     * of the list, or start > end, an empty list is returned. If end is over
-     * the end of the list Redis will threat it just like the last element of
-     * the list.
-     * <p/>
-     * Time complexity: O(start+n) (with n being the length of the range and
-     * start being the start offset)
-     *
-     * @param key   the key
-     * @param start
-     * @param end
-     * @return Multi bulk reply, specifically a list of elements in the
-     *         specified range.
-     */
     public List<String> lrange(final String key, final int start, final int end) {
         return execute(new RedisCallback<List<String>>() {
             public List<String> doIt(Session session) {
                 return session.lrange(key, start, end);
-
             }
         });
     }
 
-    /**
-     * Trim an existing list so that it will contain only the specified range of
-     * elements specified. Start and end are zero-based indexes. 0 is the first
-     * element of the list (the list head), 1 the next element and so on.
-     * <p/>
-     * For example LTRIM foobar 0 2 will modify the list stored at foobar key so
-     * that only the first three elements of the list will remain.
-     * <p/>
-     * start and end can also be negative numbers indicating offsets from the
-     * end of the list. For example -1 is the last element of the list, -2 the
-     * penultimate element and so on.
-     * <p/>
-     * Indexes out of range will not produce an error: if start is over the end
-     * of the list, or start > end, an empty list is left as value. If end over
-     * the end of the list Redis will threat it just like the last element of
-     * the list.
-     * <p/>
-     * Hint: the obvious use of LTRIM is together with LPUSH/RPUSH. For example:
-     * <p/>
-     * {@code lpush("mylist", "someelement"); ltrim("mylist", 0, 99); * }
-     * <p/>
-     * The above two commands will push elements in the list taking care that
-     * the list will not grow without limits. This is very useful when using
-     * Redis to store logs for example. It is important to note that when used
-     * in this way LTRIM is an O(1) operation because in the average case just
-     * one element is removed from the tail of the list.
-     * <p/>
-     * Time complexity: O(n) (with n being len of list - len of range)
-     *
-     * @param key   the key
-     * @param start
-     * @param end
-     * @return Status code reply
-     */
     public String ltrim(final String key, final int start, final int end) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
@@ -900,24 +454,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Return the specified element of the list stored at the specified key. 0
-     * is the first element, 1 the second and so on. Negative indexes are
-     * supported, for example -1 is the last element, -2 the penultimate and so
-     * on.
-     * <p/>
-     * If the value stored at key is not of list type an error is returned. If
-     * the index is out of range a 'nil' reply is returned.
-     * <p/>
-     * Note that even if the average time complexity is O(n) asking for the
-     * first or the last element of the list is O(1).
-     * <p/>
-     * Time complexity: O(n) (with n being the length of the list)
-     *
-     * @param key   the key
-     * @param index
-     * @return Bulk reply, specifically the requested element
-     */
     public String lindex(final String key, final int index) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
@@ -927,26 +463,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Set a new value as the element at index position of the List at key.
-     * <p/>
-     * Out of range indexes will generate an error.
-     * <p/>
-     * Similarly to other list commands accepting indexes, the index can be
-     * negative to access elements starting from the end of the list. So -1 is
-     * the last element, -2 is the penultimate, and so forth.
-     * <p/>
-     * <b>Time complexity:</b>
-     * <p/>
-     * O(N) (with N being the length of the list), setting the first or last
-     * elements of the list is O(1).
-     *
-     * @param key   the key
-     * @param index
-     * @param value the value
-     * @return Status code reply
-     * @see #lindex(String, int)
-     */
     public String lset(final String key, final int index, final String value) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
@@ -956,25 +472,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Remove the first count occurrences of the value element from the list. If
-     * count is zero all the elements are removed. If count is negative elements
-     * are removed from tail to head, instead to go from head to tail that is
-     * the normal behaviour. So for example LREM with count -2 and hello as
-     * value to remove against the list (a,b,c,hello,x,hello,hello) will lave
-     * the list (a,b,c,hello,x). The number of removed elements is returned as
-     * an integer, see below for more information about the returned value. Note
-     * that non existing keys are considered like empty lists by LREM, so LREM
-     * against non existing keys will always return 0.
-     * <p/>
-     * Time complexity: O(N) (with N being the length of the list)
-     *
-     * @param key   the key
-     * @param count count
-     * @param value the value
-     * @return Integer Reply, specifically: The number of removed elements if
-     *         the operation succeeded
-     */
     public Long lrem(final String key, final int count, final String value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -984,18 +481,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Atomically return and remove the first (LPOP) or last (RPOP) element of
-     * the list. For example if the list contains the elements "a","b","c" LPOP
-     * will return "a" and the list will become "b","c".
-     * <p/>
-     * If the key does not exist or the list is already empty the special value
-     * 'nil' is returned.
-     *
-     * @param key the key
-     * @return Bulk reply
-     * @see #rpop(String)
-     */
     public String lpop(final String key) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
@@ -1005,18 +490,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Atomically return and remove the first (LPOP) or last (RPOP) element of
-     * the list. For example if the list contains the elements "a","b","c" LPOP
-     * will return "a" and the list will become "b","c".
-     * <p/>
-     * If the key does not exist or the list is already empty the special value
-     * 'nil' is returned.
-     *
-     * @param key the key
-     * @return Bulk reply
-     * @see #lpop(String)
-     */
     public String rpop(final String key) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
@@ -1026,24 +499,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Atomically return and remove the last (tail) element of the srckey list,
-     * and push the element as the first (head) element of the dstkey list. For
-     * example if the source list contains the elements "a","b","c" and the
-     * destination list contains the elements "foo","bar" after an RPOPLPUSH
-     * command the content of the two lists will be "a","b" and "c","foo","bar".
-     * <p/>
-     * If the key does not exist or the list is already empty the special value
-     * 'nil' is returned. If the srckey and dstkey are the same the operation is
-     * equivalent to removing the last element from the list and pusing it as
-     * first element of the list, so it's a "list rotation" command.
-     * <p/>
-     * Time complexity: O(1)
-     *
-     * @param srckey
-     * @param dstkey
-     * @return Bulk reply
-     */
     public String rpoplpush(final String srckey, final String dstkey) {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
@@ -1053,19 +508,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Add the specified member to the set value stored at key. If member is
-     * already a member of the set no operation is performed. If key does not
-     * exist a new set with the specified member as sole member is created. If
-     * the key exists but does not hold a set value an error is returned.
-     * <p/>
-     * Time complexity O(1)
-     *
-     * @param key    the key
-     * @param member
-     * @return Integer reply, specifically: 1 if the new element was added 0 if
-     *         the element was already a member of the set
-     */
     public Long sadd(final String key, final String member) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
@@ -1075,15 +517,6 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    /**
-     * Return all the members (elements) of the set value stored at key. This is
-     * just syntax glue for {@link #sinter(String...) SINTER}.
-     * <p/>
-     * Time complexity O(N)
-     *
-     * @param key the key
-     * @return Multi bulk reply
-     */
     public Set<String> smembers(final String key) {
         return execute(new RedisCallback<Set<String>>() {
             public Set<String> doIt(Session session) {
