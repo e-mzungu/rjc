@@ -54,7 +54,7 @@ public interface RedisOperations {
      * @param key the key
      * @return true if a key exists otherwise false
      */
-    boolean exists(String key);
+    Boolean exists(String key);
 
     /**
      * <h4>Time complexity</h4> O(N) where N is the number of keys that will be removed.
@@ -96,7 +96,7 @@ public interface RedisOperations {
      * @param seconds key timeout
      * @return true if the timeout was set otherwise false
      */
-    boolean expire(String key, int seconds);
+    Boolean expire(String key, int seconds);
 
     /**
      * <h4>Time complexity</h4> O(1)
@@ -114,7 +114,7 @@ public interface RedisOperations {
      * @param unixTime an absolute UNIX timestamp (seconds since January 1, 1970)
      * @return true if the timeout was set otherwise false
      */
-    boolean expireAt(String key, long unixTime);
+    Boolean expireAt(String key, long unixTime);
 
     /**
      * <h4>Time complexity</h4> O(1)
@@ -150,7 +150,7 @@ public interface RedisOperations {
      * @param value the value
      * @return true if the key was set otherwise false
      */
-    boolean setnx(String key, String value);
+    Boolean setnx(String key, String value);
 
     /**
      * <h4>Time complexity</h4> O(1)
@@ -335,7 +335,7 @@ public interface RedisOperations {
      * @return true if the timeout was removed otherwise false
      * @since Redis 2.1.2
      */
-    boolean persist(final String key);
+    Boolean persist(final String key);
 
     /**
      * <h4>Time complexity</h4>
@@ -351,7 +351,7 @@ public interface RedisOperations {
      * @param value the value
      * @return true if field is a new field in the hash and value was set or false if field already exists in the hash and the value was updated.
      */
-    boolean hset(String key, String field, String value);
+    Boolean hset(String key, String field, String value);
 
     /**
      * <h4>Time complexity</h4> O(1)
@@ -379,7 +379,7 @@ public interface RedisOperations {
      * @return true if field is a new field in the hash and value was set or
      *         false if field already exists in the hash and no operation was performed
      */
-    boolean hsetnx(String key, String field, String value);
+    Boolean hsetnx(String key, String field, String value);
 
     /**
      * <h4>Time complexity</h4>
@@ -437,7 +437,7 @@ public interface RedisOperations {
      * @param field the field
      * @return true if the hash contains field or false if the hash does not contain field, or key does not exist.
      */
-    boolean hexists(String key, String field);
+    Boolean hexists(String key, String field);
 
     /**
      * <h4>Time complexity</h4> O(1)
@@ -449,7 +449,7 @@ public interface RedisOperations {
      * @return true if field was present in the hash and is now removed or
      *         false if field does not exist in the hash, or key does not exist.
      */
-    boolean hdel(String key, String field);
+    Boolean hdel(String key, String field);
 
     /**
      * <h4>Time complexity</h4>
@@ -719,18 +719,103 @@ public interface RedisOperations {
      */
     String rpop(String key);
 
-    Long sadd(String key, String member);
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Add member to the set stored at key. If member is already a member of this set, no operation is performed.
+     * If key does not exist, a new set is created with member as its sole member.
+     * <p/>
+     * An error is returned when the value stored at key is not a set.
+     *
+     * @param key    the key
+     * @param member the member
+     * @return true if the element was added or false if the element was already a member of the set
+     */
+    Boolean sadd(String key, String member);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the set cardinality.
+     * <p/>
+     * Returns all the members of the set value stored at key.
+     * <p/>
+     * This has the same effect as running SINTER with one argument key.
+     *
+     * @param key the key
+     * @return all elements of the set.
+     */
     Set<String> smembers(String key);
 
-    Long srem(String key, String member);
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Remove member from the set stored at key. If member is not a member of this set, no operation is performed.
+     * <p/>
+     * An error is returned when the value stored at key is not a set.
+     *
+     *
+     * @param key the key
+     * @param member the member
+     * @return true if the element was removed or false if the element was not a member of the set.
+     */
+    Boolean srem(String key, String member);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Removes and returns a random element from the set value stored at key.
+     * <p/>
+     * This operation is similar to SRANDMEMBER, that returns a random element from a set but does not remove it.
+     *
+     * @param key the key
+     * @return the removed element, or null when key does not exist.
+     */
     String spop(String key);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Returns the set cardinality (number of elements) of the set stored at key.
+     *
+     * @param key the key
+     * @return the cardinality (number of elements) of the set, or 0 if key does not exist.
+     */
     Long scard(String key);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Returns if member is a member of the set stored at key.
+     *
+     * @param key    the key
+     * @param member the member
+     * @return if the element is a member of the set or false if the element is not a member of the set, or if key does not exist.
+     */
     Boolean sismember(String key, String member);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Returns a random element from the set value stored at key.
+     * <p/>
+     * This operation is similar to SPOP, that also removes the randomly selected element.
+     *
+     * @param key the key
+     * @return the randomly selected element, or null when key does not exist.
+     */
     String srandmember(String key);
 
     Long zadd(String key, Number score, String member);

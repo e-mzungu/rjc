@@ -31,11 +31,11 @@ public class ITSetCommandsTest extends SingleNodeTestBase {
 
     @Test
     public void sadd() {
-        long status = session.sadd("foo", "a");
-        assertEquals(1, status);
+        boolean status = session.sadd("foo", "a");
+        assertTrue(status);
 
         status = session.sadd("foo", "a");
-        assertEquals(0, status);
+        assertFalse(status);
     }
 
     @Test
@@ -57,17 +57,17 @@ public class ITSetCommandsTest extends SingleNodeTestBase {
         session.sadd("foo", "a");
         session.sadd("foo", "b");
 
-        long status = session.srem("foo", "a");
+        boolean status = session.srem("foo", "a");
 
         Set<String> expected = new LinkedHashSet<String>();
         expected.add("b");
 
-        assertEquals(1, status);
+        assertTrue(status);
         Assert.assertEquals(expected, session.smembers("foo"));
 
         status = session.srem("foo", "bar");
 
-        assertEquals(0, status);
+        assertFalse(status);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class ITSetCommandsTest extends SingleNodeTestBase {
 
         session.sadd("bar", "c");
 
-        long status = session.smove("foo", "bar", "a");
+        boolean status = session.smove("foo", "bar", "a");
 
         Set<String> expectedSrc = new LinkedHashSet<String>();
         expectedSrc.add("b");
@@ -100,13 +100,13 @@ public class ITSetCommandsTest extends SingleNodeTestBase {
         expectedDst.add("c");
         expectedDst.add("a");
 
-        assertEquals(status, 1);
+        assertTrue(status);
         Assert.assertEquals(expectedSrc, session.smembers("foo"));
         Assert.assertEquals(expectedDst, session.smembers("bar"));
 
         status = session.smove("foo", "bar", "a");
 
-        assertEquals(status, 0);
+        assertFalse(status);
     }
 
     @Test

@@ -45,9 +45,9 @@ class RedisSessionImpl implements Session {
     }
 
 
-    public boolean exists(final String key) {
+    public Boolean exists(final String key) {
         client.exists(key);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public Long del(final String... keys) {
@@ -80,9 +80,9 @@ class RedisSessionImpl implements Session {
         return client.getStatusCodeReply();
     }
 
-    public boolean renamenx(final String key, final String newKey) {
+    public Boolean renamenx(final String key, final String newKey) {
         client.renamenx(key, newKey);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public Long dbSize() {
@@ -90,14 +90,14 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply();
     }
 
-    public boolean expire(final String key, final int seconds) {
+    public Boolean expire(final String key, final int seconds) {
         client.expire(key, seconds);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
-    public boolean expireAt(final String key, final long unixTime) {
+    public Boolean expireAt(final String key, final long unixTime) {
         client.expireAt(key, unixTime);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public Long ttl(final String key) {
@@ -114,7 +114,7 @@ class RedisSessionImpl implements Session {
 
     public Boolean move(final String key, final int dbIndex) {
         client.move(key, dbIndex);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public String flushAll() {
@@ -132,9 +132,9 @@ class RedisSessionImpl implements Session {
         return client.getMultiBulkReply();
     }
 
-    public boolean setnx(final String key, final String value) {
+    public Boolean setnx(final String key, final String value) {
         client.setnx(key, value);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public String setex(final String key, final int seconds, final String value) {
@@ -147,9 +147,9 @@ class RedisSessionImpl implements Session {
         return client.getStatusCodeReply();
     }
 
-    public boolean msetnx(final String... keysvalues) {
+    public Boolean msetnx(final String... keysvalues) {
         client.msetnx(keysvalues);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public Long decrBy(final String key, final int value) {
@@ -187,9 +187,9 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply();
     }
 
-    public boolean hset(final String key, final String field, final String value) {
+    public Boolean hset(final String key, final String field, final String value) {
         client.hset(key, field, value);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public String hget(final String key, final String field) {
@@ -197,9 +197,9 @@ class RedisSessionImpl implements Session {
         return client.getBulkReply();
     }
 
-    public boolean hsetnx(final String key, final String field, final String value) {
+    public Boolean hsetnx(final String key, final String field, final String value) {
         client.hsetnx(key, field, value);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public String hmset(final String key, final Map<String, String> hash) {
@@ -217,14 +217,14 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply();
     }
 
-    public boolean hexists(final String key, final String field) {
+    public Boolean hexists(final String key, final String field) {
         client.hexists(key, field);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
-    public boolean hdel(final String key, final String field) {
+    public Boolean hdel(final String key, final String field) {
         client.hdel(key, field);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public Long hlen(final String key) {
@@ -309,9 +309,18 @@ class RedisSessionImpl implements Session {
         return client.getBulkReply();
     }
 
-    public Long sadd(final String key, final String member) {
+    public Boolean sadd(final String key, final String member) {
         client.sadd(key, member);
-        return client.getIntegerReply();
+        return integerReplayToBoolean();
+    }
+
+    private Boolean integerReplayToBoolean() {
+        Long replay = client.getIntegerReply();
+        if (replay == null) {
+            return null;
+        } else {
+            return replay == 1;
+        }
     }
 
     public Set<String> smembers(final String key) {
@@ -319,9 +328,9 @@ class RedisSessionImpl implements Session {
         return new LinkedHashSet<String>(client.getMultiBulkReply());
     }
 
-    public Long srem(final String key, final String member) {
+    public Boolean srem(final String key, final String member) {
         client.srem(key, member);
-        return client.getIntegerReply();
+        return integerReplayToBoolean();
     }
 
     public String spop(final String key) {
@@ -329,9 +338,9 @@ class RedisSessionImpl implements Session {
         return client.getBulkReply();
     }
 
-    public Long smove(final String srckey, final String dstkey, final String member) {
+    public Boolean smove(final String srckey, final String dstkey, final String member) {
         client.smove(srckey, dstkey, member);
-        return client.getIntegerReply();
+        return integerReplayToBoolean();
     }
 
     public Long scard(final String key) {
@@ -341,7 +350,7 @@ class RedisSessionImpl implements Session {
 
     public Boolean sismember(final String key, final String member) {
         client.sismember(key, member);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public Set<String> sinter(final String... keys) {
@@ -584,9 +593,9 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply();
     }
 
-    public boolean persist(final String key) {
+    public Boolean persist(final String key) {
         client.persist(key);
-        return client.getIntegerReply() == 1;
+        return integerReplayToBoolean();
     }
 
     public Long rpushx(final String key, final String value) {

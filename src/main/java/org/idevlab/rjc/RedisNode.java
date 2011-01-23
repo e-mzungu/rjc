@@ -83,7 +83,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean exists(final String key) {
+    public Boolean exists(final String key) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.exists(key);
@@ -135,7 +135,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean renamenx(final String key, final String newKey) {
+    public Boolean renamenx(final String key, final String newKey) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.renamenx(key, newKey);
@@ -153,7 +153,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean expire(final String key, final int seconds) {
+    public Boolean expire(final String key, final int seconds) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.expire(key, seconds);
@@ -161,7 +161,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean expireAt(final String key, final long unixTime) {
+    public Boolean expireAt(final String key, final long unixTime) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.expireAt(key, unixTime);
@@ -214,7 +214,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean setnx(final String key, final String value) {
+    public Boolean setnx(final String key, final String value) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.setnx(key, value);
@@ -241,7 +241,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean msetnx(final String... keysvalues) {
+    public Boolean msetnx(final String... keysvalues) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.msetnx(keysvalues);
@@ -309,7 +309,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean hset(final String key, final String field, final String value) {
+    public Boolean hset(final String key, final String field, final String value) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.hset(key, field, value);
@@ -326,7 +326,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean hsetnx(final String key, final String field, final String value) {
+    public Boolean hsetnx(final String key, final String field, final String value) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.hsetnx(key, field, value);
@@ -358,7 +358,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean hexists(final String key, final String field) {
+    public Boolean hexists(final String key, final String field) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.hexists(key, field);
@@ -366,7 +366,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean hdel(final String key, final String field) {
+    public Boolean hdel(final String key, final String field) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.hdel(key, field);
@@ -509,11 +509,10 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Long sadd(final String key, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
+    public Boolean sadd(final String key, final String member) {
+        return execute(new RedisCallback<Boolean>() {
+            public Boolean doIt(Session session) {
                 return session.sadd(key, member);
-
             }
         });
     }
@@ -526,9 +525,9 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Long srem(final String key, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
+    public Boolean srem(final String key, final String member) {
+        return execute(new RedisCallback<Boolean>() {
+            public Boolean doIt(Session session) {
                 return session.srem(key, member);
             }
         });
@@ -542,9 +541,9 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Long smove(final String srckey, final String dstkey, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
+    public Boolean smove(final String srckey, final String dstkey, final String member) {
+        return execute(new RedisCallback<Boolean>() {
+            public Boolean doIt(Session session) {
                 return session.smove(srckey, dstkey, member);
             }
         });
@@ -1039,7 +1038,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public boolean persist(final String key) {
+    public Boolean persist(final String key) {
         return execute(new RedisCallback<Boolean>() {
             public Boolean doIt(Session session) {
                 return session.persist(key);

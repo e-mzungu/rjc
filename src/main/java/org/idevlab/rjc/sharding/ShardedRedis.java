@@ -45,7 +45,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).get(key);
     }
 
-    public boolean exists(final String key) {
+    public Boolean exists(final String key) {
         return locator.getNode(key).exists(key);
     }
 
@@ -61,11 +61,11 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).type(key);
     }
 
-    public boolean expire(final String key, final int seconds) {
+    public Boolean expire(final String key, final int seconds) {
         return locator.getNode(key).expire(key, seconds);
     }
 
-    public boolean expireAt(final String key, final long unixTime) {
+    public Boolean expireAt(final String key, final long unixTime) {
         return locator.getNode(key).expireAt(key, unixTime);
     }
 
@@ -77,7 +77,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).getSet(key, value);
     }
 
-    public boolean setnx(final String key, final String value) {
+    public Boolean setnx(final String key, final String value) {
         return locator.getNode(key).setnx(key, value);
     }
 
@@ -125,11 +125,11 @@ public class ShardedRedis implements RedisOperations {
         return result;
     }
 
-    public boolean persist(String key) {
+    public Boolean persist(String key) {
         return locator.getNode(key).persist(key);
     }
 
-    public boolean hset(final String key, String field, String value) {
+    public Boolean hset(final String key, String field, String value) {
         return locator.getNode(key).hset(key, field, value);
     }
 
@@ -137,7 +137,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).hget(key, field);
     }
 
-    public boolean hsetnx(final String key, String field, String value) {
+    public Boolean hsetnx(final String key, String field, String value) {
         return locator.getNode(key).hsetnx(key, field, value);
     }
 
@@ -153,11 +153,11 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).hincrBy(key, field, value);
     }
 
-    public boolean hexists(final String key, String field) {
+    public Boolean hexists(final String key, String field) {
         return locator.getNode(key).hexists(key, field);
     }
 
-    public boolean hdel(final String key, String field) {
+    public Boolean hdel(final String key, String field) {
         return locator.getNode(key).hdel(key, field);
     }
 
@@ -225,7 +225,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).rpop(key);
     }
 
-    public Long sadd(final String key, String member) {
+    public Boolean sadd(final String key, String member) {
         return locator.getNode(key).sadd(key, member);
     }
 
@@ -233,7 +233,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).smembers(key);
     }
 
-    public Long srem(final String key, String member) {
+    public Boolean srem(final String key, String member) {
         return locator.getNode(key).srem(key, member);
     }
 

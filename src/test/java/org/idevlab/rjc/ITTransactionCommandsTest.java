@@ -16,16 +16,15 @@
 
 package org.idevlab.rjc;
 
+import org.idevlab.rjc.protocol.Protocol;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Evgeny Dolgov
@@ -35,14 +34,14 @@ public class ITTransactionCommandsTest extends SingleNodeTestBase {
     public void multi() {
         session.multi();
 
-        Long status = session.sadd("foo", "a");
+        Boolean status = session.sadd("foo", "a");
         assertNull(status);
 
         status = session.sadd("foo", "b");
         assertNull(status);
 
-        status = session.scard("foo");
-        assertNull(status);
+        Long lStatus = session.scard("foo");
+        assertNull(lStatus);
 
         List<Object> response = session.exec();
 
@@ -55,39 +54,39 @@ public class ITTransactionCommandsTest extends SingleNodeTestBase {
 
 
     @Test
-    public void watch() throws UnknownHostException, IOException {
-//        session.watch("mykey", "somekey");
-//        session.multi();
-//
-//        Session newSession = createSession();
-//
-//        newSession.set("mykey", "bar");
-//        newSession.close();
-//
-//        session.set("mykey", "foo");
-//        List<Object> resp = session.exec();
-//        assertEquals(null, resp);
-//        assertEquals("bar", session.get("mykey"));
+    public void watch() throws IOException {
+        session.watch("mykey", "somekey");
+        session.multi();
+
+        Session newSession = createSession();
+
+        newSession.set("mykey", "bar");
+        newSession.close();
+
+        session.set("mykey", "foo");
+        List<Object> resp = session.exec();
+        assertEquals(null, resp);
+        assertEquals("bar", session.get("mykey"));
     }
 
     @Test
     public void unwatch() throws UnsupportedEncodingException {
-//        session.watch("mykey");
-//        session.get("mykey");
-//        String status = session.unwatch();
-//        assertEquals("OK", status);
-//        session.multi();
-//
-//        Session newSession = createSession();
-//        newSession.set("mykey", "bar");
-//        newSession.close();
-//
-//        session.set("mykey", "foo");
-//        List<Object> resp = session.exec();
-//        assertEquals(1, resp.size());
-//
-//        assertArrayEquals(Protocol.Keyword.OK.name().getBytes(Protocol.CHARSET),
-//                (byte[]) resp.get(0));
+        session.watch("mykey");
+        session.get("mykey");
+        String status = session.unwatch();
+        assertEquals("OK", status);
+        session.multi();
+
+        Session newSession = createSession();
+        newSession.set("mykey", "bar");
+        newSession.close();
+
+        session.set("mykey", "foo");
+        List<Object> resp = session.exec();
+        assertEquals(1, resp.size());
+
+        assertArrayEquals(Protocol.Keyword.OK.name().getBytes(Protocol.CHARSET),
+                (byte[]) resp.get(0));
     }
 
     @Test

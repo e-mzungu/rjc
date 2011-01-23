@@ -60,7 +60,7 @@ public interface SingleRedisOperations extends RedisOperations {
      * @param newKey new key
      * @return true if key was renamed to newKey or false if newKey already exists
      */
-    boolean renamenx(String key, String newKey);
+    Boolean renamenx(String key, String newKey);
 
     Long dbSize();
 
@@ -118,7 +118,7 @@ public interface SingleRedisOperations extends RedisOperations {
      * @param keysvalues array of keys and values, for instance {"key1", "value1", "key2", "value2"}
      * @return true if the all the keys were set or false if no key was set (at least one key already existed).
      */
-    boolean msetnx(String... keysvalues);
+    Boolean msetnx(String... keysvalues);
 
     /**
      * <h4>Time complexity</h4>
@@ -161,18 +161,135 @@ public interface SingleRedisOperations extends RedisOperations {
      */
     String brpoplpush(String source, String destination, int timeout);
 
-    Long smove(String srckey, String dstkey, String member);
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Move member from the set at source to the set at destination. This operation is atomic.
+     * In every given moment the element will appear to be a member of source or destination for other clients.
+     * <p/>
+     * If the source set does not exist or does not contain the specified element,
+     * no operation is performed and 0 is returned.
+     * Otherwise, the element is removed from the source set and added to the destination set.
+     * When the specified element already exists in the destination set, it is only removed from the source set.
+     * <p/>
+     * An error is returned if source or destination does not hold a set value.
+     *
+     * @param srckey source key
+     * @param dstkey destination key
+     * @param member the member
+     * @return true if the element is moved or false if the element is not a member of source and no operation was performed.
+     */
+    Boolean smove(String srckey, String dstkey, String member);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+     * <p/>
+     * Returns the members of the set resulting from the intersection of all the given sets.
+     * <p/>
+     * For example:
+     * <p/>
+     * key1 = {a,b,c,d} <br/>
+     * key2 = {c} <br/>
+     * key3 = {a,c,e} <br/>
+     * SINTER key1 key2 key3 = {c} <br/>
+     * <p/>
+     * Keys that do not exist are considered to be empty sets. With one of the keys being an empty set,
+     * the resulting set is also empty (since set intersection with an empty set always results in an empty set).
+     *
+     * @param keys the keys
+     * @return list with members of the resulting set.
+     */
     Set<String> sinter(String... keys);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets.
+     * <p/>
+     * This command is equal to SINTER, but instead of returning the resulting set, it is stored in destination.
+     * <p/>
+     * If destination already exists, it is overwritten.
+     *
+     * @param dstkey destination key
+     * @param keys   the keys
+     * @return the number of elements in the resulting set.
+     */
     Long sinterstore(String dstkey, String... keys);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the total number of elements in all given sets.
+     * <p/>
+     * Returns the members of the set resulting from the union of all the given sets.
+     * <p/>
+     * For example:
+     * <p/>
+     * key1 = {a,b,c,d}<br/>
+     * key2 = {c}<br/>
+     * key3 = {a,c,e}<br/>
+     * SUNION key1 key2 key3 = {a,b,c,d,e}<br/>
+     * <p/>
+     * Keys that do not exist are considered to be empty sets.
+     *
+     * @param keys the keys
+     * @return list with members of the resulting set.
+     */
     Set<String> sunion(String... keys);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the total number of elements in all given sets.
+     * <p/>
+     * This command is equal to SUNION, but instead of returning the resulting set, it is stored in destination.
+     * <p/>
+     * If destination already exists, it is overwritten.
+     *
+     * @param dstkey destination key
+     * @param keys   the keys
+     * @return he number of elements in the resulting set.
+     */
     Long sunionstore(String dstkey, String... keys);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the total number of elements in all given sets.
+     * <p/>
+     * Returns the members of the set resulting from the difference between the first set and all the successive sets.
+     * <p/>
+     * For example:
+     * <p/>
+     * key1 = {a,b,c,d}<br/>
+     * key2 = {c}<br/>
+     * key3 = {a,c,e}<br/>
+     * SDIFF key1 key2 key3 = {b,d}<br/>
+     * <p/>
+     * Keys that do not exist are considered to be empty sets.
+     *
+     * @param keys the keys
+     * @return list with members of the resulting set.
+     */
     Set<String> sdiff(String... keys);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the total number of elements in all given sets.
+     * <p/>
+     * This command is equal to SDIFF, but instead of returning the resulting set, it is stored in destination.
+     * <p/>
+     * If destination already exists, it is overwritten.
+     *
+     * @param dstkey destination key
+     * @param keys   the keys
+     * @return the number of elements in the resulting set.
+     */
     Long sdiffstore(String dstkey, String... keys);
 
     /**
