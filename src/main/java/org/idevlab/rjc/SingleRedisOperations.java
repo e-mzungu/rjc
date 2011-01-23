@@ -27,7 +27,7 @@ public interface SingleRedisOperations extends RedisOperations {
     String ping();
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Return a random key from the currently selected database.
      *
@@ -40,7 +40,7 @@ public interface SingleRedisOperations extends RedisOperations {
     String flushDB();
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Renames key to newKey. It returns an error when the source and destination names are the same,
      * or when key does not exist. If newKey already exists it is overwritten.
@@ -52,7 +52,7 @@ public interface SingleRedisOperations extends RedisOperations {
     String rename(String key, String newKey);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Renames key to newKey if newKey does not yet exist. It returns an error under the same conditions as RENAME.
      *
@@ -65,7 +65,7 @@ public interface SingleRedisOperations extends RedisOperations {
     Long dbSize();
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Move key from the currently selected database (see SELECT) to the speficied destination database.
      * When key already exists in the destination database, or it does not exist in the source database,
@@ -80,7 +80,7 @@ public interface SingleRedisOperations extends RedisOperations {
     String flushAll();
 
     /**
-     * Time complexity: O(N) where N is the number of keys to retrieve
+     * <h4>Time complexity</h4> O(N) where N is the number of keys to retrieve
      * <p/>
      * Returns the values of all specified keys. For every key that does not hold a string value or does not
      * exist, the special value nil is returned. Because of this, the operation never fails.
@@ -91,7 +91,7 @@ public interface SingleRedisOperations extends RedisOperations {
     List<String> mget(String... keys);
 
     /**
-     * Time complexity: O(N) where N is the number of keys to set
+     * <h4>Time complexity</h4> O(N) where N is the number of keys to set
      * <p/>
      * Sets the given keys to their respective values. MSET replaces existing values with new values,
      * just as regular SET. See MSETNX if you don't want to overwrite existing values.
@@ -104,7 +104,7 @@ public interface SingleRedisOperations extends RedisOperations {
     String mset(String... keysvalues);
 
     /**
-     * Time complexity: O(N) where N is the number of keys to set
+     * <h4>Time complexity</h4> O(N) where N is the number of keys to set
      * <p/>
      * Sets the given keys to their respective values. MSETNX will not perform
      * any operation at all even if just a single key already exists.
@@ -120,7 +120,46 @@ public interface SingleRedisOperations extends RedisOperations {
      */
     boolean msetnx(String... keysvalues);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Atomically returns and removes the last element (tail) of the list stored at source,
+     * and pushes the element at the first element (head) of the list stored at destination.
+     * <p/>
+     * For example: consider source holding the list a,b,c, and destination holding the list x,y,z.
+     * Executing RPOPLPUSH results in source holding a,b and destination holding c,x,y,z.
+     * <p/>
+     * If source does not exist, the value nil is returned and no operation is performed.
+     * If source and destination are the same, the operation is equivalent to removing
+     * the last element from the list and pushing it as first element of the list,
+     * so it can be considered as a list rotation command.
+     *
+     * @param srckey source key
+     * @param dstkey destination key
+     * @return the element being popped and pushed.
+     */
     String rpoplpush(String srckey, String dstkey);
+
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1).
+     * <p/>
+     * BRPOPLPUSH is the blocking variant of RPOPLPUSH. When source contains elements,
+     * this command behaves exactly like RPOPLPUSH. When source is empty,
+     * Redis will block the connection until another client pushes to it or until timeout is reached.
+     * A timeout of zero can be used to block indefinitely.
+     * <p/>
+     * See RPOPLPUSH for more information.
+     *
+     * @param source      source key
+     * @param destination destination key
+     * @param timeout     blocking timeout
+     * @return the element being popped from source and pushed to destination. If timeout is reached, a null is returned.
+     */
+    String brpoplpush(String source, String destination, int timeout);
 
     Long smove(String srckey, String dstkey, String member);
 
@@ -136,12 +175,87 @@ public interface SingleRedisOperations extends RedisOperations {
 
     Long sdiffstore(String dstkey, String... keys);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * BLPOP is a blocking list pop primitive. It is the blocking version of LPOP because it blocks
+     * the connection when there are no elements to pop from any of the given lists.
+     * An element is popped from the head of the first list that is non-empty,
+     * with the given keys being checked in the order that they are given.
+     * <h4>Non-blocking behavior</h4>
+     * <p/>
+     * When BLPOP is called, if at least one of the specified keys contain a non-empty list,
+     * an element is popped from the head of the list and returned to the caller
+     * together with the key it was popped from.
+     * <p/>
+     * Keys are checked in the order that they are given.
+     * Let's say that the key list1 doesn't exist and list2 and list3 hold non-empty lists.
+     * Consider the following command:
+     * <p/>
+     * BLPOP list1 list2 list3 0
+     * <p/>
+     * BLPOP guarantees to return an element from the list stored at list2
+     * (since it is the first non empty list when checking list1, list2 and list3 in that order).
+     * <h4>Blocking behavior</h4>
+     * <p/>
+     * If none of the specified keys exist or contain non-empty lists,
+     * BLPOP blocks the connection until another client performs an LPUSH or RPUSH operation against one of the lists.
+     * <p/>
+     * Once new data is present on one of the lists,
+     * the client returns with the name of the key unblocking it and the popped value.
+     * <p/>
+     * When BLPOP causes a client to block and a non-zero timeout is specified,
+     * the client will unblock returning a nil multi-bulk value when the specified timeout has expired
+     * without a push operation against at least one of the specified keys.
+     * <p/>
+     * The timeout argument is interpreted as an integer value. A timeout of zero can be used to block indefinitely.
+     * <h4>Multiple clients blocking for the same keys</h4>
+     * <p/>
+     * Multiple clients can block for the same key. They are put into a queue, so the first to be served will be
+     * the one that started to wait earlier, in a first-BLPOP first-served fashion.
+     * BLPOP inside a MULTI/EXEC transaction
+     * <p/>
+     * BLPOP can be used with pipelining (sending multiple commands and reading the replies in batch),
+     * but it does not make sense to use BLPOP inside a MULTI/EXEC block. This would require blocking the entire
+     * server in order to execute the block atomically,
+     * which in turn does not allow other clients to perform a push operation.
+     * <p/>
+     * The behavior of BLPOP inside MULTI/EXEC when the list is empty is to return a nil multi-bulk reply,
+     * which is the same thing that happens when the timeout is reached. If you like science fiction, think of time flowing at infinite speed inside a MULTI/EXEC block.
+     *
+     * @param timeout blocking timeout. A timeout of zero can be used to block indefinitely.
+     * @param keys    the keys
+     * @return <ul><li>A null when no element could be popped and the timeout expired.</li>
+     *         <li>A two-element multi-bulk with the first element being the name of the key where an element was
+     *         popped and the second element being the value of the popped element.</li></ul>
+     */
     List<String> blpop(int timeout, String... keys);
 
     Long sort(String key, SortingParams sortingParameters, String dstkey);
 
     Long sort(String key, String dstkey);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * BRPOP is a blocking list pop primitive. It is the blocking version of RPOP because
+     * it blocks the connection when there are no elements to pop from any of the given lists.
+     * An element is popped from the tail of the first list that is non-empty,
+     * with the given keys being checked in the order that they are given.
+     * <p/>
+     * See BLPOP for the exact semantics. BRPOP is identical to BLPOP,
+     * apart from popping from the tail of a list instead of the head of a list.
+     *
+     * @param timeout blocking timeout
+     * @param keys    the keys
+     * @return <ul><li>A null when no element could be popped and the timeout expired.</li>
+     *         <li>A two-element multi-bulk with the first element being the name of the key where an element was
+     *         popped and the second element being the value of the popped element.</li></ul>
+     */
     List<String> brpop(int timeout, String... keys);
 
     String auth(String password);

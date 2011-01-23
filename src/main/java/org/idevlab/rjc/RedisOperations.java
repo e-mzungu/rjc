@@ -25,7 +25,7 @@ import java.util.Set;
  */
 public interface RedisOperations {
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Set key to hold the string value. If key already holds a value, it is overwritten, regardless of its type.
      *
@@ -36,7 +36,7 @@ public interface RedisOperations {
     String set(String key, String value);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Get the value of key. If the key does not exist the special value nil is returned.
      * An error is returned if the value stored at key is not a string, because GET only handles string values.
@@ -47,7 +47,7 @@ public interface RedisOperations {
     String get(String key);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Determine if a key exists
      *
@@ -57,7 +57,7 @@ public interface RedisOperations {
     boolean exists(String key);
 
     /**
-     * Time complexity: O(N) where N is the number of keys that will be removed.
+     * <h4>Time complexity</h4> O(N) where N is the number of keys that will be removed.
      * When a key to remove holds a value other than a string, the individual complexity for
      * this key is O(M) where M is the number of elements in the list, set, sorted set or hash.
      * Removing a single key that holds a string value is O(1).
@@ -70,7 +70,7 @@ public interface RedisOperations {
     Long del(String... keys);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Returns the string representation of the type of the value stored at key.
      * The different types that can be returned are: string, list, set, zset and hash.
@@ -81,7 +81,7 @@ public interface RedisOperations {
     String type(String key);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Set a timeout on key. After the timeout has expired, the key will automatically be deleted.
      * A key with an associated timeout is said to be volatile in Redis terminology.
@@ -99,14 +99,14 @@ public interface RedisOperations {
     boolean expire(String key, int seconds);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Set a timeout on key. After the timeout has expired, the key will automatically be deleted.
      * A key with an associated timeout is said to be volatile in Redis terminology.
      * EXPIREAT has the same effect and semantic as EXPIRE, but instead of specifying the number of seconds
      * representing the TTL (time to live), it takes an absolute UNIX timestamp (seconds since January 1, 1970).
      * <p/>
-     * <h5>Background</h5>
+     * <h4>Background</h4>
      * EXPIREAT was introduced in order to convert relative timeouts to absolute timeouts for the AOF persistence mode.
      * Of course, it can be used directly to specify that a given key should expire at a given time in the future.
      *
@@ -117,7 +117,7 @@ public interface RedisOperations {
     boolean expireAt(String key, long unixTime);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Returns the remaining time to live of a key that has a timeout.
      * This introspection capability allows a Redis client to check how many seconds
@@ -129,7 +129,7 @@ public interface RedisOperations {
     Long ttl(String key);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Atomically sets key to value and returns the old value stored at key.
      * Returns an error when key exists but does not hold a string value.
@@ -141,7 +141,7 @@ public interface RedisOperations {
     String getSet(String key, String value);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Set key to hold string value if key does not exist. In that case, it is equal to SET.
      * When key already holds a value, no operation is performed. SETNX is short for "SET if Not eXists".
@@ -153,7 +153,7 @@ public interface RedisOperations {
     boolean setnx(String key, String value);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * Set key to hold the string value and set key to timeout after a given number of seconds.
      * This command is equivalent to executing the following commands:
      * <div>
@@ -175,7 +175,7 @@ public interface RedisOperations {
     String setex(String key, int seconds, String value);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Decrements the number stored at key by decrement. If the key does not exist or contains a value of
      * the wrong type, it is set to 0 before performing the operation.
@@ -190,7 +190,7 @@ public interface RedisOperations {
     Long decrBy(String key, int value);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Decrements the number stored at key by one. If the key does not exist or contains a value of the wrong type,
      * it is set to 0 before performing the operation. This operation is limited to 64 bit signed integers.
@@ -203,7 +203,7 @@ public interface RedisOperations {
     Long decr(String key);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * Increments the number stored at key by increment. If the key does not exist or contains
      * a value of the wrong type, it is set to 0 before performing the operation.
      * This operation is limited to 64 bit signed integers.
@@ -216,7 +216,7 @@ public interface RedisOperations {
     Long incrBy(String key, int value);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * Increments the number stored at key by one. If the key does not exist or contains a value
      * of the wrong type, it is set to 0 before performing the operation.
      * This operation is limited to 64 bit signed integers.
@@ -231,7 +231,7 @@ public interface RedisOperations {
     Long incr(String key);
 
     /**
-     * Time complexity:
+     * <h4>Time complexity</h4>
      * O(1). The amortized time complexity is O(1) assuming the appended value is small and the already present
      * value is of any size, since the dynamic string library used by Redis will double the free space
      * available on every reallocation.
@@ -247,7 +247,7 @@ public interface RedisOperations {
     Long append(String key, String value);
 
     /**
-     * Time complexity O(N) where N is the length of the returned string. The complexity is ultimately determined
+     * <h4>Time complexity</h4> O(N) where N is the length of the returned string. The complexity is ultimately determined
      * by the returned length, but because creating a substring from an existing string is very cheap,
      * it can be considered O(1) for small strings.
      * <p/>
@@ -266,7 +266,7 @@ public interface RedisOperations {
     String getRange(String key, int start, int end);
 
     /**
-     * Time complexity: O(1), not counting the time taken to copy the new string in place.
+     * <h4>Time complexity</h4> O(1), not counting the time taken to copy the new string in place.
      * Usually, this string is very small so the amortized complexity is O(1).
      * Otherwise, complexity is O(M) with M being the length of the value argument.
      * <p/>
@@ -275,7 +275,7 @@ public interface RedisOperations {
      * Note that the maximum offset that you can set is 229 -1 (536870911), as Redis Strings are limited to 512 megabytes. If you need to grow beyond this size, you can use multiple keys.
      * <p/>
      * Warning: When setting the last possible byte and the string value stored at key does not yet hold a string value, or holds a small string value, Redis needs to allocate all intermediate memory which can block the server for some time. On a 2010 Macbook Pro, setting byte number 536870911 (512MB allocation) takes ~300ms, setting byte number 134217728 (128MB allocation) takes ~80ms, setting bit number 33554432 (32MB allocation) takes ~30ms and setting bit number 8388608 (8MB allocation) takes ~8ms. Note that once this first allocation is done, subsequent calls to SETRANGE for the same key will not have the allocation overhead.
-     * <h5>Patterns</h5>
+     * <h4>Patterns</h4>
      * Thanks to SETRANGE and the analogous GETRANGE commands, you can use Redis strings as a linear
      * array with O(1) random access. This is a very fast and efficient storage in many real world use cases.
      *
@@ -288,7 +288,7 @@ public interface RedisOperations {
     Long setRange(String key, int offset, String value);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Returns the length of the string value stored at key. An error is returned when key holds a non-string value.
      *
@@ -299,7 +299,7 @@ public interface RedisOperations {
     Long strlen(String key);
 
     /**
-     * Time complexity: O(N) with N being the number of keys in the database, under the assumption that
+     * <h4>Time complexity</h4> O(N) with N being the number of keys in the database, under the assumption that
      * the key names in the database and the given pattern have limited length.
      * <p/>
      * Returns all keys matching pattern.
@@ -327,7 +327,7 @@ public interface RedisOperations {
     Set<String> keys(String pattern);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Remove the existing timeout on key.
      *
@@ -338,7 +338,7 @@ public interface RedisOperations {
     boolean persist(final String key);
 
     /**
-     * Time complexity
+     * <h4>Time complexity</h4>
      * <p/>
      * O(1)
      * <p/>
@@ -354,7 +354,7 @@ public interface RedisOperations {
     boolean hset(String key, String field, String value);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Returns the value associated with field in the hash stored at key.
      *
@@ -365,7 +365,7 @@ public interface RedisOperations {
     String hget(String key, String field);
 
     /**
-     * Time complexity
+     * <h4>Time complexity</h4>
      * <p/>
      * O(1)
      * <p/>
@@ -382,7 +382,7 @@ public interface RedisOperations {
     boolean hsetnx(String key, String field, String value);
 
     /**
-     * Time complexity
+     * <h4>Time complexity</h4>
      * <p/>
      * O(N) where N is the number of fields being set.
      * <p/>
@@ -396,7 +396,7 @@ public interface RedisOperations {
     String hmset(String key, Map<String, String> hash);
 
     /**
-     * Time complexity
+     * <h4>Time complexity</h4>
      * <p/>
      * O(N) where N is the number of fields being requested.
      * <p/>
@@ -413,7 +413,7 @@ public interface RedisOperations {
     List<String> hmget(String key, String... fields);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Increments the number stored at field in the hash stored at key by increment.
      * If key does not exist, a new key holding a hash is created.
@@ -430,7 +430,7 @@ public interface RedisOperations {
     Long hincrBy(String key, String field, int value);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * Returns if field is an existing field in the hash stored at key.
      *
      * @param key   the key
@@ -440,7 +440,7 @@ public interface RedisOperations {
     boolean hexists(String key, String field);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Removes field from the hash stored at key.
      *
@@ -452,7 +452,7 @@ public interface RedisOperations {
     boolean hdel(String key, String field);
 
     /**
-     * Time complexity
+     * <h4>Time complexity</h4>
      * <p/>
      * O(1)
      * <p/>
@@ -464,7 +464,7 @@ public interface RedisOperations {
     Long hlen(String key);
 
     /**
-     * Time complexity
+     * <h4>Time complexity</h4>
      * <p/>
      * O(N) where N is the size of the hash.
      * <p/>
@@ -476,7 +476,7 @@ public interface RedisOperations {
     Set<String> hkeys(String key);
 
     /**
-     * Time complexity
+     * <h4>Time complexity</h4>
      * <p/>
      * O(N) where N is the size of the hash.
      * <p/>
@@ -488,7 +488,7 @@ public interface RedisOperations {
     List<String> hvals(String key);
 
     /**
-     * Time complexity: O(N) where N is the size of the hash.
+     * <h4>Time complexity</h4> O(N) where N is the size of the hash.
      * <p/>
      * Returns all fields and values of the hash stored at key. In the returned value,
      * every field name is followed by its value, so the length of the reply is twice the size of the hash.
@@ -498,28 +498,225 @@ public interface RedisOperations {
      */
     Map<String, String> hgetAll(String key);
 
-    Long rpush(String key, String string);
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Inserts value at the tail of the list stored at key.
+     * If key does not exist, it is created as empty list before performing the push operation.
+     * When key holds a value that is not a list, an error is returned.
+     *
+     * @param key   the key
+     * @param value the value
+     * @return the length of the list after the push operation.
+     */
+    Long rpush(String key, String value);
 
-    Long rpushx(final String key, final String string);
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Inserts value at the tail of the list stored at key, only if key already exists and holds a list.
+     * In contrary to RPUSH, no operation will be performed when key does not yet exist.
+     *
+     * @param key   the key
+     * @param value the value
+     * @return the length of the list after the push operation.
+     */
+    Long rpushx(final String key, final String value);
 
-    Long lpush(String key, String string);
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Inserts value at the head of the list stored at key.
+     * If key does not exist, it is created as empty list before performing the push operation.
+     * When key holds a value that is not a list, an error is returned.
+     *
+     * @param key   the key
+     * @param value the value
+     * @return the length of the list after the push operation.
+     */
+    Long lpush(String key, String value);
 
-    Long lpushx(final String key, final String string);
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Inserts value at the head of the list stored at key, only if key already exists and holds a list.
+     * In contrary to LPUSH, no operation will be performed when key does not yet exist.
+     *
+     * @param key   the key
+     * @param value the value
+     * @return the length of the list after the push operation.
+     */
+    Long lpushx(String key, String value);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Returns the length of the list stored at key. If key does not exist,
+     * it is interpreted as an empty list and 0 is returned.
+     * An error is returned when the value stored at key is not a list.
+     *
+     * @param key the key
+     * @return the length of the list at key.
+     */
     Long llen(String key);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(S+N) where S is the start offset and N is the number of elements in the specified range.
+     * <p/>
+     * Returns the specified elements of the list stored at key.
+     * The offsets start and end are zero-based indexes,
+     * with 0 being the first element of the list (the head of the list), 1 being the next element and so on.
+     * <p/>
+     * These offsets can also be negative numbers indicating offsets starting at the end of the list.
+     * For example, -1 is the last element of the list, -2 the penultimate, and so on.
+     * <h4>Consistency with range functions in various programming languages</h4>
+     * <p/>
+     * Note that if you have a list of numbers from 0 to 100, LRANGE list 0 10 will return 11 elements,
+     * that is, the rightmost item is included. This may or may not be consistent with behavior
+     * of range-related functions in your programming language of choice
+     * (think Ruby's Range.new, Array#slice or Python's range() function).
+     * <h4>Out-of-range indexes</h4>
+     * <p/>
+     * Out of range indexes will not produce an error.
+     * If start is larger than the end of the list, or start > end, an empty list is returned.
+     * If end is larger than the actual end of the list, Redis will treat it like the last element of the list.
+     *
+     * @param key   the key
+     * @param start range start
+     * @param end   range end
+     * @return list of elements in the specified range.
+     */
     List<String> lrange(String key, int start, int end);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the number of elements to be removed by the operation.
+     * <p/>
+     * Trim an existing list so that it will contain only the specified range of elements specified.
+     * Both start and stop are zero-based indexes, where 0 is the first element of the list (the head),
+     * 1 the next element and so on.
+     * <p/>
+     * For example: LTRIM foobar 0 2 will modify the list stored at foobar so
+     * that only the first three elements of the list will remain.
+     * <p/>
+     * start and end can also be negative numbers indicating offsets from the end of the list,
+     * where -1 is the last element of the list, -2 the penultimate element and so on.
+     * <p/>
+     * Out of range indexes will not produce an error: if start is larger than the end of the list,
+     * or start > end, the result will be an empty list (which causes key to be removed).
+     * If end is larger than the end of the list, Redis will treat it like the last element of the list.
+     * <p/>
+     * A common use of LTRIM is together with LPUSH/RPUSH. For example:
+     * <p/>
+     * LPUSH mylist someelement
+     * LTRIM mylist 0 99
+     * <p/>
+     * This pair of commands will push a new element on the list,
+     * while making sure that the list will not grow larger than 100 elements.
+     * This is very useful when using Redis to store logs for example.
+     * It is important to note that when used in this way LTRIM is an O(1) operation
+     * because in the average case just one element is removed from the tail of the list.
+     *
+     * @param key   the key
+     * @param start range start
+     * @param end   range end
+     * @return Status code reply
+     */
     String ltrim(String key, int start, int end);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the number of elements to traverse to get to the element at index.
+     * This makes asking for the first or the last element of the list O(1).
+     * <p/>
+     * Returns the element at index index in the list stored at key.
+     * The index is zero-based, so 0 means the first element, 1 the second element and so on.
+     * Negative indices can be used to designate elements starting at the tail of the list.
+     * Here, -1 means the last element, -2 means the penultimate and so forth.
+     * <p/>
+     * When the value at key is not a list, an error is returned.
+     *
+     * @param key   the key
+     * @param index the index
+     * @return the requested element, or null when index is out of range.
+     */
     String lindex(String key, int index);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the length of the list. Setting either the first or the last element of the list is O(1).
+     * <p/>
+     * Sets the list element at index to value. For more information on the index argument, see LINDEX.
+     * <p/>
+     * An error is returned for out of range indexes.
+     *
+     * @param key   the key
+     * @param index the index
+     * @param value the value
+     * @return Status code reply
+     */
     String lset(String key, int index, String value);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the length of the list.
+     * <p/>
+     * Removes the first count occurrences of elements equal to value from the list stored at key.
+     * The count argument influences the operation in the following ways:
+     * <ul>
+     * <li>count > 0: Remove elements equal to value moving from head to tail.</li>
+     * <li>count < 0: Remove elements equal to value moving from tail to head.</li>
+     * <li>count = 0: Remove all elements equal to value.</li>
+     * </ul>
+     * For example, LREM list -2 "hello" will remove the last two occurrences of "hello" in the list stored at list.
+     * <p/>
+     * Note that non-existing keys are treated like empty lists, so when key does not exist, the command will always return 0.
+     *
+     * @param key   the key
+     * @param count the count
+     * @param value the value
+     * @return the number of removed elements.
+     */
     Long lrem(String key, int count, String value);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Removes and returns the first element of the list stored at key.
+     *
+     * @param key the key
+     * @return the value of the first element, or null when key does not exist.
+     */
     String lpop(String key);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(1)
+     * <p/>
+     * Removes and returns the last element of the list stored at key.
+     *
+     * @param key the key
+     * @return the value of the last element, or nil when key does not exist.
+     */
     String rpop(String key);
 
     Long sadd(String key, String member);
@@ -559,7 +756,7 @@ public interface RedisOperations {
     String zscore(String key, String member);
 
     /**
-     * Time complexity: O(N*log(N)) where N is the number of elements returned.
+     * <h4>Time complexity</h4> O(N*log(N)) where N is the number of elements returned.
      * When the elements are not sorted, complexity is O(N).
      * <p/>
      * Returns the elements contained in the list, set or sorted set at key.
@@ -572,7 +769,7 @@ public interface RedisOperations {
     List<String> sort(String key);
 
     /**
-     * Time complexity: O(N*log(N)) where N is the number of elements returned.
+     * <h4>Time complexity</h4> O(N*log(N)) where N is the number of elements returned.
      * When the elements are not sorted, complexity is O(N).
      * <p/>
      * Returns the elements contained in the list, set or sorted set at key.
@@ -600,12 +797,31 @@ public interface RedisOperations {
 
     Long zremrangeByScore(String key, Number start, Number end);
 
+    /**
+     * <h4>Time complexity</h4>
+     * <p/>
+     * O(N) where N is the number of elements to traverse before seeing the value pivot.
+     * This means that inserting somewhere on the left end on the list (head)
+     * can be considered O(1) and inserting somewhere on the right end (tail) is O(N).
+     * <p/>
+     * Inserts value in the list stored at key either before or after the reference value pivot.
+     * <p/>
+     * When key does not exist, it is considered an empty list and no operation is performed.
+     * <p/>
+     * An error is returned when key exists but does not hold a list value.
+     *
+     * @param key   the key
+     * @param where list position
+     * @param pivot the pivot
+     * @param value the value
+     * @return the length of the list after the insert operation, or -1 when the value pivot was not found.
+     */
     Long linsert(String key, Client.LIST_POSITION where, String pivot, String value);
 
     Long publish(String channel, String message);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Returns the bit value at offset in the string value stored at key.
      * When offset is beyond the string length, the string is assumed to be a contiguous space with 0 bits.
@@ -620,7 +836,7 @@ public interface RedisOperations {
     Long getBit(String key, int offset);
 
     /**
-     * Time complexity: O(1)
+     * <h4>Time complexity</h4> O(1)
      * <p/>
      * Sets or clears the bit at offset in the string value stored at key.
      * <p/>

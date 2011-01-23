@@ -177,20 +177,20 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).hgetAll(key);
     }
 
-    public Long rpush(final String key, String string) {
-        return locator.getNode(key).rpush(key, string);
+    public Long rpush(final String key, String value) {
+        return locator.getNode(key).rpush(key, value);
     }
 
-    public Long rpushx(String key, String string) {
-        return locator.getNode(key).rpushx(key, string);
+    public Long rpushx(String key, String value) {
+        return locator.getNode(key).rpushx(key, value);
     }
 
-    public Long lpush(final String key, String string) {
-        return locator.getNode(key).lpush(key, string);
+    public Long lpush(final String key, String value) {
+        return locator.getNode(key).lpush(key, value);
     }
 
-    public Long lpushx(String key, String string) {
-        return locator.getNode(key).lpushx(key, string);
+    public Long lpushx(String key, String value) {
+        return locator.getNode(key).lpushx(key, value);
     }
 
     public Long llen(final String key) {

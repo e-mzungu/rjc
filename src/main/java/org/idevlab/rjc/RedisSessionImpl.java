@@ -254,13 +254,13 @@ class RedisSessionImpl implements Session {
         return hash;
     }
 
-    public Long rpush(final String key, final String string) {
-        client.rpush(key, string);
+    public Long rpush(final String key, final String value) {
+        client.rpush(key, value);
         return client.getIntegerReply();
     }
 
-    public Long lpush(final String key, final String string) {
-        client.lpush(key, string);
+    public Long lpush(final String key, final String value) {
+        client.lpush(key, value);
         return client.getIntegerReply();
     }
 
@@ -579,8 +579,8 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply();
     }
 
-    public Long lpushx(final String key, final String string) {
-        client.lpushx(key, string);
+    public Long lpushx(final String key, final String value) {
+        client.lpushx(key, value);
         return client.getIntegerReply();
     }
 
@@ -589,8 +589,8 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply() == 1;
     }
 
-    public Long rpushx(final String key, final String string) {
-        client.rpushx(key, string);
+    public Long rpushx(final String key, final String value) {
+        client.rpushx(key, value);
         return client.getIntegerReply();
     }
 

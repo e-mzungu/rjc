@@ -406,19 +406,19 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Long rpush(final String key, final String string) {
+    public Long rpush(final String key, final String value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
-                return session.rpush(key, string);
+                return session.rpush(key, value);
 
             }
         });
     }
 
-    public Long lpush(final String key, final String string) {
+    public Long lpush(final String key, final String value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
-                return session.lpush(key, string);
+                return session.lpush(key, value);
 
             }
         });
@@ -481,7 +481,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
                 return session.lpop(key);
-
             }
         });
     }
@@ -490,7 +489,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
                 return session.rpop(key);
-
             }
         });
     }
@@ -499,7 +497,14 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
                 return session.rpoplpush(srckey, dstkey);
+            }
+        });
+    }
 
+    public String brpoplpush(final String source, final String destination, final int timeout) {
+        return execute(new RedisCallback<String>() {
+            public String doIt(Session session) {
+                return session.brpoplpush(source, destination, timeout);
             }
         });
     }
@@ -525,7 +530,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.srem(key, member);
-
             }
         });
     }
@@ -534,7 +538,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
                 return session.spop(key);
-
             }
         });
     }
@@ -543,7 +546,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.smove(srckey, dstkey, member);
-
             }
         });
     }
@@ -552,7 +554,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.scard(key);
-
             }
         });
     }
@@ -577,7 +578,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.sinterstore(dstkey, keys);
-
             }
         });
     }
@@ -594,7 +594,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.sunionstore(dstkey, keys);
-
             }
         });
     }
@@ -611,7 +610,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.sdiffstore(dstkey, keys);
-
             }
         });
     }
@@ -620,7 +618,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
                 return session.srandmember(key);
-
             }
         });
     }
@@ -629,7 +626,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.zadd(key, score, member);
-
             }
         });
     }
@@ -646,7 +642,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.zrem(key, member);
-
             }
         });
     }
@@ -656,7 +651,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<String>() {
             public String doIt(Session session) {
                 return session.zincrby(key, score, member);
-
             }
         });
     }
@@ -665,7 +659,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.zrank(key, member);
-
             }
         });
     }
@@ -674,7 +667,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.zrevrank(key, member);
-
             }
         });
     }
@@ -1038,10 +1030,10 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Long lpushx(final String key, final String string) {
+    public Long lpushx(final String key, final String value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
-                return session.lpushx(key, string);
+                return session.lpushx(key, value);
 
             }
         });
@@ -1056,10 +1048,10 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Long rpushx(final String key, final String string) {
+    public Long rpushx(final String key, final String value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
-                return session.rpushx(key, string);
+                return session.rpushx(key, value);
 
             }
         });
