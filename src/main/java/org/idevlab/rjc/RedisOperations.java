@@ -758,8 +758,7 @@ public interface RedisOperations {
      * <p/>
      * An error is returned when the value stored at key is not a set.
      *
-     *
-     * @param key the key
+     * @param key    the key
      * @param member the member
      * @return true if the element was removed or false if the element was not a member of the set.
      */
@@ -818,26 +817,309 @@ public interface RedisOperations {
      */
     String srandmember(String key);
 
-    Long zadd(String key, Number score, String member);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)) where N is the number of elements in the sorted set.
+     * <p/>
+     * Adds the member with the specified score to the sorted set stored at key.
+     * If member is already a member of the sorted set, the score is updated and the element
+     * reinserted at the right position to ensure the correct ordering.
+     * If key does not exist, a new sorted set with the specified member as sole member is created.
+     * If the key exists but does not hold a sorted set, an error is returned.
+     * <p/>
+     * The score value should be the string representation of a numeric value,
+     * and accepts double precision floating point numbers.
+     * <p/>
+     * For an introduction to sorted sets, see the data types page on sorted sets.
+     *
+     * @param key    the key
+     * @param score  the score
+     * @param member the member
+     * @return true if the element was added or false if the element was already a member of the sorted set and the score was updated.
+     */
+    Boolean zadd(String key, Number score, String member);
 
-    Set<String> zrange(String key, int start, int end);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+     * <p/>
+     * Returns the specified range of elements in the sorted set stored at key.
+     * The elements are considered to be ordered from the lowest to the highest score.
+     * <p/>
+     * See ZREVRANGE when you need the elements ordered from highest to lowest score.
+     * <p/>
+     * Both start and stop are zero-based indexes, where 0 is the first element, 1 is the next element and so on.
+     * They can also be negative numbers indicating offsets from the end of the sorted set,
+     * with -1 being the last element of the sorted set, -2 the penultimate element and so on.
+     * <p/>
+     * Out of range indexes will not produce an error.
+     * If start is larger than the largest index in the sorted set, or start > stop, an empty list is returned.
+     * If stop is larger than the end of the sorted set Redis will treat
+     * it like it is the last element of the sorted set.
+     * <p/>
+     * It is possible to pass the WITHSCORES option in order to return the scores of the elements
+     * together with the elements. The returned list will contain value1,score1,...,valueN,scoreN instead of
+     * value1,...,valueN. Client libraries are free to return a more appropriate data type
+     * (suggestion: an array with (value, score)
+     *
+     * @param key   the key
+     * @param start range start
+     * @param end   range end
+     * @return list of elements in the specified range.
+     */
+    List<String> zrange(String key, int start, int end);
 
-    Long zrem(String key, String member);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)) with N being the number of elements in the sorted set.
+     * <p/>
+     * Removes the member from the sorted set stored at key. If member is not a member of the sorted set, no operation is performed.
+     * <p/>
+     * An error is returned when key exists and does not hold a sorted set.
+     *
+     * @param key    the key
+     * @param member the member
+     * @return true if member was removed or false if member is not a member of the sorted set.
+     */
+    Boolean zrem(String key, String member);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)) where N is the number of elements in the sorted set.
+     * <p/>
+     * Increments the score of member in the sorted set stored at key by increment.
+     * If member does not exist in the sorted set, it is added with increment as
+     * its score (as if its previous score was 0.0).
+     * If key does not exist, a new sorted set with the specified member as its sole member is created.
+     * <p/>
+     * An error is returned when key exists but does not hold a sorted set.
+     * <p/>
+     * The score value should be the string representation of a numeric value,
+     * and accepts double precision floating point numbers.
+     * It is possible to provide a negative value to decrement the score.
+     *
+     * @param key    the key
+     * @param score  the score
+     * @param member the member
+     * @return he new score of member (a double precision floating point number), represented as string.
+     */
     String zincrby(String key, Number score, String member);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N))
+     * <p/>
+     * Returns the rank of member in the sorted set stored at key, with the scores ordered from low to high.
+     * The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
+     * <p/>
+     * Use ZREVRANK to get the rank of an element with the scores ordered from high to low.
+     *
+     * @param key    the key
+     * @param member the member
+     * @return <ul>
+     *         <li>If member exists in the sorted set, the rank of member.</li>
+     *         <li>If member does not exist in the sorted set or key does not exist, null.</li>
+     *         </ul>
+     */
     Long zrank(String key, String member);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N))
+     * <p/>
+     * Returns the rank of member in the sorted set stored at key, with the scores ordered from high to low. The rank (or index) is 0-based, which means that the member with the highest score has rank 0.
+     * <p/>
+     * Use ZRANK to get the rank of an element with the scores ordered from low to high.
+     *
+     * @param key    the key
+     * @param member the member
+     * @return <ul><li>If member exists in the sorted set, the rank of member.</li>
+     *         <li>If member does not exist in the sorted set or key does not exist, Bulk reply: null.</li><ul>
+     */
     Long zrevrank(String key, String member);
 
-    Set<String> zrevrange(String key, int start, int end);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+     * <p/>
+     * Returns the specified range of elements in the sorted set stored at key. The elements are considered to be ordered from the highest to the lowest score.
+     * <p/>
+     * Apart from the reversed ordering, ZREVRANGE is similar to ZRANGE.
+     *
+     * @param key   the key
+     * @param start range start
+     * @param end   range end
+     * @return list of elements in the specified range
+     */
+    List<String> zrevrange(String key, int start, int end);
 
-    Map<String, String> zrangeWithScores(String key, int start, int end);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+     * <p/>
+     * Returns the specified range of elements in the sorted set stored at key.
+     * The elements are considered to be ordered from the lowest to the highest score.
+     * <p/>
+     * See ZREVRANGE when you need the elements ordered from highest to lowest score.
+     * <p/>
+     * Both start and stop are zero-based indexes, where 0 is the first element, 1 is the next element and so on.
+     * They can also be negative numbers indicating offsets from the end of the sorted set,
+     * with -1 being the last element of the sorted set, -2 the penultimate element and so on.
+     * <p/>
+     * Out of range indexes will not produce an error.
+     * If start is larger than the largest index in the sorted set, or start > stop, an empty list is returned.
+     * If stop is larger than the end of the sorted set Redis will treat
+     * it like it is the last element of the sorted set.
+     * <p/>
+     * It is possible to pass the WITHSCORES option in order to return the scores of the elements
+     * together with the elements. The returned list will contain value1,score1,...,valueN,scoreN instead of
+     * value1,...,valueN. Client libraries are free to return a more appropriate data type
+     * (suggestion: an array with (value, score)
+     *
+     * @param key   the key
+     * @param start range start
+     * @param end   range end
+     * @return list of elements in the specified range with their scores.
+     */
+    List<ElementScore> zrangeWithScores(String key, int start, int end);
 
-    Map<String, String> zrevrangeWithScores(String key, int start, int end);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.
+     * <p/>
+     * Returns the specified range of elements in the sorted set stored at key. The elements are considered to be ordered from the highest to the lowest score.
+     * <p/>
+     * Apart from the reversed ordering, ZREVRANGE is similar to ZRANGE.
+     *
+     * @param key   the key
+     * @param start range start
+     * @param end   range end
+     * @return list of elements in the specified range with their scores
+     */
+    List<ElementScore> zrevrangeWithScores(String key, int start, int end);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned.
+     * If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+     * <p/>
+     * Returns all the elements in the sorted set at key with a score between max and min
+     * (including elements with score equal to max or min). In contrary to the default ordering of sorted sets,
+     * for this command the elements are considered to be ordered from high to low scores.
+     * <p/>
+     * The elements having the same score are returned in reverse lexicographical order.
+     * <p/>
+     * Apart from the reversed ordering, ZREVRANGEBYSCORE is similar to ZRANGEBYSCORE.
+     *
+     * @param key the key
+     * @param max max score
+     * @param min min score
+     * @return list of elements in the specified score range (optionally with their scores).
+     */
+    List<String> zrevrangeByScore(String key, String max, String min);
+
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned.
+     * If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+     * <p/>
+     * Returns all the elements in the sorted set at key with a score between max and min
+     * (including elements with score equal to max or min). In contrary to the default ordering of sorted sets,
+     * for this command the elements are considered to be ordered from high to low scores.
+     * <p/>
+     * The elements having the same score are returned in reverse lexicographical order.
+     * <p/>
+     * Apart from the reversed ordering, ZREVRANGEBYSCORE is similar to ZRANGEBYSCORE.
+     *
+     * @param key    the key
+     * @param max    max score
+     * @param min    min score
+     * @param offset limit offset
+     * @param count  limit count
+     * @return list of elements in the specified score range (optionally with their scores).
+     */
+    List<String> zrevrangeByScore(String key, String max, String min, int offset, int count);
+
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned.
+     * If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+     * <p/>
+     * Returns all the elements in the sorted set at key with a score between max and min
+     * (including elements with score equal to max or min). In contrary to the default ordering of sorted sets,
+     * for this command the elements are considered to be ordered from high to low scores.
+     * <p/>
+     * The elements having the same score are returned in reverse lexicographical order.
+     * <p/>
+     * Apart from the reversed ordering, ZREVRANGEBYSCORE is similar to ZRANGEBYSCORE.
+     *
+     * @param key the key
+     * @param max max score
+     * @param min min score
+     * @return list of elements in the specified score range (optionally with their scores).
+     */
+    List<ElementScore> zrevrangeByScoreWithScores(String key, String max, String min);
+
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned.
+     * If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+     * <p/>
+     * Returns all the elements in the sorted set at key with a score between max and min
+     * (including elements with score equal to max or min). In contrary to the default ordering of sorted sets,
+     * for this command the elements are considered to be ordered from high to low scores.
+     * <p/>
+     * The elements having the same score are returned in reverse lexicographical order.
+     * <p/>
+     * Apart from the reversed ordering, ZREVRANGEBYSCORE is similar to ZRANGEBYSCORE.
+     *
+     * @param key    the key
+     * @param max    max score
+     * @param min    min score
+     * @param offset limit offset
+     * @param count  limit count
+     * @return list of elements in the specified score range (optionally with their scores).
+     */
+    List<ElementScore> zrevrangeByScoreWithScores(String key, String max, String min, int offset, int count);
+
+    /**
+     * Time complexity
+     * <p/>
+     * O(1)
+     * <p/>
+     * Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+     *
+     * @param key the key
+     * @return the cardinality (number of elements) of the sorted set, or 0 if key does not exist.
+     */
     Long zcard(String key);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(1)
+     * <p/>
+     * Returns the score of member in the sorted set at key.
+     * <p/>
+     * If member does not exist in the sorted set, or key does not exist, nil is returned.
+     *
+     * @param key    the key
+     * @param member the member
+     * @return the score of member (a double precision floating point number), represented as string.
+     */
     String zscore(String key, String member);
 
     /**
@@ -868,19 +1150,240 @@ public interface RedisOperations {
      */
     List<String> sort(String key, SortingParams sortingParameters);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M being the number of elements between min and max.
+     * <p/>
+     * Returns the number of elements in the sorted set at key with a score between min and max.
+     * <p/>
+     * The min and max arguments have the same semantic as described for ZRANGEBYSCORE.
+     *
+     * @param key the key
+     * @param min min value
+     * @param max max value
+     * @return the number of elements in the specified score range.
+     */
     Long zcount(String key, Number min, Number max);
 
-    Set<String> zrangeByScore(String key, String min, String max);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned.
+     * If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+     * <p/>
+     * Returns all the elements in the sorted set at key with a score between min and max
+     * (including elements with score equal to min or max).
+     * The elements are considered to be ordered from low to high scores.
+     * <p/>
+     * The elements having the same score are returned in lexicographical order
+     * (this follows from a property of the sorted set implementation in
+     * Redis and does not involve further computation).
+     * <p/>
+     * The optional LIMIT argument can be used to only get a range of the matching elements
+     * (similar to SELECT LIMIT offset, count in SQL). Keep in mind that if offset is large,
+     * the sorted set needs to be traversed for offset elements before getting to the elements
+     * to return, which can add up to O(N) time complexity.
+     * <p/>
+     * The optional WITHSCORES argument makes the command return both the element and its score,
+     * instead of the element alone. This option is available since Redis 2.0.
+     * <h4>Exclusive intervals and infinity</h4>
+     * <p/>
+     * min and max can be -inf and +inf, so that you are not required to know the highest or
+     * lowest score in the sorted set to get all elements from or up to a certain score.
+     * <p/>
+     * By default, the interval specified by min and max is closed (inclusive).
+     * It is possible to specify an open interval (exclusive) by prefixing the score with the character (.
+     * For example:
+     * <p/>
+     * ZRANGEBYSCORE zset (1 5
+     * <p/>
+     * Will return all elements with 1 < score <= 5 while:
+     * <p/>
+     * ZRANGEBYSCORE zset (5 (10
+     * <p/>
+     * Will return all the elements with 5 < score < 10 (5 and 10 excluded).
+     *
+     * @param key the key
+     * @param min min score
+     * @param max max score
+     * @return list of elements in the specified score range.
+     */
+    List<String> zrangeByScore(String key, String min, String max);
 
-    Set<String> zrangeByScore(String key, String min, String max, int offset, int count);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned.
+     * If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+     * <p/>
+     * Returns all the elements in the sorted set at key with a score between min and max
+     * (including elements with score equal to min or max).
+     * The elements are considered to be ordered from low to high scores.
+     * <p/>
+     * The elements having the same score are returned in lexicographical order
+     * (this follows from a property of the sorted set implementation in
+     * Redis and does not involve further computation).
+     * <p/>
+     * The optional LIMIT argument can be used to only get a range of the matching elements
+     * (similar to SELECT LIMIT offset, count in SQL). Keep in mind that if offset is large,
+     * the sorted set needs to be traversed for offset elements before getting to the elements
+     * to return, which can add up to O(N) time complexity.
+     * <p/>
+     * The optional WITHSCORES argument makes the command return both the element and its score,
+     * instead of the element alone. This option is available since Redis 2.0.
+     * <h4>Exclusive intervals and infinity</h4>
+     * <p/>
+     * min and max can be -inf and +inf, so that you are not required to know the highest or
+     * lowest score in the sorted set to get all elements from or up to a certain score.
+     * <p/>
+     * By default, the interval specified by min and max is closed (inclusive).
+     * It is possible to specify an open interval (exclusive) by prefixing the score with the character (.
+     * For example:
+     * <p/>
+     * ZRANGEBYSCORE zset (1 5
+     * <p/>
+     * Will return all elements with 1 < score <= 5 while:
+     * <p/>
+     * ZRANGEBYSCORE zset (5 (10
+     * <p/>
+     * Will return all the elements with 5 < score < 10 (5 and 10 excluded).
+     *
+     * @param key    the key
+     * @param min    min score
+     * @param max    max score
+     * @param offset limit offset
+     * @param count  limit count
+     * @return list of elements in the specified score range.
+     */
+    List<String> zrangeByScore(String key, String min, String max, int offset, int count);
 
-    Map<String, String> zrangeByScoreWithScores(String key, String min, String max);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned.
+     * If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+     * <p/>
+     * Returns all the elements in the sorted set at key with a score between min and max
+     * (including elements with score equal to min or max).
+     * The elements are considered to be ordered from low to high scores.
+     * <p/>
+     * The elements having the same score are returned in lexicographical order
+     * (this follows from a property of the sorted set implementation in
+     * Redis and does not involve further computation).
+     * <p/>
+     * The optional LIMIT argument can be used to only get a range of the matching elements
+     * (similar to SELECT LIMIT offset, count in SQL). Keep in mind that if offset is large,
+     * the sorted set needs to be traversed for offset elements before getting to the elements
+     * to return, which can add up to O(N) time complexity.
+     * <p/>
+     * The optional WITHSCORES argument makes the command return both the element and its score,
+     * instead of the element alone. This option is available since Redis 2.0.
+     * <h4>Exclusive intervals and infinity</h4>
+     * <p/>
+     * min and max can be -inf and +inf, so that you are not required to know the highest or
+     * lowest score in the sorted set to get all elements from or up to a certain score.
+     * <p/>
+     * By default, the interval specified by min and max is closed (inclusive).
+     * It is possible to specify an open interval (exclusive) by prefixing the score with the character (.
+     * For example:
+     * <p/>
+     * ZRANGEBYSCORE zset (1 5
+     * <p/>
+     * Will return all elements with 1 < score <= 5 while:
+     * <p/>
+     * ZRANGEBYSCORE zset (5 (10
+     * <p/>
+     * Will return all the elements with 5 < score < 10 (5 and 10 excluded).
+     *
+     * @param key the key
+     * @param min min score
+     * @param max max score
+     * @return list of elements in the specified score range with their scores.
+     */
+    List<ElementScore> zrangeByScoreWithScores(String key, String min, String max);
 
-    Map<String, String> zrangeByScoreWithScores(String key, String min, String max, int offset, int count);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned.
+     * If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).
+     * <p/>
+     * Returns all the elements in the sorted set at key with a score between min and max
+     * (including elements with score equal to min or max).
+     * The elements are considered to be ordered from low to high scores.
+     * <p/>
+     * The elements having the same score are returned in lexicographical order
+     * (this follows from a property of the sorted set implementation in
+     * Redis and does not involve further computation).
+     * <p/>
+     * The optional LIMIT argument can be used to only get a range of the matching elements
+     * (similar to SELECT LIMIT offset, count in SQL). Keep in mind that if offset is large,
+     * the sorted set needs to be traversed for offset elements before getting to the elements
+     * to return, which can add up to O(N) time complexity.
+     * <p/>
+     * The optional WITHSCORES argument makes the command return both the element and its score,
+     * instead of the element alone. This option is available since Redis 2.0.
+     * <h4>Exclusive intervals and infinity</h4>
+     * <p/>
+     * min and max can be -inf and +inf, so that you are not required to know the highest or
+     * lowest score in the sorted set to get all elements from or up to a certain score.
+     * <p/>
+     * By default, the interval specified by min and max is closed (inclusive).
+     * It is possible to specify an open interval (exclusive) by prefixing the score with the character (.
+     * For example:
+     * <p/>
+     * ZRANGEBYSCORE zset (1 5
+     * <p/>
+     * Will return all elements with 1 < score <= 5 while:
+     * <p/>
+     * ZRANGEBYSCORE zset (5 (10
+     * <p/>
+     * Will return all the elements with 5 < score < 10 (5 and 10 excluded).
+     *
+     * @param key    the key
+     * @param min    min score
+     * @param max    max score
+     * @param offset limit offset
+     * @param count  limit count
+     * @return list of elements in the specified score range (optionally with their scores).
+     */
+    List<ElementScore> zrangeByScoreWithScores(String key, String min, String max, int offset, int count);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of
+     * elements removed by the operation.
+     * <p/>
+     * Removes all elements in the sorted set stored at key with rank between start and stop.
+     * Both start and stop are 0-based indexes with 0 being the element with the lowest score.
+     * These indexes can be negative numbers, where they indicate offsets starting at the element
+     * with the highest score.
+     * For example: -1 is the element with the highest score, -2 the element with the second highest score and so forth.
+     *
+     * @param key   the key
+     * @param start range start
+     * @param end   range end
+     * @return the number of elements removed.
+     */
     Long zremrangeByRank(String key, int start, int end);
 
-    Long zremrangeByScore(String key, Number start, Number end);
+    /**
+     * Time complexity
+     * <p/>
+     * O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements removed by the operation.
+     * <p/>
+     * Removes all elements in the sorted set stored at key with a score between min and max (inclusive).
+     * <p/>
+     * Since version 2.1.6, min and max can be exclusive, following the syntax of ZRANGEBYSCORE.
+     *
+     * @param key the key
+     * @param min min score
+     * @param max max score
+     * @return the number of elements removed.
+     */
+    Long zremrangeByScore(String key, String min, String max);
 
     /**
      * <h4>Time complexity</h4>

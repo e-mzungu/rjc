@@ -621,25 +621,25 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Long zadd(final String key, final Number score, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
+    public Boolean zadd(final String key, final Number score, final String member) {
+        return execute(new RedisCallback<Boolean>() {
+            public Boolean doIt(Session session) {
                 return session.zadd(key, score, member);
             }
         });
     }
 
-    public Set<String> zrange(final String key, final int start, final int end) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
+    public List<String> zrange(final String key, final int start, final int end) {
+        return execute(new RedisCallback<List<String>>() {
+            public List<String> doIt(Session session) {
                 return session.zrange(key, start, end);
             }
         });
     }
 
-    public Long zrem(final String key, final String member) {
-        return execute(new RedisCallback<Long>() {
-            public Long doIt(Session session) {
+    public Boolean zrem(final String key, final String member) {
+        return execute(new RedisCallback<Boolean>() {
+            public Boolean doIt(Session session) {
                 return session.zrem(key, member);
             }
         });
@@ -670,29 +670,62 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Set<String> zrevrange(final String key, final int start,
-                                 final int end) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
+    public List<String> zrevrange(final String key, final int start,
+                                  final int end) {
+        return execute(new RedisCallback<List<String>>() {
+            public List<String> doIt(Session session) {
                 return session.zrevrange(key, start, end);
             }
         });
     }
 
-    public Map<String, String> zrangeWithScores(final String key, final int start,
-                                                final int end) {
-        return execute(new RedisCallback<Map<String, String>>() {
-            public Map<String, String> doIt(Session session) {
+    public List<ElementScore> zrangeWithScores(final String key, final int start,
+                                               final int end) {
+        return execute(new RedisCallback<List<ElementScore>>() {
+            public List<ElementScore> doIt(Session session) {
                 return session.zrangeWithScores(key, start, end);
             }
         });
     }
 
-    public Map<String, String> zrevrangeWithScores(final String key, final int start,
-                                                   final int end) {
-        return execute(new RedisCallback<Map<String, String>>() {
-            public Map<String, String> doIt(Session session) {
+    public List<ElementScore> zrevrangeWithScores(final String key, final int start,
+                                                  final int end) {
+        return execute(new RedisCallback<List<ElementScore>>() {
+            public List<ElementScore> doIt(Session session) {
                 return session.zrevrangeWithScores(key, start, end);
+            }
+        });
+    }
+
+    public List<String> zrevrangeByScore(final String key, final String max, final String min) {
+        return execute(new RedisCallback<List<String>>() {
+            public List<String> doIt(Session session) {
+                return session.zrevrangeByScore(key, max, min);
+            }
+        });
+    }
+
+    public List<String> zrevrangeByScore(final String key, final String max, final String min, final int offset, final int count) {
+        return execute(new RedisCallback<List<String>>() {
+            public List<String> doIt(Session session) {
+                return session.zrevrangeByScore(key, max, min, offset, count);
+            }
+        });
+    }
+
+    public List<ElementScore> zrevrangeByScoreWithScores(final String key, final String max, final String min) {
+        return execute(new RedisCallback<List<ElementScore>>() {
+            public List<ElementScore> doIt(Session session) {
+                return session.zrevrangeByScoreWithScores(key, max, min);
+            }
+        });
+    }
+
+    public List<ElementScore> zrevrangeByScoreWithScores(final String key, final String max, final String min,
+                                                         final int offset, final int count) {
+        return execute(new RedisCallback<List<ElementScore>>() {
+            public List<ElementScore> doIt(Session session) {
+                return session.zrevrangeByScoreWithScores(key, max, min, offset, count);
             }
         });
     }
@@ -822,37 +855,37 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Set<String> zrangeByScore(final String key, final String min, final String max) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
+    public List<String> zrangeByScore(final String key, final String min, final String max) {
+        return execute(new RedisCallback<List<String>>() {
+            public List<String> doIt(Session session) {
                 return session.zrangeByScore(key, min, max);
             }
         });
     }
 
-    public Set<String> zrangeByScore(final String key, final String min,
-                                     final String max, final int offset, final int count) {
-        return execute(new RedisCallback<Set<String>>() {
-            public Set<String> doIt(Session session) {
+    public List<String> zrangeByScore(final String key, final String min,
+                                      final String max, final int offset, final int count) {
+        return execute(new RedisCallback<List<String>>() {
+            public List<String> doIt(Session session) {
                 return session.zrangeByScore(key, min, max, offset, count);
             }
         });
     }
 
-    public Map<String, String> zrangeByScoreWithScores(final String key,
-                                                       final String min, final String max) {
-        return execute(new RedisCallback<Map<String, String>>() {
-            public Map<String, String> doIt(Session session) {
+    public List<ElementScore> zrangeByScoreWithScores(final String key,
+                                                      final String min, final String max) {
+        return execute(new RedisCallback<List<ElementScore>>() {
+            public List<ElementScore> doIt(Session session) {
                 return session.zrangeByScoreWithScores(key, min, max);
             }
         });
     }
 
-    public Map<String, String> zrangeByScoreWithScores(final String key,
-                                                       final String min, final String max, final int offset,
-                                                       final int count) {
-        return execute(new RedisCallback<Map<String, String>>() {
-            public Map<String, String> doIt(Session session) {
+    public List<ElementScore> zrangeByScoreWithScores(final String key,
+                                                      final String min, final String max, final int offset,
+                                                      final int count) {
+        return execute(new RedisCallback<List<ElementScore>>() {
+            public List<ElementScore> doIt(Session session) {
                 return session.zrangeByScoreWithScores(key, min, max, offset, count);
             }
         });
@@ -867,12 +900,11 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Long zremrangeByScore(final String key, final Number start,
-                                 final Number end) {
+    public Long zremrangeByScore(final String key, final String min,
+                                 final String max) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
-                return session.zremrangeByScore(key, start, end);
-
+                return session.zremrangeByScore(key, min, max);
             }
         });
     }
@@ -881,7 +913,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.zunionstore(dstkey, sets);
-
             }
         });
     }
@@ -890,7 +921,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.zunionstore(dstkey, params, sets);
-
             }
         });
     }
@@ -899,7 +929,6 @@ public class RedisNode implements SingleRedisOperations {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {
                 return session.zinterstore(dstkey, sets);
-
             }
         });
     }

@@ -389,51 +389,67 @@ class RedisSessionImpl implements Session {
         return client.getBulkReply();
     }
 
-    public Long zadd(final String key, final Number score, final String member) {
+    public Boolean zadd(final String key, final Number score, final String member) {
         client.zadd(key, score, member);
-        return client.getIntegerReply();
+        return integerReplayToBoolean();
     }
 
-    public Set<String> zrange(final String key, final int start, final int end) {
+    public List<String> zrange(final String key, final int start, final int end) {
         client.zrange(key, start, end);
-        return new LinkedHashSet<String>(client.getMultiBulkReply());
+        return client.getMultiBulkReply();
     }
 
-    public Long zrem(final String key, final String member) {
+    public Boolean zrem(final String key, final String member) {
         client.zrem(key, member);
-        return client.getIntegerReply();
+        return integerReplayToBoolean();
     }
 
     public Long zrank(final String key, final String member) {
-
         client.zrank(key, member);
         return client.getIntegerReply();
     }
 
     public Long zrevrank(final String key, final String member) {
-
         client.zrevrank(key, member);
         return client.getIntegerReply();
     }
 
-    public Set<String> zrevrange(final String key, final int start,
-                                 final int end) {
-
+    public List<String> zrevrange(final String key, final int start,
+                                  final int end) {
         client.zrevrange(key, start, end);
-        final List<String> members = client.getMultiBulkReply();
-        return new LinkedHashSet<String>(members);
+        return client.getMultiBulkReply();
     }
 
-    public Map<String, String> zrangeWithScores(final String key, final int start,
-                                                final int end) {
+    public List<ElementScore> zrangeWithScores(final String key, final int start,
+                                               final int end) {
         client.zrangeWithScores(key, start, end);
-        return getReplyAsMap(client);
+        return getReplyAsElementScoreSet(client);
     }
 
-    public Map<String, String> zrevrangeWithScores(final String key, final int start,
-                                                   final int end) {
+    public List<ElementScore> zrevrangeWithScores(final String key, final int start,
+                                                  final int end) {
         client.zrevrangeWithScores(key, start, end);
-        return getReplyAsMap(client);
+        return getReplyAsElementScoreSet(client);
+    }
+
+    public List<String> zrevrangeByScore(String key, String max, String min) {
+        client.zrevrangeByScore(key, max, min);
+        return client.getMultiBulkReply();
+    }
+
+    public List<String> zrevrangeByScore(String key, String max, String min, int offset, int count) {
+        client.zrevrangeByScore(key, max, min, offset, count);
+        return client.getMultiBulkReply();
+    }
+
+    public List<ElementScore> zrevrangeByScoreWithScores(String key, String max, String min) {
+        client.zrevrangeByScoreWithScores(key, max, min);
+        return getReplyAsElementScoreSet(client);
+    }
+
+    public List<ElementScore> zrevrangeByScoreWithScores(String key, String max, String min, int offset, int count) {
+        client.zrevrangeByScoreWithScores(key, max, min, offset, count);
+        return getReplyAsElementScoreSet(client);
     }
 
     public Long zcard(final String key) {
@@ -525,37 +541,38 @@ class RedisSessionImpl implements Session {
         return client.getIntegerReply();
     }
 
-    public Set<String> zrangeByScore(final String key, final String min, final String max) {
+    public List<String> zrangeByScore(final String key, final String min, final String max) {
         client.zrangeByScore(key, min, max);
-        return new LinkedHashSet<String>(client.getMultiBulkReply());
+        return client.getMultiBulkReply();
     }
 
-    public Set<String> zrangeByScore(final String key, final String min,
-                                     final String max, final int offset, final int count) {
+    public List<String> zrangeByScore(final String key, final String min,
+                                      final String max, final int offset, final int count) {
         client.zrangeByScore(key, min, max, offset, count);
-        return new LinkedHashSet<String>(client.getMultiBulkReply());
+        return client.getMultiBulkReply();
     }
 
-    public Map<String, String> zrangeByScoreWithScores(final String key, final String min, final String max) {
+    public List<ElementScore> zrangeByScoreWithScores(final String key, final String min, final String max) {
         client.zrangeByScoreWithScores(key, min, max);
-        return getReplyAsMap(client);
+        return getReplyAsElementScoreSet(client);
     }
 
-    public Map<String, String> zrangeByScoreWithScores(final String key,
-                                                       final String min, final String max, final int offset,
-                                                       final int count) {
+    public List<ElementScore> zrangeByScoreWithScores(final String key,
+                                                      final String min, final String max, final int offset,
+                                                      final int count) {
         client.zrangeByScoreWithScores(key, min, max, offset, count);
-        return getReplyAsMap(client);
+        return getReplyAsElementScoreSet(client);
     }
 
-    private Map<String, String> getReplyAsMap(Client client) {
+    private List<ElementScore> getReplyAsElementScoreSet(Client client) {
         List<String> membersWithScores = client.getMultiBulkReply();
-        Map<String, String> result = new HashMap<String, String>();
+        List<ElementScore> result = new ArrayList<ElementScore>();
         Iterator<String> iterator = membersWithScores.iterator();
         while (iterator.hasNext()) {
-            result.put(iterator.next(), iterator.next());
+            result.add(new ElementScore(iterator.next(), iterator.next()));
         }
         return result;
+
     }
 
     public Long zremrangeByRank(final String key, final int start, final int end) {
@@ -655,8 +672,8 @@ class RedisSessionImpl implements Session {
         return client.getAll();
     }
 
-    public Long zremrangeByScore(final String key, final Number start, final Number end) {
-        client.zremrangeByScore(key, start, end);
+    public Long zremrangeByScore(final String key, final String min, final String max) {
+        client.zremrangeByScore(key, min, max);
         return client.getIntegerReply();
     }
 

@@ -162,6 +162,14 @@ public interface RedisCommands extends MultiExecCommands {
 
     void zrevrangeWithScores(String key, int start, int end);
 
+    void zrevrangeByScore(final String key, final String max, final String min);
+
+    void zrevrangeByScore(final String key, final String max, final String min, final int offset, int count);
+
+    void zrevrangeByScoreWithScores(final String key, final String max, final String min);
+
+    void zrevrangeByScoreWithScores(final String key, final String max, final String min, final int offset, final int count);
+
     void zcard(String key);
 
     void zscore(String key, String member);
@@ -190,7 +198,7 @@ public interface RedisCommands extends MultiExecCommands {
 
     void zremrangeByRank(String key, int start, int end);
 
-    void zremrangeByScore(String key, Number start, Number end);
+    void zremrangeByScore(String key, String start, String end);
 
     void zunionstore(String dstkey, String... sets);
 

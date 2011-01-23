@@ -382,6 +382,23 @@ public class Client implements RedisCommands {
         conn.sendCommand(Protocol.Command.ZREVRANGE, key, String.valueOf(start), String.valueOf(end), Protocol.Keyword.WITHSCORES.str);
     }
 
+    public void zrevrangeByScore(final String key, final String max, final String min) {
+        conn.sendCommand(Protocol.Command.ZREVRANGEBYSCORE, key, max, min);
+    }
+
+    public void zrevrangeByScore(final String key, final String max, final String min, final int offset, int count) {
+        conn.sendCommand(Protocol.Command.ZREVRANGEBYSCORE, key, max, min, Protocol.Keyword.LIMIT.str, String.valueOf(offset), String.valueOf(count));
+    }
+
+    public void zrevrangeByScoreWithScores(final String key, final String max, final String min) {
+        conn.sendCommand(Protocol.Command.ZREVRANGEBYSCORE, key, max, min, Protocol.Keyword.WITHSCORES.str);
+    }
+
+    public void zrevrangeByScoreWithScores(final String key, final String max, final String min,
+                                           final int offset, final int count) {
+        conn.sendCommand(Protocol.Command.ZREVRANGEBYSCORE, key, max, min, Protocol.Keyword.LIMIT.str, String.valueOf(offset), String.valueOf(count), Protocol.Keyword.WITHSCORES.str);
+    }
+
     public void zcard(final String key) {
         conn.sendCommand(Protocol.Command.ZCARD, key);
     }
@@ -493,21 +510,20 @@ public class Client implements RedisCommands {
     }
 
     public void zrangeByScoreWithScores(final String key, final String min, final String max) {
-        conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, String.valueOf(min), String.valueOf(max), Protocol.Keyword.WITHSCORES.str);
+        conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, min, max, Protocol.Keyword.WITHSCORES.str);
     }
 
     public void zrangeByScoreWithScores(final String key, final String min,
                                         final String max, final int offset, final int count) {
-        conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, String.valueOf(min), String.valueOf(max), Protocol.Keyword.LIMIT.str, String.valueOf(offset), String.valueOf(count), Protocol.Keyword.WITHSCORES.str);
+        conn.sendCommand(Protocol.Command.ZRANGEBYSCORE, key, min, max, Protocol.Keyword.LIMIT.str, String.valueOf(offset), String.valueOf(count), Protocol.Keyword.WITHSCORES.str);
     }
 
     public void zremrangeByRank(final String key, final int start, final int end) {
         conn.sendCommand(Protocol.Command.ZREMRANGEBYRANK, key, String.valueOf(start), String.valueOf(end));
     }
 
-    public void zremrangeByScore(final String key, final Number start,
-                                 final Number end) {
-        conn.sendCommand(Protocol.Command.ZREMRANGEBYSCORE, key, String.valueOf(start), String.valueOf(end));
+    public void zremrangeByScore(final String key, final String start, final String end) {
+        conn.sendCommand(Protocol.Command.ZREMRANGEBYSCORE, key, start, end);
     }
 
     public void zunionstore(final String dstkey, String... sets) {
@@ -629,7 +645,7 @@ public class Client implements RedisCommands {
     }
 
     public void brpoplpush(String source, String destination, int timeout) {
-       conn.sendCommand(Protocol.Command.BRPOPLPUSH, source, destination, String.valueOf(timeout));
+        conn.sendCommand(Protocol.Command.BRPOPLPUSH, source, destination, String.valueOf(timeout));
     }
 
     public void setbit(final String key, final int offset, final String value) {
@@ -645,7 +661,7 @@ public class Client implements RedisCommands {
     }
 
     public String getBulkReply() {
-        if(isInMulti()) {
+        if (isInMulti()) {
             conn.getStatusCodeReply();
             return null;
         }
@@ -653,7 +669,7 @@ public class Client implements RedisCommands {
     }
 
     public byte[] getBinaryBulkReply() {
-        if(isInMulti()) {
+        if (isInMulti()) {
             conn.getStatusCodeReply();
             return null;
         }
@@ -661,7 +677,7 @@ public class Client implements RedisCommands {
     }
 
     public Long getIntegerReply() {
-        if(isInMulti()) {
+        if (isInMulti()) {
             conn.getStatusCodeReply();
             return null;
         }
@@ -669,7 +685,7 @@ public class Client implements RedisCommands {
     }
 
     public List<String> getMultiBulkReply() {
-        if(isInMulti()) {
+        if (isInMulti()) {
             conn.getStatusCodeReply();
             return Collections.emptyList();
         }
@@ -677,7 +693,7 @@ public class Client implements RedisCommands {
     }
 
     public List<byte[]> getBinaryMultiBulkReply() {
-        if(isInMulti()) {
+        if (isInMulti()) {
             conn.getStatusCodeReply();
             return Collections.emptyList();
         }
@@ -685,7 +701,7 @@ public class Client implements RedisCommands {
     }
 
     public List<Object> getObjectMultiBulkReply() {
-        if(isInMulti()) {
+        if (isInMulti()) {
             conn.getStatusCodeReply();
             return Collections.emptyList();
         }

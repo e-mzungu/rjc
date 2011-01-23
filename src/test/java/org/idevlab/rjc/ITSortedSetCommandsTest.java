@@ -19,13 +19,9 @@ package org.idevlab.rjc;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Evgeny Dolgov
@@ -33,17 +29,17 @@ import static org.junit.Assert.assertNull;
 public class ITSortedSetCommandsTest extends SingleNodeTestBase {
     @Test
     public void zadd() {
-        long status = session.zadd("foo", 1d, "a");
-        assertEquals(1, status);
+        Boolean status = session.zadd("foo", 1d, "a");
+        assertTrue(status);
 
         status = session.zadd("foo", 10d, "b");
-        assertEquals(1, status);
+        assertTrue(status);
 
         status = session.zadd("foo", 0.1d, "c");
-        assertEquals(1, status);
+        assertTrue(status);
 
         status = session.zadd("foo", 2d, "a");
-        assertEquals(0, status);
+        assertFalse(status);
 
     }
 
@@ -54,11 +50,11 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         session.zadd("foo", 0.1d, "c");
         session.zadd("foo", 2d, "a");
 
-        Set<String> expected = new LinkedHashSet<String>();
+        List<String> expected = new ArrayList<String>();
         expected.add("c");
         expected.add("a");
 
-        Set<String> range = session.zrange("foo", 0, 1);
+        List<String> range = session.zrange("foo", 0, 1);
         assertEquals(expected, range);
 
         expected.add("b");
@@ -73,11 +69,11 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         session.zadd("foo", 0.1d, "c");
         session.zadd("foo", 2d, "a");
 
-        Set<String> expected = new LinkedHashSet<String>();
+        List<String> expected = new ArrayList<String>();
         expected.add("b");
         expected.add("a");
 
-        Set<String> range = session.zrevrange("foo", 0, 1);
+        List<String> range = session.zrevrange("foo", 0, 1);
         assertEquals(expected, range);
 
         expected.add("c");
@@ -90,17 +86,17 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         session.zadd("foo", 1d, "a");
         session.zadd("foo", 2d, "b");
 
-        long status = session.zrem("foo", "a");
+        Boolean status = session.zrem("foo", "a");
 
-        Set<String> expected = new LinkedHashSet<String>();
+        List<String> expected = new ArrayList<String>();
         expected.add("b");
 
-        assertEquals(1, status);
+        assertTrue(status);
         Assert.assertEquals(expected, session.zrange("foo", 0, 100));
 
         status = session.zrem("foo", "bar");
 
-        assertEquals(0, status);
+        assertFalse(status);
     }
 
     @Test
@@ -110,9 +106,9 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
 
         String score = session.zincrby("foo", 2d, "a");
 
-        Set<String> expected = new LinkedHashSet<String>();
-        expected.add("a");
+        List<String> expected = new ArrayList<String>();
         expected.add("b");
+        expected.add("a");
 
         assertEquals(3d, Double.valueOf(score), 0);
         Assert.assertEquals(expected, session.zrange("foo", 0, 100));
@@ -155,7 +151,7 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         expected.put("c", 0.1D);
         expected.put("a", 2D);
 
-        Map<String, String> range = session.zrangeWithScores("foo", 0, 1);
+        List<ElementScore> range = session.zrangeWithScores("foo", 0, 1);
         Map<String, Double> actual = toStrDblMap(range);
         assertEquals(expected, actual);
 
@@ -164,10 +160,10 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         assertEquals(expected, toStrDblMap(range));
     }
 
-    private Map<String, Double> toStrDblMap(Map<String, String> range) {
+    private Map<String, Double> toStrDblMap(List<ElementScore> range) {
         Map<String, Double> actual = new HashMap<String, Double>();
-        for (Map.Entry<String, String> entry : range.entrySet()) {
-            actual.put(entry.getKey(), Double.valueOf(entry.getValue()));
+        for (ElementScore entry : range) {
+            actual.put(entry.getElement(), Double.valueOf(entry.getScore()));
         }
         return actual;
     }
@@ -183,7 +179,7 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         expected.put("b", 10D);
         expected.put("a", 2D);
 
-        Map<String, String> range = session.zrevrangeWithScores("foo", 0, 1);
+        List<ElementScore> range = session.zrevrangeWithScores("foo", 0, 1);
         assertEquals(expected, toStrDblMap(range));
 
         expected.put("c", 0.1D);
@@ -238,9 +234,9 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         session.zadd("foo", 0.1d, "c");
         session.zadd("foo", 2d, "a");
 
-        Set<String> range = session.zrangeByScore("foo", "0", "2");
+        List<String> range = session.zrangeByScore("foo", "0", "2");
 
-        Set<String> expected = new LinkedHashSet<String>();
+        List<String> expected = new ArrayList<String>();
         expected.add("c");
         expected.add("a");
 
@@ -248,16 +244,16 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
 
         range = session.zrangeByScore("foo", "0", "2", 0, 1);
 
-        expected = new LinkedHashSet<String>();
+        expected = new ArrayList<String>();
         expected.add("c");
 
         assertEquals(expected, range);
 
         range = session.zrangeByScore("foo", "0", "2", 1, 1);
-        Set<String> range2 = session.zrangeByScore("foo", "-inf", "(2");
+        List<String> range2 = session.zrangeByScore("foo", "-inf", "(2");
         assertEquals(expected, range2);
 
-        expected = new LinkedHashSet<String>();
+        expected = new ArrayList<String>();
         expected.add("a");
 
         assertEquals(expected, range);
@@ -271,7 +267,7 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         session.zadd("foo", 0.1d, "c");
         session.zadd("foo", 2d, "a");
 
-         Map<String, String> range = session.zrangeByScoreWithScores("foo", "0", "2");
+         List<ElementScore> range = session.zrangeByScoreWithScores("foo", "0", "2");
 
         Map<String, Double> expected = new HashMap<String, Double>();
         expected.put("c", 0.1D);
@@ -305,7 +301,7 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
 
         assertEquals(1, result);
 
-        Set<String> expected = new LinkedHashSet<String>();
+        List<String> expected = new ArrayList<String>();
         expected.add("a");
         expected.add("b");
 
@@ -319,11 +315,11 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         session.zadd("foo", 0.1d, "c");
         session.zadd("foo", 2d, "a");
 
-        long result = session.zremrangeByScore("foo", 0, 2);
+        long result = session.zremrangeByScore("foo", "0", "2");
 
         assertEquals(2, result);
 
-        Set<String> expected = new LinkedHashSet<String>();
+        List<String> expected = new ArrayList<String>();
         expected.add("b");
 
         Assert.assertEquals(expected, session.zrange("foo", 0, 100));
@@ -403,5 +399,37 @@ public class ITSortedSetCommandsTest extends SingleNodeTestBase {
         expected.put("a", 6D);
 
         assertEquals(expected, toStrDblMap(session.zrangeWithScores("dst", 0, 100)));
+    }
+    
+    @Test
+    public void zrevrangeByScore(){
+        session.zadd("myzset", 1, "one");
+        session.zadd("myzset", 2, "two");
+        session.zadd("myzset", 3, "three");
+
+        List<String> result = session.zrevrangeByScore("myzset", "+inf", "-inf");
+        assertEquals(3, result.size());
+        assertEquals("three", result.get(0));
+        assertEquals("two", result.get(1));
+        assertEquals("one", result.get(2));
+
+        result = session.zrevrangeByScore("myzset", "2", "1");
+        assertEquals(2, result.size());
+        assertEquals("two", result.get(0));
+        assertEquals("one", result.get(1));
+
+        result = session.zrevrangeByScore("myzset", "2", "(1");
+        assertEquals(1, result.size());
+        assertEquals("two", result.get(0));
+
+        result = session.zrevrangeByScore("myzset", "(2", "(1");
+        assertEquals(0, result.size());
+
+        List<ElementScore> mResult = session.zrevrangeByScoreWithScores("myzset", "2", "1");
+        assertEquals(2, mResult.size());
+        assertEquals("two", mResult.get(0).getElement());
+        assertEquals("2", mResult.get(0).getScore());
+        assertEquals("one", mResult.get(1).getElement());
+        assertEquals("1", mResult.get(1).getScore());
     }
 }

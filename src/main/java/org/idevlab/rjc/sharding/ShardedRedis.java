@@ -16,6 +16,7 @@
 
 package org.idevlab.rjc.sharding;
 
+import org.idevlab.rjc.ElementScore;
 import org.idevlab.rjc.RedisOperations;
 import org.idevlab.rjc.SortingParams;
 import org.idevlab.rjc.Client;
@@ -257,17 +258,17 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).srandmember(key);
     }
 
-    public Long zadd(final String key, Number score, String member) {
+    public Boolean zadd(final String key, Number score, String member) {
 
         return locator.getNode(key).zadd(key, score, member);
     }
 
-    public Set<String> zrange(final String key, int start, int end) {
+    public List<String> zrange(final String key, int start, int end) {
 
         return locator.getNode(key).zrange(key, start, end);
     }
 
-    public Long zrem(final String key, String member) {
+    public Boolean zrem(final String key, String member) {
 
         return locator.getNode(key).zrem(key, member);
     }
@@ -287,19 +288,35 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).zrevrank(key, member);
     }
 
-    public Set<String> zrevrange(final String key, int start, int end) {
+    public List<String> zrevrange(final String key, int start, int end) {
 
         return locator.getNode(key).zrevrange(key, start, end);
     }
 
-    public Map<String, String> zrangeWithScores(final String key, int start, int end) {
+    public List<ElementScore> zrangeWithScores(final String key, int start, int end) {
 
         return locator.getNode(key).zrangeWithScores(key, start, end);
     }
 
-    public Map<String, String> zrevrangeWithScores(final String key, int start, int end) {
+    public List<ElementScore> zrevrangeWithScores(final String key, int start, int end) {
 
         return locator.getNode(key).zrevrangeWithScores(key, start, end);
+    }
+
+    public List<String> zrevrangeByScore(String key, String max, String min) {
+        return locator.getNode(key).zrevrangeByScore(key, max, min);
+    }
+
+    public List<String> zrevrangeByScore(String key, String max, String min, int offset, int count) {
+        return locator.getNode(key).zrevrangeByScore(key, max, min, offset, count);
+    }
+
+    public List<ElementScore> zrevrangeByScoreWithScores(String key, String max, String min) {
+        return locator.getNode(key).zrevrangeByScoreWithScores(key, max, min);
+    }
+
+    public List<ElementScore> zrevrangeByScoreWithScores(String key, String max, String min, int offset, int count) {
+        return locator.getNode(key).zrevrangeByScoreWithScores(key, max, min, offset, count);
     }
 
     public Long zcard(final String key) {
@@ -327,21 +344,21 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).zcount(key, min, max);
     }
 
-    public Set<String> zrangeByScore(final String key, String min, String max) {
+    public List<String> zrangeByScore(final String key, String min, String max) {
 
         return locator.getNode(key).zrangeByScore(key, min, max);
     }
 
-    public Set<String> zrangeByScore(final String key, String min, String max, int offset, int count) {
+    public List<String> zrangeByScore(final String key, String min, String max, int offset, int count) {
         return locator.getNode(key).zrangeByScore(key, min, max, offset, count);
     }
 
-    public Map<String, String> zrangeByScoreWithScores(final String key, String min, String max) {
+    public List<ElementScore> zrangeByScoreWithScores(final String key, String min, String max) {
         return locator.getNode(key).zrangeByScoreWithScores(key, min, max);
     }
 
-    public Map<String, String> zrangeByScoreWithScores(final String key, String min,
-                                                       String max, int offset, int count) {
+    public List<ElementScore> zrangeByScoreWithScores(final String key, String min,
+                                                      String max, int offset, int count) {
 
         return locator.getNode(key).zrangeByScoreWithScores(key, min, max, offset, count);
     }
@@ -350,8 +367,8 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).zremrangeByRank(key, start, end);
     }
 
-    public Long zremrangeByScore(final String key, Number start, Number end) {
-        return locator.getNode(key).zremrangeByScore(key, start, end);
+    public Long zremrangeByScore(final String key, String min, String max) {
+        return locator.getNode(key).zremrangeByScore(key, min, max);
     }
 
     public Long linsert(final String key, Client.LIST_POSITION where, String pivot,

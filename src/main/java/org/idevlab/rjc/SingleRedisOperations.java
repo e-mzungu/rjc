@@ -379,12 +379,118 @@ public interface SingleRedisOperations extends RedisOperations {
 
     List<Object> pipeline(Pipeline pipeline);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(N)+O(M log(M)) with N being the sum of the sizes of the input sorted sets,
+     * and M being the number of elements in the resulting sorted set.
+     * <p/>
+     * Computes the union of numkeys sorted sets given by the specified keys, and stores the result in destination.
+     * It is mandatory to provide the number of input keys (numkeys) before passing the input keys
+     * and the other (optional) arguments.
+     * <p/>
+     * By default, the resulting score of an element is the sum of its scores in the sorted sets where it exists.
+     * <p/>
+     * Using the WEIGHTS option, it is possible to specify a multiplication factor for each input sorted set.
+     * This means that the score of every element in every input sorted set is multiplied by this factor
+     * before being passed to the aggregation function.
+     * When WEIGHTS is not given, the multiplication factors default to 1.
+     * <p/>
+     * With the AGGREGATE option, it is possible to specify how the results of the union are aggregated.
+     * This option defaults to SUM, where the score of an element is summed across the inputs where it exists.
+     * When this option is set to either MIN or MAX, the resulting set will contain the minimum or maximum score
+     * of an element across the inputs where it exists.
+     * <p/>
+     * If destination already exists, it is overwritten.
+     *
+     * @param dstkey destination key
+     * @param sets   the keys
+     * @return the number of elements in the resulting sorted set at destination.
+     */
     Long zunionstore(String dstkey, String... sets);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(N)+O(M log(M)) with N being the sum of the sizes of the input sorted sets,
+     * and M being the number of elements in the resulting sorted set.
+     * <p/>
+     * Computes the union of numkeys sorted sets given by the specified keys, and stores the result in destination.
+     * It is mandatory to provide the number of input keys (numkeys) before passing the input keys
+     * and the other (optional) arguments.
+     * <p/>
+     * By default, the resulting score of an element is the sum of its scores in the sorted sets where it exists.
+     * <p/>
+     * Using the WEIGHTS option, it is possible to specify a multiplication factor for each input sorted set.
+     * This means that the score of every element in every input sorted set is multiplied by this factor
+     * before being passed to the aggregation function.
+     * When WEIGHTS is not given, the multiplication factors default to 1.
+     * <p/>
+     * With the AGGREGATE option, it is possible to specify how the results of the union are aggregated.
+     * This option defaults to SUM, where the score of an element is summed across the inputs where it exists.
+     * When this option is set to either MIN or MAX, the resulting set will contain the minimum or maximum score
+     * of an element across the inputs where it exists.
+     * <p/>
+     * If destination already exists, it is overwritten.
+     *
+     * @param dstkey destination key
+     * @param params union params
+     * @param sets   the keys
+     * @return the number of elements in the resulting sorted set at destination.
+     */
     Long zunionstore(String dstkey, ZParams params, String... sets);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(N*K)+O(M*log(M)) worst case with N being the smallest input sorted set,
+     * K being the number of input sorted sets and M being the number of elements in
+     * the resulting sorted set.
+     * <p/>
+     * Computes the intersection of numkeys sorted sets given by the specified keys,
+     * and stores the result in destination. It is mandatory to provide the number of input keys
+     * (numkeys) before passing the input keys and the other (optional) arguments.
+     * <p/>
+     * By default, the resulting score of an element is the sum of its scores in the sorted sets where it exists.
+     * Because intersection requires an element to be a member of every given sorted set,
+     * this results in the score of every element in the resulting sorted set to be equal
+     * to the number of input sorted sets.
+     * <p/>
+     * For a description of the WEIGHTS and AGGREGATE options, see ZUNIONSTORE.
+     * <p/>
+     * If destination already exists, it is overwritten.
+     *
+     * @param dstkey destination key
+     * @param sets   the keys
+     * @return the number of elements in the resulting sorted set at destination.
+     */
     Long zinterstore(String dstkey, String... sets);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(N*K)+O(M*log(M)) worst case with N being the smallest input sorted set,
+     * K being the number of input sorted sets and M being the number of elements in
+     * the resulting sorted set.
+     * <p/>
+     * Computes the intersection of numkeys sorted sets given by the specified keys,
+     * and stores the result in destination. It is mandatory to provide the number of input keys
+     * (numkeys) before passing the input keys and the other (optional) arguments.
+     * <p/>
+     * By default, the resulting score of an element is the sum of its scores in the sorted sets where it exists.
+     * Because intersection requires an element to be a member of every given sorted set,
+     * this results in the score of every element in the resulting sorted set to be equal
+     * to the number of input sorted sets.
+     * <p/>
+     * For a description of the WEIGHTS and AGGREGATE options, see ZUNIONSTORE.
+     * <p/>
+     * If destination already exists, it is overwritten.
+     *
+     * @param dstkey destination key
+     * @param params the intersection params
+     * @param sets   the keys
+     * @return the number of elements in the resulting sorted set at destination.
+     */
     Long zinterstore(String dstkey, ZParams params, String... sets);
 
     String save();
