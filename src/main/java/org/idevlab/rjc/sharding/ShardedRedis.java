@@ -129,7 +129,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).persist(key);
     }
 
-    public Long hset(final String key, String field, String value) {
+    public boolean hset(final String key, String field, String value) {
         return locator.getNode(key).hset(key, field, value);
     }
 
@@ -137,7 +137,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).hget(key, field);
     }
 
-    public Long hsetnx(final String key, String field, String value) {
+    public boolean hsetnx(final String key, String field, String value) {
         return locator.getNode(key).hsetnx(key, field, value);
     }
 
@@ -153,11 +153,11 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).hincrBy(key, field, value);
     }
 
-    public Boolean hexists(final String key, String field) {
+    public boolean hexists(final String key, String field) {
         return locator.getNode(key).hexists(key, field);
     }
 
-    public Long hdel(final String key, String field) {
+    public boolean hdel(final String key, String field) {
         return locator.getNode(key).hdel(key, field);
     }
 
@@ -166,22 +166,18 @@ public class ShardedRedis implements RedisOperations {
     }
 
     public Set<String> hkeys(final String key) {
-
         return locator.getNode(key).hkeys(key);
     }
 
-    public Collection<String> hvals(final String key) {
-
+    public List<String> hvals(final String key) {
         return locator.getNode(key).hvals(key);
     }
 
     public Map<String, String> hgetAll(final String key) {
-
         return locator.getNode(key).hgetAll(key);
     }
 
     public Long rpush(final String key, String string) {
-
         return locator.getNode(key).rpush(key, string);
     }
 
@@ -190,7 +186,6 @@ public class ShardedRedis implements RedisOperations {
     }
 
     public Long lpush(final String key, String string) {
-
         return locator.getNode(key).lpush(key, string);
     }
 
@@ -199,57 +194,46 @@ public class ShardedRedis implements RedisOperations {
     }
 
     public Long llen(final String key) {
-
         return locator.getNode(key).llen(key);
     }
 
     public List<String> lrange(final String key, int start, int end) {
-
         return locator.getNode(key).lrange(key, start, end);
     }
 
     public String ltrim(final String key, int start, int end) {
-
         return locator.getNode(key).ltrim(key, start, end);
     }
 
     public String lindex(final String key, int index) {
-
         return locator.getNode(key).lindex(key, index);
     }
 
     public String lset(final String key, int index, String value) {
-
         return locator.getNode(key).lset(key, index, value);
     }
 
     public Long lrem(final String key, int count, String value) {
-
         return locator.getNode(key).lrem(key, count, value);
     }
 
     public String lpop(final String key) {
-
         return locator.getNode(key).lpop(key);
     }
 
     public String rpop(final String key) {
-
         return locator.getNode(key).rpop(key);
     }
 
     public Long sadd(final String key, String member) {
-
         return locator.getNode(key).sadd(key, member);
     }
 
     public Set<String> smembers(final String key) {
-
         return locator.getNode(key).smembers(key);
     }
 
     public Long srem(final String key, String member) {
-
         return locator.getNode(key).srem(key, member);
     }
 

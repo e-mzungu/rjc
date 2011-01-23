@@ -28,10 +28,10 @@ import static org.junit.Assert.*;
 public class ITHashesCommandsTest extends SingleNodeTestBase {
      @Test
     public void hset() {
-        long status = session.hset("foo", "bar", "car");
-        assertEquals(1, status);
+        boolean status = session.hset("foo", "bar", "car");
+        assertTrue(status);
         status = session.hset("foo", "bar", "foo");
-        assertEquals(0, status);
+        assertFalse(status);
     }
 
     @Test
@@ -44,16 +44,16 @@ public class ITHashesCommandsTest extends SingleNodeTestBase {
 
     @Test
     public void hsetnx() {
-        long status = session.hsetnx("foo", "bar", "car");
-        assertEquals(1, status);
+        boolean status = session.hsetnx("foo", "bar", "car");
+        assertTrue(status);
         assertEquals("car", session.hget("foo", "bar"));
 
         status = session.hsetnx("foo", "bar", "foo");
-        assertEquals(0, status);
+        assertFalse(status);
         assertEquals("car", session.hget("foo", "bar"));
 
         status = session.hsetnx("foo", "car", "bar");
-        assertEquals(1, status);
+        assertTrue(status);
         assertEquals("bar", session.hget("foo", "car"));
     }
 
@@ -113,9 +113,9 @@ public class ITHashesCommandsTest extends SingleNodeTestBase {
         hash.put("car", "bar");
         session.hmset("foo", hash);
 
-        assertEquals(0, session.hdel("bar", "foo").intValue());
-        assertEquals(0, session.hdel("foo", "foo").intValue());
-        assertEquals(1, session.hdel("foo", "bar").intValue());
+        assertFalse(session.hdel("bar", "foo"));
+        assertFalse(session.hdel("foo", "foo"));
+        assertTrue(session.hdel("foo", "bar"));
         assertEquals(null, session.hget("foo", "bar"));
     }
 

@@ -16,7 +16,6 @@
 
 package org.idevlab.rjc;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -338,28 +337,165 @@ public interface RedisOperations {
      */
     boolean persist(final String key);
 
-    Long hset(String key, String field, String value);
+    /**
+     * Time complexity
+     * <p/>
+     * O(1)
+     * <p/>
+     * Sets field in the hash stored at key to value.
+     * If key does not exist, a new key holding a hash is created.
+     * If field already exists in the hash, it is overwritten.
+     *
+     * @param key   the key
+     * @param field the field
+     * @param value the value
+     * @return true if field is a new field in the hash and value was set or false if field already exists in the hash and the value was updated.
+     */
+    boolean hset(String key, String field, String value);
 
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Returns the value associated with field in the hash stored at key.
+     *
+     * @param key   the key
+     * @param field the field
+     * @return the value associated with field, or null when field is not present in the hash or key does not exist.
+     */
     String hget(String key, String field);
 
-    Long hsetnx(String key, String field, String value);
+    /**
+     * Time complexity
+     * <p/>
+     * O(1)
+     * <p/>
+     * Sets field in the hash stored at key to value, only if field does not yet exist.
+     * If key does not exist, a new key holding a hash is created.
+     * If field already exists, this operation has no effect.
+     *
+     * @param key   the key
+     * @param field the field
+     * @param value the value
+     * @return true if field is a new field in the hash and value was set or
+     *         false if field already exists in the hash and no operation was performed
+     */
+    boolean hsetnx(String key, String field, String value);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(N) where N is the number of fields being set.
+     * <p/>
+     * Sets the specified fields to their respective values in the hash stored at key.
+     * This command overwrites any existing fields in the hash. If key does not exist, a new key holding a hash is created.
+     *
+     * @param key  the key
+     * @param hash the hash
+     * @return Status code reply
+     */
     String hmset(String key, Map<String, String> hash);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(N) where N is the number of fields being requested.
+     * <p/>
+     * Returns the values associated with the specified fields in the hash stored at key.
+     * <p/>
+     * For every field that does not exist in the hash, a nil value is returned.
+     * Because a non-existing keys are treated as empty hashes,
+     * running HMGET against a non-existing key will return a list of nil values.
+     *
+     * @param key    the key
+     * @param fields the fields
+     * @return list of values associated with the given fields, in the same order as they are requested.
+     */
     List<String> hmget(String key, String... fields);
 
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Increments the number stored at field in the hash stored at key by increment.
+     * If key does not exist, a new key holding a hash is created.
+     * If field does not exist or holds a string that cannot be interpreted as integer,
+     * the value is set to 0 before the operation is performed.
+     * <p/>
+     * The range of values supported by HINCRBY is limited to 64 bit signed integers.
+     *
+     * @param key   the key
+     * @param field the field
+     * @param value the value
+     * @return the value at field after the increment operation
+     */
     Long hincrBy(String key, String field, int value);
 
-    Boolean hexists(String key, String field);
+    /**
+     * Time complexity: O(1)
+     * Returns if field is an existing field in the hash stored at key.
+     *
+     * @param key   the key
+     * @param field the field
+     * @return true if the hash contains field or false if the hash does not contain field, or key does not exist.
+     */
+    boolean hexists(String key, String field);
 
-    Long hdel(String key, String field);
+    /**
+     * Time complexity: O(1)
+     * <p/>
+     * Removes field from the hash stored at key.
+     *
+     * @param key   the key
+     * @param field the field
+     * @return true if field was present in the hash and is now removed or
+     *         false if field does not exist in the hash, or key does not exist.
+     */
+    boolean hdel(String key, String field);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(1)
+     * <p/>
+     * Returns the number of fields contained in the hash stored at key.
+     *
+     * @param key the key
+     * @return number of fields in the hash, or 0 when key does not exist.
+     */
     Long hlen(String key);
 
+    /**
+     * Time complexity
+     * <p/>
+     * O(N) where N is the size of the hash.
+     * <p/>
+     * Returns all field names of the hash stored at key.
+     *
+     * @param key the key
+     * @return list of fields in the hash, or an empty list when key does not exist.
+     */
     Set<String> hkeys(String key);
 
-    Collection<String> hvals(String key);
+    /**
+     * Time complexity
+     * <p/>
+     * O(N) where N is the size of the hash.
+     * <p/>
+     * Returns all values of the hash stored at key.
+     *
+     * @param key the key
+     * @return list of values in the hash, or an empty list when key does not exist.
+     */
+    List<String> hvals(String key);
 
+    /**
+     * Time complexity: O(N) where N is the size of the hash.
+     * <p/>
+     * Returns all fields and values of the hash stored at key. In the returned value,
+     * every field name is followed by its value, so the length of the reply is twice the size of the hash.
+     *
+     * @param key the key
+     * @return map of fields and their values stored in the hash, or an empty map when key does not exist
+     */
     Map<String, String> hgetAll(String key);
 
     Long rpush(String key, String string);
