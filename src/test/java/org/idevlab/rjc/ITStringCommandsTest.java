@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Evgeny Dolgov
  */
-public class ITStringsCommandsTest extends SingleNodeTestBase {
+public class ITStringCommandsTest extends SingleNodeTestBase {
     @Test
     public void setAndGet() {
         String status = session.set("foo", "bar");
