@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
     <groupId>org.idevlab</groupId>
     <artifactId>rjc</artifactId>
-    <version>0.6.1-SNAPSHOT</version>
+    <version>0.6.2-SNAPSHOT</version>
     <name>RJC</name>
     <description>Redis Java client</description>
     <url>http://e-mzungu.github.com/rjc</url>
