@@ -58,6 +58,33 @@ public class ITPoolableConnectionTest {
         dataSource.close();
     }
 
+    @Test
+    public void initialSizeTest2() {
+        PoolableDataSource dataSource = createDataSource();
+        dataSource.setInitialSize(3);
+        dataSource.init();
+        assertEquals(0, dataSource.getNumActive());
+        assertEquals(3, dataSource.getNumIdle());
+        dataSource.close();
+    }
+
+    @Test
+    public void poolableDataSourceFactoryTest() {
+        PoolableDataSourceFactory dataSourceFactory = new PoolableDataSourceFactory();
+        dataSourceFactory.setInitialSize(3);
+        PoolableDataSource dataSource = (PoolableDataSource) dataSourceFactory.create(hnp.host, hnp.port);
+        assertEquals(3, dataSource.getInitialSize());
+
+        assertEquals(0, dataSource.getNumActive());
+        assertEquals(0, dataSource.getNumIdle());
+        dataSource.close();
+
+        dataSourceFactory.setInitAfterCreation(true);
+        dataSource = (PoolableDataSource) dataSourceFactory.create(hnp.host, hnp.port);
+        assertEquals(0, dataSource.getNumActive());
+        assertEquals(3, dataSource.getNumIdle());
+    }
+
     private PoolableDataSource createDataSource() {
         PoolableDataSource dataSource = new PoolableDataSource();
         dataSource.setHost(hnp.host);

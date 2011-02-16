@@ -46,6 +46,10 @@ public class PoolableDataSource implements DataSource {
         }
     }
 
+    public void init() {
+        getConnection().close();
+    }
+
     private synchronized GenericObjectPool createPool() {
         if (closed) {
             throw new RedisException("Data source is closed");

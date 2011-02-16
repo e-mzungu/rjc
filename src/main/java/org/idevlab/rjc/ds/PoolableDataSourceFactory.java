@@ -26,6 +26,7 @@ public class PoolableDataSourceFactory implements DataSourceFactory {
 
     private int timeout = Protocol.DEFAULT_TIMEOUT;
     private String password;
+    private boolean initAfterCreation = false;
 
 
     public synchronized DataSource create(String host, int port) {
@@ -45,7 +46,18 @@ public class PoolableDataSourceFactory implements DataSourceFactory {
         dataSource.setTestWhileIdle(testWhileIdle);
         dataSource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis);
         dataSource.setTimeout(timeout);
+        if (initAfterCreation) {
+            dataSource.init();
+        }
         return dataSource;
+    }
+
+    public boolean isInitAfterCreation() {
+        return initAfterCreation;
+    }
+
+    public void setInitAfterCreation(boolean initAfterCreation) {
+        this.initAfterCreation = initAfterCreation;
     }
 
     public int getTimeout() {
