@@ -43,11 +43,11 @@ public class KeyUtil {
     /**
      * Creates a key from the given blocks using the given separator.
      *
-     * @param separator the separator string to use
+     * @param separator the separator character to use
      * @param blocks    the key's blocks to concatenate
      * @return the resulting key
      */
-    public static String toKey(String separator, Object... blocks) {
+    private static String toKey(char separator, Object... blocks) {
         if (blocks.length == 0) {
             throw new IllegalArgumentException("Empty key");
         }
@@ -69,7 +69,7 @@ public class KeyUtil {
      * @return the resulting key
      */
     public static String toKey(Object... blocks) {
-        return toKey(":", blocks);
+        return toKey(':', blocks);
     }
 
 }

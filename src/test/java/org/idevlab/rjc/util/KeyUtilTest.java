@@ -16,7 +16,6 @@
 
 package org.idevlab.rjc.util;
 
-import junit.framework.Assert;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -28,7 +27,8 @@ public class KeyUtilTest {
 
     @Test
     public void toKeyTest() {
-        Assert.assertEquals("1$2$3", KeyUtil.toKey("$", 1, 2, 3));
         assertEquals("1:2:3", KeyUtil.toKey(1, 2, 3));
+        assertEquals("1:2:3", KeyUtil.toKey("1", "2", "3"));
+        assertEquals("1:2:3", KeyUtil.toKey('1', "2", '3'));
     }
 }
