@@ -485,7 +485,7 @@ public class Client implements RedisCommands {
         conn.sendCommand(Protocol.Command.UNSUBSCRIBE, channels);
     }
 
-    public void psubscribe(final String pattern) {
+    public void psubscribe(final String... pattern) {
         conn.sendCommand(Protocol.Command.PSUBSCRIBE, pattern);
     }
 
