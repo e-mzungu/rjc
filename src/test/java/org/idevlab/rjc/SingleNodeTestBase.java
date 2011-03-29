@@ -32,14 +32,14 @@ public abstract class SingleNodeTestBase {
 
     @Before
     public void setUp() throws Exception {
-        factory = new SessionFactoryImpl(new SimpleDataSource(hnp.host, hnp.port, 500));
+        factory = new SessionFactoryImpl(new SimpleDataSource(hnp.host, hnp.port, 2000));
         this.session = createSession();
         this.session.flushAll();
     }
 
     protected Session createSession() {
         Session result = factory.create();
-        result.configSet("timeout", "300");
+        result.configSet("timeout", "2000");
         return result;
     }
 
