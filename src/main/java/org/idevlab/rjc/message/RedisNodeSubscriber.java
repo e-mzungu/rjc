@@ -24,7 +24,7 @@ import org.idevlab.rjc.util.SafeEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Evgeny Dolgov
@@ -36,12 +36,17 @@ public class RedisNodeSubscriber {
     private DataSource dataSource;
     private MessageListener messageListener;
     private PMessageListener pMessageListener;
-    private String[] patterns;
-    private String[] channels;
+    private Set<String> patterns = Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> channels = Collections.synchronizedSet(new HashSet<String>());
     private SubscribeListener subscribeListener;
     private Client client;
+    private volatile boolean connected = false;
 
     public RedisNodeSubscriber() {
+    }
+
+    public RedisNodeSubscriber(DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     public DataSource getDataSource() {
@@ -60,14 +65,6 @@ public class RedisNodeSubscriber {
         this.messageListener = messageListener;
     }
 
-    public String[] getChannels() {
-        return channels;
-    }
-
-    public void setChannels(String... channels) {
-        this.channels = channels;
-    }
-
     public SubscribeListener getSubscribeListener() {
         return subscribeListener;
     }
@@ -84,31 +81,70 @@ public class RedisNodeSubscriber {
         this.pMessageListener = pMessageListener;
     }
 
-    public String[] getPatterns() {
-        return patterns;
+    public void subscribe(String... channels) {
+        if (channels != null) {
+            this.channels.addAll(Arrays.asList(channels));
+            if (connected) {
+                client.subscribe(channels);
+            }
+        }
     }
 
-    public void setPatterns(String... patterns) {
-        this.patterns = patterns;
+    public void psubscribe(String... patterns) {
+        if (patterns != null) {
+            this.patterns.addAll(Arrays.asList(patterns));
+            if (connected) {
+                client.psubscribe(patterns);
+            }
+        }
     }
 
     public void unsubscribe(String... channels) {
-        client.unsubscribe(channels);
+        if (channels != null) {
+            this.channels.removeAll(Arrays.asList(channels));
+            if (connected) {
+                client.unsubscribe(channels);
+            }
+        }
     }
+
+    public void unsubscribe() {
+        this.channels.clear();
+        if (connected) {
+            client.unsubscribe();
+        }
+    }
+
 
     public void punsubscribe(String... pattern) {
-        client.punsubscribe(pattern);
+        if (patterns != null) {
+            this.patterns.removeAll(Arrays.asList(patterns));
+            if (connected) {
+                client.punsubscribe(pattern);
+            }
+        }
     }
 
-    public void subscribe() {
+    public void punsubscribe() {
+        this.patterns.clear();
+        if (connected) {
+            client.punsubscribe();
+        }
+    }
+
+    public void runSubscription() {
+        close();
+
         client = new Client(this.dataSource.getConnection());
         client.setTimeoutInfinite();
-        if (channels != null && channels.length > 0) {
-            client.subscribe(channels);
+        connected = true;
+
+        if (channels != null && !channels.isEmpty()) {
+            client.subscribe(channels.toArray(new String[channels.size()]));
         }
 
-        if (patterns != null && patterns.length > 0) {
-            client.psubscribe(patterns);
+        if (patterns != null && !patterns.isEmpty()) {
+            client.psubscribe(patterns.toArray(new String[patterns.size()]));
         }
 
         do {
@@ -128,6 +164,7 @@ public class RedisNodeSubscriber {
                 throw new RedisException("Unknown pub/sub message: " + byteToStr((byte[]) firstObj));
             }
 
+            Long subscribedChannels = null;
             switch (keyword) {
                 case MESSAGE: {
                     final String channel = byteToStr((byte[]) reply.get(1));
@@ -148,7 +185,7 @@ public class RedisNodeSubscriber {
                 }
                 case SUBSCRIBE: {
                     final String channel = byteToStr((byte[]) reply.get(1));
-                    final Long subscribedChannels = (Long) reply.get(2);
+                    subscribedChannels = (Long) reply.get(2);
 
                     if (subscribeListener != null) {
                         subscribeListener.onSubscribe(channel, subscribedChannels);
@@ -157,7 +194,7 @@ public class RedisNodeSubscriber {
                 }
                 case UNSUBSCRIBE: {
                     final String channel = byteToStr((byte[]) reply.get(1));
-                    final Long subscribedChannels = (Long) reply.get(2);
+                    subscribedChannels = (Long) reply.get(2);
                     if (subscribeListener != null) {
                         subscribeListener.onUnsubscribe(channel, subscribedChannels);
                     }
@@ -165,7 +202,7 @@ public class RedisNodeSubscriber {
                 }
                 case PSUBSCRIBE: {
                     final String pattern = byteToStr((byte[]) reply.get(1));
-                    final Long subscribedChannels = (Long) reply.get(2);
+                    subscribedChannels = (Long) reply.get(2);
                     if (subscribeListener != null) {
                         subscribeListener.onPSubscribe(pattern, subscribedChannels);
                     }
@@ -173,7 +210,7 @@ public class RedisNodeSubscriber {
                 }
                 case PUNSUBSCRIBE: {
                     final String pattern = byteToStr((byte[]) reply.get(1));
-                    final Long subscribedChannels = (Long) reply.get(2);
+                    subscribedChannels = (Long) reply.get(2);
                     if (subscribeListener != null) {
                         subscribeListener.onPUnsubscribe(pattern, subscribedChannels);
                     }
@@ -183,18 +220,29 @@ public class RedisNodeSubscriber {
                     LOG.warn("Unknown message: {}", keyword.toString());
                 }
             }
+
+            if(subscribedChannels != null && subscribedChannels == 0) {
+                break;
+            }
         } while (true);
 
         LOG.debug("Subscriber is going out");
         close();
     }
 
+    public boolean isConnected() {
+        return connected;
+    }
+
     public void close() {
-        client.unsubscribe();
-        client.punsubscribe();
-        client.rollbackTimeout();
-        client.close();
-        LOG.debug("Subscriber is  closed");
+        if (connected) {
+            unsubscribe();
+            punsubscribe();
+            client.rollbackTimeout();
+            client.close();
+            LOG.debug("Subscriber is  closed");
+        }
+        connected = false;
     }
 
     private String byteToStr(byte[] bytes) {
