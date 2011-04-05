@@ -7,6 +7,8 @@ It's aimed to work in multi threading environments.
 
 RJC is fully compatible with Redis 2.x.
 
+OSGi ready (thanks [iocanel](https://github.com/iocanel)).
+
 See code examples in the project [wiki page](https://github.com/e-mzungu/rjc/wiki/Code-examples).
 
 # How to use it with Maven
@@ -14,7 +16,7 @@ Include maven dependency to you project
         <dependency>
             <groupId>org.idevlab</groupId>
             <artifactId>rjc</artifactId>
-            <version>0.6.3</version>
+            <version>0.6.4</version>
         </dependency>
 
 # Quick start
