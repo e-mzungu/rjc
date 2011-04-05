@@ -7,10 +7,10 @@
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <groupId>org.idevlab</groupId>
     <artifactId>rjc</artifactId>
-    <version>0.6.4-SNAPSHOT</version>
+    <version>0.6.4-SNAPSHOT</version>	
     <name>RJC</name>
     <description>Redis Java client</description>
     <url>http://e-mzungu.github.com/rjc</url>
@@ -42,7 +42,30 @@
 
     <properties>
         <!--redis hosts for testing purpose-->
-        <redis-hosts>redishost:6379,redishost:6380</redis-hosts>
+        <redis-hosts>redishost:6379,redishost:6380</redis-hosts>		
+
+        <!-- Dependencies Versions -->
+		<commons-pool.version>1.5.5</commons-pool.version>
+		<slf4j.version>1.6.1</slf4j.version>
+		
+        <!-- Maven Plugin Versions  -->
+		<maven-bundle-plugin.version>2.1.0</maven-bundle-plugin.version>
+		<maven-compiler-plugin.version>2.0.2</maven-compiler-plugin.version>
+		<maven-resources-plugin.version>2.4.3</maven-resources-plugin.version>
+		<maven-surefire-plugin.version>2.7.1</maven-surefire-plugin.version>
+		<maven-failsafe-plugin.version>2.7.1</maven-failsafe-plugin.version>
+		
+		<!-- Bundle Properties -->        
+		<osgi.import>
+            !org.idevlab.rjc*;version=${project.version},
+			org.apache.commons.pool*="[1.4,1.5]",
+			org.slf4j*;version="[1.4,1.6]",			
+            *
+		</osgi.import>
+		<osgi.dynamic.import>javax.*,org.w3c.*,org.xml.*</osgi.dynamic.import>
+		<osgi.export>
+            org.idevlab.rjc*;version=${project.version}
+		</osgi.export>
     </properties>
 
 
@@ -50,12 +73,12 @@
         <dependency>
             <groupId>commons-pool</groupId>
             <artifactId>commons-pool</artifactId>
-            <version>1.5.5</version>
+            <version>${commons-pool.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.6.1</version>
+            <version>${slf4j.version}</version>
         </dependency>
 
         <dependency>
@@ -78,7 +101,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
@@ -87,7 +110,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.7.1</version>
+                <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>**/IT*.java</exclude>
@@ -99,7 +122,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.7.1</version>
+                <version>${maven-failsafe-plugin.version}</version>
                 <configuration>
                     <systemPropertyVariables>
                         <redis-hosts>${redis-hosts}</redis-hosts>
@@ -120,6 +143,38 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>${maven-bundle-plugin.version}</version>
+				<extensions>true</extensions>
+				<inherited>true</inherited>
+				<configuration>
+					<instructions>
+						<Bundle-Name>${project.name}</Bundle-Name>
+						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						<Export-Package>${osgi.export}</Export-Package>
+						<Import-Package>${osgi.import}</Import-Package>
+						<DynamicImport-Package>${osgi.dynamic.import}</DynamicImport-Package>
+						<Private-Package>${osgi.private}</Private-Package>
+						<Require-Bundle>${osgi.bundles}</Require-Bundle>
+					</instructions>
+					<supportedProjectTypes>
+						<supportedProjectType>jar</supportedProjectType>
+						<supportedProjectType>bundle</supportedProjectType>
+					</supportedProjectTypes>
+					<unpackBundle>true</unpackBundle>
+				</configuration>
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
         </plugins>
     </build>
 </project>
