@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -10,7 +11,7 @@
     <packaging>bundle</packaging>
     <groupId>org.idevlab</groupId>
     <artifactId>rjc</artifactId>
-    <version>0.6.4-SNAPSHOT</version>	
+    <version>0.6.4-SNAPSHOT</version>
     <name>RJC</name>
     <description>Redis Java client</description>
     <url>http://e-mzungu.github.com/rjc</url>
@@ -42,30 +43,30 @@
 
     <properties>
         <!--redis hosts for testing purpose-->
-        <redis-hosts>redishost:6379,redishost:6380</redis-hosts>		
+        <redis-hosts>redishost:6379,redishost:6380</redis-hosts>
 
         <!-- Dependencies Versions -->
-		<commons-pool.version>1.5.5</commons-pool.version>
-		<slf4j.version>1.6.1</slf4j.version>
-		
+        <commons-pool.version>1.5.6</commons-pool.version>
+        <slf4j.version>1.6.1</slf4j.version>
+
         <!-- Maven Plugin Versions  -->
-		<maven-bundle-plugin.version>2.1.0</maven-bundle-plugin.version>
-		<maven-compiler-plugin.version>2.0.2</maven-compiler-plugin.version>
-		<maven-resources-plugin.version>2.4.3</maven-resources-plugin.version>
-		<maven-surefire-plugin.version>2.7.1</maven-surefire-plugin.version>
-		<maven-failsafe-plugin.version>2.7.1</maven-failsafe-plugin.version>
-		
-		<!-- Bundle Properties -->        
-		<osgi.import>
+        <maven-bundle-plugin.version>2.1.0</maven-bundle-plugin.version>
+        <maven-compiler-plugin.version>2.0.2</maven-compiler-plugin.version>
+        <maven-resources-plugin.version>2.4.3</maven-resources-plugin.version>
+        <maven-surefire-plugin.version>2.7.1</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>2.7.1</maven-failsafe-plugin.version>
+
+        <!-- Bundle Properties -->
+        <osgi.import>
             !org.idevlab.rjc*;version=${project.version},
-			org.apache.commons.pool*="[1.4,1.5]",
-			org.slf4j*;version="[1.4,1.6]",			
+            org.apache.commons.pool*;version="[1.4,1.5]",
+            org.slf4j*;version="[1.4,1.6]",
             *
-		</osgi.import>
-		<osgi.dynamic.import>javax.*,org.w3c.*,org.xml.*</osgi.dynamic.import>
-		<osgi.export>
+        </osgi.import>
+        <osgi.dynamic.import>javax.*,org.w3c.*,org.xml.*</osgi.dynamic.import>
+        <osgi.export>
             org.idevlab.rjc*;version=${project.version}
-		</osgi.export>
+        </osgi.export>
     </properties>
 
 
@@ -143,38 +144,38 @@
                     </execution>
                 </executions>
             </plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>${maven-bundle-plugin.version}</version>
-				<extensions>true</extensions>
-				<inherited>true</inherited>
-				<configuration>
-					<instructions>
-						<Bundle-Name>${project.name}</Bundle-Name>
-						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Export-Package>${osgi.export}</Export-Package>
-						<Import-Package>${osgi.import}</Import-Package>
-						<DynamicImport-Package>${osgi.dynamic.import}</DynamicImport-Package>
-						<Private-Package>${osgi.private}</Private-Package>
-						<Require-Bundle>${osgi.bundles}</Require-Bundle>
-					</instructions>
-					<supportedProjectTypes>
-						<supportedProjectType>jar</supportedProjectType>
-						<supportedProjectType>bundle</supportedProjectType>
-					</supportedProjectTypes>
-					<unpackBundle>true</unpackBundle>
-				</configuration>
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${maven-bundle-plugin.version}</version>
+                <extensions>true</extensions>
+                <inherited>true</inherited>
+                <configuration>
+                    <instructions>
+                        <Bundle-Name>${project.name}</Bundle-Name>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Export-Package>${osgi.export}</Export-Package>
+                        <Import-Package>${osgi.import}</Import-Package>
+                        <DynamicImport-Package>${osgi.dynamic.import}</DynamicImport-Package>
+                        <!--<Private-Package>${osgi.private}</Private-Package>-->
+                        <!--<Require-Bundle>${osgi.bundles}</Require-Bundle>-->
+                    </instructions>
+                    <supportedProjectTypes>
+                        <supportedProjectType>jar</supportedProjectType>
+                        <supportedProjectType>bundle</supportedProjectType>
+                    </supportedProjectTypes>
+                    <unpackBundle>true</unpackBundle>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
