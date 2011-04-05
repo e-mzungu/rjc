@@ -17,6 +17,7 @@
 package org.idevlab.rjc.message;
 
 import org.idevlab.rjc.SingleNodeTestBase;
+import org.idevlab.rjc.ds.PoolableDataSource;
 import org.idevlab.rjc.ds.SimpleDataSource;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,6 +25,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Evgeny Dolgov
@@ -43,13 +46,25 @@ public class ITSubscriberTest extends SingleNodeTestBase {
 
     @Test
     public void unsubscribe() throws InterruptedException {
+
+        unsubscribeInternal(true);
+        unsubscribeInternal(false);
+    }
+
+    @Test
+    public void unsubscribeAll() throws InterruptedException {
         final List<String> msgReceive = Collections.synchronizedList(new ArrayList<String>());
         final List<String> pmsgReceive = Collections.synchronizedList(new ArrayList<String>());
 
         final RedisNodeSubscriber subscriber = new RedisNodeSubscriber();
-        subscriber.setChannels("c1", "c22");
-        subscriber.setPatterns("c*", "c2*");
-        subscriber.setDataSource(new SimpleDataSource(hnp.host, hnp.port));
+
+        subscriber.subscribe("c1", "c22");
+        subscriber.psubscribe("c*", "c2*");
+
+        PoolableDataSource dataSource = new PoolableDataSource();
+        dataSource.setHost(hnp.host);
+        dataSource.setPort(hnp.port);
+        subscriber.setDataSource(dataSource);
         subscriber.setMessageListener(new MessageListener() {
             public void onMessage(String channel, String message) {
                 msgReceive.add(message);
@@ -63,10 +78,56 @@ public class ITSubscriberTest extends SingleNodeTestBase {
 
         Thread t = new Thread(new Runnable() {
             public void run() {
-                subscriber.subscribe();
+                subscriber.runSubscription();
             }
         });
         t.start();
+
+        Thread.sleep(500);
+
+        subscriber.unsubscribe();
+        subscriber.punsubscribe();
+        t.join();
+    }
+
+    private void unsubscribeInternal(boolean subscribeAfter) throws InterruptedException {
+        final List<String> msgReceive = Collections.synchronizedList(new ArrayList<String>());
+        final List<String> pmsgReceive = Collections.synchronizedList(new ArrayList<String>());
+
+        final RedisNodeSubscriber subscriber = new RedisNodeSubscriber();
+        if (!subscribeAfter) {
+            subscriber.subscribe("c1", "c22");
+            subscriber.psubscribe("c*", "c2*");
+        }
+
+        PoolableDataSource dataSource = new PoolableDataSource();
+        dataSource.setHost(hnp.host);
+        dataSource.setPort(hnp.port);
+        subscriber.setDataSource(dataSource);
+        subscriber.setMessageListener(new MessageListener() {
+            public void onMessage(String channel, String message) {
+                msgReceive.add(message);
+            }
+        });
+        subscriber.setPMessageListener(new PMessageListener() {
+            public void onMessage(String pattern, String channel, String message) {
+                pmsgReceive.add(message);
+            }
+        });
+
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                subscriber.runSubscription();
+            }
+        });
+        t.start();
+
+        Thread.sleep(500);
+
+        if (subscribeAfter) {
+            subscriber.subscribe("c1", "c22");
+            subscriber.psubscribe("c*", "c2*");
+        }
 
         Thread.sleep(500);
 
@@ -92,7 +153,16 @@ public class ITSubscriberTest extends SingleNodeTestBase {
         Assert.assertEquals(15, msgReceive.size());
         Assert.assertEquals(25, pmsgReceive.size());
 
+        assertEquals(0, dataSource.getNumActive());
+        assertEquals(1, dataSource.getNumIdle());
     }
+
+    @Test
+    public void emptyClose() {
+        final RedisNodeSubscriber subscriber = new RedisNodeSubscriber();
+        subscriber.close();
+    }
+
 
     private void subscribe(String channel, String pattern) throws InterruptedException {
         final List<String> msgReceive = Collections.synchronizedList(new ArrayList<String>());
@@ -101,7 +171,7 @@ public class ITSubscriberTest extends SingleNodeTestBase {
 
         final RedisNodeSubscriber subscriber = new RedisNodeSubscriber();
         if (channel != null) {
-            subscriber.setChannels(channel);
+            subscriber.subscribe(channel);
         }
         subscriber.setDataSource(new SimpleDataSource(hnp.host, hnp.port));
         subscriber.setMessageListener(new MessageListener() {
@@ -130,13 +200,13 @@ public class ITSubscriberTest extends SingleNodeTestBase {
             }
         });
         if (pattern != null) {
-            subscriber.setPatterns(pattern);
+            subscriber.psubscribe(pattern);
         }
 
 
         Thread t = new Thread(new Runnable() {
             public void run() {
-                subscriber.subscribe();
+                subscriber.runSubscription();
             }
         });
         t.start();
