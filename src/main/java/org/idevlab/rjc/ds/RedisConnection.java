@@ -46,14 +46,9 @@ public interface RedisConnection {
 
     String getBulkReply();
 
-    byte[] getBinaryBulkReply();
-
     Long getIntegerReply();
 
     List<String> getMultiBulkReply();
-
-    @SuppressWarnings("unchecked")
-    List<byte[]> getBinaryMultiBulkReply();
 
     @SuppressWarnings("unchecked")
     List<Object> getObjectMultiBulkReply();

@@ -91,11 +91,11 @@ public final class Protocol {
         return null;
     }
 
-    private byte[] processStatusCodeReply(final RedisInputStream is) {
-        return SafeEncoder.encode(is.readLine());
+    private String processStatusCodeReply(final RedisInputStream is) {
+        return is.readLine();
     }
 
-    private byte[] processBulkReply(final RedisInputStream is) {
+    private String processBulkReply(final RedisInputStream is) {
         int len = Integer.parseInt(is.readLine());
         if (len == -1) {
             return null;
@@ -113,7 +113,7 @@ public final class Protocol {
             throw new RedisException(e);
         }
 
-        return read;
+        return SafeEncoder.encode(read);
     }
 
     private Long processInteger(final RedisInputStream is) {
@@ -179,9 +179,9 @@ public final class Protocol {
             raw = SafeEncoder.encode(str);
         }
 
-        public static Keyword find(byte[] bytes) {
+        public static Keyword find(String value) {
             for (Keyword keyword : values()) {
-                if (Arrays.equals(keyword.raw, bytes)) {
+                if (keyword.name().equalsIgnoreCase(value)) {
                     return keyword;
                 }
             }

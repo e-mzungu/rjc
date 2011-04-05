@@ -119,35 +119,35 @@ public class RedisNodeSubscriber {
                 break;
             }
             final Object firstObj = reply.get(0);
-            if (!(firstObj instanceof byte[])) {
+            if (!(firstObj instanceof String)) {
                 throw new RedisException("Unknown message type: " + firstObj);
             }
 
-            Protocol.Keyword keyword = Protocol.Keyword.find((byte[]) firstObj);
+            Protocol.Keyword keyword = Protocol.Keyword.find((String) firstObj);
             if (keyword == null) {
-                throw new RedisException("Unknown pub/sub message: " + byteToStr((byte[]) firstObj));
+                throw new RedisException("Unknown pub/sub message: " + firstObj);
             }
 
             switch (keyword) {
                 case MESSAGE: {
-                    final String channel = byteToStr((byte[]) reply.get(1));
-                    final String message = byteToStr((byte[]) reply.get(2));
+                    final String channel = (String) reply.get(1);
+                    final String message = (String) reply.get(2);
                     if (messageListener != null) {
                         messageListener.onMessage(channel, message);
                     }
                     break;
                 }
                 case PMESSAGE: {
-                    final String pattern = byteToStr((byte[]) reply.get(1));
-                    final String channel = byteToStr((byte[]) reply.get(2));
-                    final String message = byteToStr((byte[]) reply.get(3));
+                    final String pattern = (String) reply.get(1);
+                    final String channel = (String) reply.get(2);
+                    final String message = (String) reply.get(3);
                     if (pMessageListener != null) {
                         pMessageListener.onMessage(pattern, channel, message);
                     }
                     break;
                 }
                 case SUBSCRIBE: {
-                    final String channel = byteToStr((byte[]) reply.get(1));
+                    final String channel = (String) reply.get(1);
                     final Long subscribedChannels = (Long) reply.get(2);
 
                     if (subscribeListener != null) {
@@ -156,7 +156,7 @@ public class RedisNodeSubscriber {
                     break;
                 }
                 case UNSUBSCRIBE: {
-                    final String channel = byteToStr((byte[]) reply.get(1));
+                    final String channel = (String) reply.get(1);
                     final Long subscribedChannels = (Long) reply.get(2);
                     if (subscribeListener != null) {
                         subscribeListener.onUnsubscribe(channel, subscribedChannels);
@@ -164,7 +164,7 @@ public class RedisNodeSubscriber {
                     break;
                 }
                 case PSUBSCRIBE: {
-                    final String pattern = byteToStr((byte[]) reply.get(1));
+                    final String pattern = (String) reply.get(1);
                     final Long subscribedChannels = (Long) reply.get(2);
                     if (subscribeListener != null) {
                         subscribeListener.onPSubscribe(pattern, subscribedChannels);
@@ -172,7 +172,7 @@ public class RedisNodeSubscriber {
                     break;
                 }
                 case PUNSUBSCRIBE: {
-                    final String pattern = byteToStr((byte[]) reply.get(1));
+                    final String pattern = (String) reply.get(1);
                     final Long subscribedChannels = (Long) reply.get(2);
                     if (subscribeListener != null) {
                         subscribeListener.onPUnsubscribe(pattern, subscribedChannels);

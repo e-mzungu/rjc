@@ -73,7 +73,6 @@ class RedisConnectionImpl implements RedisConnection {
     }
 
 
-
     public void sendCommand(final Protocol.Command cmd, final String... args) {
         final byte[][] bargs = new byte[args.length][];
         for (int i = 0; i < args.length; i++) {
@@ -148,26 +147,12 @@ class RedisConnectionImpl implements RedisConnection {
 
     public String getStatusCodeReply() {
         pipelinedCommands--;
-        final byte[] resp = (byte[]) protocol.read(inputStream);
-        if (null == resp) {
-            return null;
-        } else {
-            return SafeEncoder.encode(resp);
-        }
+        return (String) protocol.read(inputStream);
     }
 
     public String getBulkReply() {
-        final byte[] result = getBinaryBulkReply();
-        if (null != result) {
-            return SafeEncoder.encode(result);
-        } else {
-            return null;
-        }
-    }
-
-    public byte[] getBinaryBulkReply() {
         pipelinedCommands--;
-        return (byte[]) protocol.read(inputStream);
+        return (String) protocol.read(inputStream);
     }
 
     public Long getIntegerReply() {
@@ -175,26 +160,10 @@ class RedisConnectionImpl implements RedisConnection {
         return (Long) protocol.read(inputStream);
     }
 
+    @SuppressWarnings({"unchecked"})
     public List<String> getMultiBulkReply() {
-        final List<byte[]> bresult = getBinaryMultiBulkReply();
-        if (null == bresult) {
-            return null;
-        }
-        final ArrayList<String> result = new ArrayList<String>(bresult.size());
-        for (final byte[] barray : bresult) {
-            if (barray == null) {
-                result.add(null);
-            } else {
-                result.add(SafeEncoder.encode(barray));
-            }
-        }
-        return result;
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<byte[]> getBinaryMultiBulkReply() {
         pipelinedCommands--;
-        return (List<byte[]>) protocol.read(inputStream);
+        return (List<String>) protocol.read(inputStream);
     }
 
     @SuppressWarnings("unchecked")

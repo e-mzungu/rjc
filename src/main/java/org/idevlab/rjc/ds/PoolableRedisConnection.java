@@ -119,20 +119,12 @@ class PoolableRedisConnection implements RedisConnection {
         return conn.getBulkReply();
     }
 
-    public byte[] getBinaryBulkReply() {
-        return conn.getBinaryBulkReply();
-    }
-
     public Long getIntegerReply() {
         return conn.getIntegerReply();
     }
 
     public List<String> getMultiBulkReply() {
         return conn.getMultiBulkReply();
-    }
-
-    public List<byte[]> getBinaryMultiBulkReply() {
-        return conn.getBinaryMultiBulkReply();
     }
 
     public List<Object> getObjectMultiBulkReply() {

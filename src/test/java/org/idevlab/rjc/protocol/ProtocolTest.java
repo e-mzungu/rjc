@@ -16,14 +16,12 @@
 
 package org.idevlab.rjc.protocol;
 
-import org.idevlab.rjc.util.SafeEncoder;
 import org.junit.Test;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -54,8 +52,8 @@ public class ProtocolTest {
     public void bulkReply() {
         InputStream is = new ByteArrayInputStream("$6\r\nfoobar\r\n".getBytes());
         Protocol protocol = new Protocol();
-        byte[] response = (byte[]) protocol.read(new RedisInputStream(is));
-        assertArrayEquals(SafeEncoder.encode("foobar"), response);
+        String response = (String) protocol.read(new RedisInputStream(is));
+        assertEquals("foobar", response);
     }
 
     @Test
@@ -63,9 +61,8 @@ public class ProtocolTest {
         FragmentedByteArrayInputStream fis = new FragmentedByteArrayInputStream(
                 "$30\r\n012345678901234567890123456789\r\n".getBytes());
         Protocol protocol = new Protocol();
-        byte[] response = (byte[]) protocol.read(new RedisInputStream(fis));
-        assertArrayEquals(SafeEncoder.encode("012345678901234567890123456789"),
-                response);
+        String response = (String) protocol.read(new RedisInputStream(fis));
+        assertEquals("012345678901234567890123456789", response);
     }
 
     @Test
@@ -80,8 +77,8 @@ public class ProtocolTest {
     public void singleLineReply() {
         InputStream is = new ByteArrayInputStream("+OK\r\n".getBytes());
         Protocol protocol = new Protocol();
-        byte[] response = (byte[]) protocol.read(new RedisInputStream(is));
-        assertArrayEquals(SafeEncoder.encode("OK"), response);
+        String response = (String) protocol.read(new RedisInputStream(is));
+        assertEquals("OK", response);
     }
 
     @Test
@@ -99,17 +96,17 @@ public class ProtocolTest {
                 "*4\r\n$3\r\nfoo\r\n$3\r\nbar\r\n$5\r\nHello\r\n$5\r\nWorld\r\n"
                         .getBytes());
         Protocol protocol = new Protocol();
-        List<byte[]> response = (List<byte[]>) protocol
+        List<String> response = (List<String>) protocol
                 .read(new RedisInputStream(is));
-        List<byte[]> expected = new ArrayList<byte[]>();
-        expected.add(SafeEncoder.encode("foo"));
-        expected.add(SafeEncoder.encode("bar"));
-        expected.add(SafeEncoder.encode("Hello"));
-        expected.add(SafeEncoder.encode("World"));
+        List<String> expected = new ArrayList<String>();
+        expected.add("foo");
+        expected.add("bar");
+        expected.add("Hello");
+        expected.add("World");
 
         assertEquals(expected.size(), response.size());
         for (int i = 0; i < expected.size(); i++) {
-            assertArrayEquals(expected.get(i), response.get(i));
+            assertEquals(expected.get(i), response.get(i));
         }
     }
 

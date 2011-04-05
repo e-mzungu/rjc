@@ -16,7 +16,6 @@
 
 package org.idevlab.rjc;
 
-import org.idevlab.rjc.protocol.Protocol;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -24,7 +23,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Evgeny Dolgov
@@ -43,12 +43,17 @@ public class ITTransactionCommandsTest extends SingleNodeTestBase {
         Long lStatus = session.scard("foo");
         assertNull(lStatus);
 
+        session.set("boo", "val1");
+        session.get("boo");
+
         List<Object> response = session.exec();
 
         List<Object> expected = new ArrayList<Object>();
         expected.add(1L);
         expected.add(1L);
         expected.add(2L);
+        expected.add("OK");
+        expected.add("val1");
         assertEquals(expected, response);
     }
 
@@ -85,8 +90,7 @@ public class ITTransactionCommandsTest extends SingleNodeTestBase {
         List<Object> resp = session.exec();
         assertEquals(1, resp.size());
 
-        assertArrayEquals(Protocol.Keyword.OK.name().getBytes(Protocol.CHARSET),
-                (byte[]) resp.get(0));
+        assertEquals("OK", resp.get(0));
     }
 
     @Test

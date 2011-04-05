@@ -668,14 +668,6 @@ public class Client implements RedisCommands {
         return conn.getBulkReply();
     }
 
-    public byte[] getBinaryBulkReply() {
-        if (isInMulti()) {
-            conn.getStatusCodeReply();
-            return null;
-        }
-        return conn.getBinaryBulkReply();
-    }
-
     public Long getIntegerReply() {
         if (isInMulti()) {
             conn.getStatusCodeReply();
@@ -690,14 +682,6 @@ public class Client implements RedisCommands {
             return Collections.emptyList();
         }
         return conn.getMultiBulkReply();
-    }
-
-    public List<byte[]> getBinaryMultiBulkReply() {
-        if (isInMulti()) {
-            conn.getStatusCodeReply();
-            return Collections.emptyList();
-        }
-        return conn.getBinaryMultiBulkReply();
     }
 
     public List<Object> getObjectMultiBulkReply() {
