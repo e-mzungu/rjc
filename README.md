@@ -13,6 +13,7 @@ See code examples in the project [wiki page](https://github.com/e-mzungu/rjc/wik
 
 # How to use it with Maven
 Include maven dependency to you project
+
         <dependency>
             <groupId>org.idevlab</groupId>
             <artifactId>rjc</artifactId>
@@ -26,6 +27,7 @@ Install RJC as described above.
 Run Redis.
 
 Perform:
+
         DataSource dataSource = new SimpleDataSource("localhost");
         SingleRedisOperations redis = new RedisNode(dataSource);
         redis.set("foo", "hello");
