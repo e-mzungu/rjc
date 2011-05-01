@@ -24,14 +24,14 @@ import java.util.List;
 /**
  * @author Evgeny Dolgov
  */
-public class RedissImpl implements Redis {
+public class RedisClientImpl implements RedisClient {
 
     private RedisConnection connection;
 
-    public RedissImpl() {
+    public RedisClientImpl() {
     }
 
-    public RedissImpl(RedisConnection connection) {
+    public RedisClientImpl(RedisConnection connection) {
         this.connection = connection;
     }
 
@@ -73,6 +73,10 @@ public class RedissImpl implements Redis {
         return connection.getIntegerReply();
     }
 
+    public String getBulkReply() {
+        return connection.getBulkReply();
+    }
+
     public String getBulkReply(RedisCommand command) {
         connection.sendCommand(command);
         return connection.getBulkReply();
@@ -83,7 +87,7 @@ public class RedissImpl implements Redis {
         return connection.getBulkReply();
     }
 
-    public byte[] getBulkReply(RedisCommand command, byte[]... args) {
+    public byte[] getBinaryBulkReply(RedisCommand command, byte[]... args) {
         connection.sendCommand(command, args);
         return connection.getBinaryBulkReply();
     }
@@ -93,8 +97,17 @@ public class RedissImpl implements Redis {
         return connection.getBinaryBulkReply();
     }
 
+    public List<Object> getMultiBulkReply() {
+        return connection.getObjectMultiBulkReply();
+    }
+
     public List<Object> getMultiBulkReply(RedisCommand command, String... args) {
         connection.sendCommand(command, args);
+        return connection.getObjectMultiBulkReply();
+    }
+
+    public List<Object> getMultiBulkReply(RedisCommand command) {
+        connection.sendCommand(command);
         return connection.getObjectMultiBulkReply();
     }
 
@@ -105,14 +118,47 @@ public class RedissImpl implements Redis {
 
     public List<Object> getBinaryMultiBulkReply(RedisCommand command, byte[]... args) {
         connection.sendCommand(command, args);
-        return connection.getObjectMultiBulkReply();
+        return connection.getBinaryObjectMultiBulkReply();
+    }
+
+    public List<Object> getBinaryMultiBulkReply(RedisCommand command) {
+        connection.sendCommand(command);
+        return connection.getBinaryObjectMultiBulkReply();
+    }
+
+    public List<Object> getAll() {
+        return connection.getAll();
+    }
+
+    public List<Object> getBinaryAll() {
+        return connection.getBinaryAll();
     }
 
     public void noReply(RedisCommand command) {
         connection.sendCommand(command);
     }
 
+    public void noReply(RedisCommand command, String... args) {
+        connection.sendCommand(command, args);
+    }
+
+    public void noReply(RedisCommand command, byte[]... args) {
+        connection.sendCommand(command, args);
+    }
+
     public void close() {
         connection.close();
+    }
+
+    public boolean isConnected() {
+        return connection.isConnected();
+    }
+
+    public void setTimeoutInfinite() {
+        connection.setTimeoutInfinite();
+    }
+
+    public void rollbackTimeout() {
+        connection.rollbackTimeout();
     }
 }

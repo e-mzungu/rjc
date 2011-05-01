@@ -143,8 +143,16 @@ class PoolableRedisConnection implements RedisConnection {
         return conn.getAll();
     }
 
+    public List<Object> getBinaryAll() {
+        return conn.getBinaryAll();
+    }
+
     public Object getOne() {
         return conn.getOne();
+    }
+
+    public Object getBinaryOne() {
+        return conn.getBinaryOne();
     }
 
     public void sendCommand(RedisCommand cmd, String... args) {

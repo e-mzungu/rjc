@@ -16,6 +16,7 @@
 
 package org.idevlab.rjc;
 
+import org.idevlab.rjc.protocol.RedisCommand;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -24,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Evgeny Dolgov
@@ -32,19 +32,14 @@ import static org.junit.Assert.assertNull;
 public class ITTransactionCommandsTest extends SingleNodeTestBase {
     @Test
     public void multi() {
-        session.multi();
+        RedisClient redis = session.multi();
 
-        Boolean status = session.sadd("foo", "a");
-        assertNull(status);
+        assertEquals("QUEUED", redis.getStatusReply(RedisCommand.SADD, "foo", "a"));
+        assertEquals("QUEUED", redis.getStatusReply(RedisCommand.SADD, "foo", "c"));
+        assertEquals("QUEUED", redis.getStatusReply(RedisCommand.SCARD, "foo"));
 
-        status = session.sadd("foo", "b");
-        assertNull(status);
-
-        Long lStatus = session.scard("foo");
-        assertNull(lStatus);
-
-        session.set("boo", "val1");
-        session.get("boo");
+        assertEquals("QUEUED", redis.getStatusReply(RedisCommand.SET, "boo", "val1"));
+        assertEquals("QUEUED", redis.getStatusReply(RedisCommand.GET, "boo"));
 
         List<Object> response = session.exec();
 

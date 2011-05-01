@@ -16,7 +16,6 @@
 
 package org.idevlab.rjc;
 
-import org.idevlab.rjc.Client.LIST_POSITION;
 import org.idevlab.rjc.ds.DataSource;
 
 import java.util.*;
@@ -1094,7 +1093,7 @@ public class RedisNode implements SingleRedisOperations {
         });
     }
 
-    public Long linsert(final String key, final LIST_POSITION where,
+    public Long linsert(final String key, final ListPosition where,
                         final String pivot, final String value) {
         return execute(new RedisCallback<Long>() {
             public Long doIt(Session session) {

@@ -41,4 +41,12 @@ public class SafeEncoder {
             throw new RedisException(e);
         }
     }
+
+    public static byte[][] encode(String[] args) {
+        final byte[][] bargs = new byte[args.length][];
+        for (int i = 0; i < args.length; i++) {
+            bargs[i] = encode(args[i]);
+        }
+        return bargs;
+    }
 }

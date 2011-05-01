@@ -16,9 +16,10 @@
 
 package org.idevlab.rjc.message;
 
-import org.idevlab.rjc.Client;
+import org.idevlab.rjc.RedisClientImpl;
 import org.idevlab.rjc.RedisException;
 import org.idevlab.rjc.ds.DataSource;
+import org.idevlab.rjc.protocol.RedisCommand;
 import org.idevlab.rjc.protocol.RedisKeyword;
 import org.idevlab.rjc.util.SafeEncoder;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class RedisNodeSubscriber {
     private Set<String> patterns = Collections.synchronizedSet(new HashSet<String>());
     private Set<String> channels = Collections.synchronizedSet(new HashSet<String>());
     private SubscribeListener subscribeListener;
-    private Client client;
+    private RedisClientImpl client;
     private volatile boolean connected = false;
 
     public RedisNodeSubscriber() {
@@ -85,7 +86,7 @@ public class RedisNodeSubscriber {
         if (channels != null) {
             this.channels.addAll(Arrays.asList(channels));
             if (connected) {
-                client.subscribe(channels);
+                client.noReply(RedisCommand.SUBSCRIBE, channels);
             }
         }
     }
@@ -94,7 +95,7 @@ public class RedisNodeSubscriber {
         if (patterns != null) {
             this.patterns.addAll(Arrays.asList(patterns));
             if (connected) {
-                client.psubscribe(patterns);
+                client.noReply(RedisCommand.PSUBSCRIBE, patterns);
             }
         }
     }
@@ -103,7 +104,7 @@ public class RedisNodeSubscriber {
         if (channels != null) {
             this.channels.removeAll(Arrays.asList(channels));
             if (connected) {
-                client.unsubscribe(channels);
+                client.noReply(RedisCommand.UNSUBSCRIBE, channels);
             }
         }
     }
@@ -111,7 +112,7 @@ public class RedisNodeSubscriber {
     public void unsubscribe() {
         this.channels.clear();
         if (connected) {
-            client.unsubscribe();
+            client.noReply(RedisCommand.UNSUBSCRIBE);
         }
     }
 
@@ -120,7 +121,7 @@ public class RedisNodeSubscriber {
         if (patterns != null) {
             this.patterns.removeAll(Arrays.asList(patterns));
             if (connected) {
-                client.punsubscribe(pattern);
+                client.noReply(RedisCommand.PUNSUBSCRIBE, pattern);
             }
         }
     }
@@ -128,29 +129,29 @@ public class RedisNodeSubscriber {
     public void punsubscribe() {
         this.patterns.clear();
         if (connected) {
-            client.punsubscribe();
+            client.noReply(RedisCommand.PSUBSCRIBE);
         }
     }
 
     public void runSubscription() {
         close();
 
-        client = new Client(this.dataSource.getConnection());
+        client = new RedisClientImpl(this.dataSource.getConnection());
         client.setTimeoutInfinite();
         connected = true;
 
         if (channels != null && !channels.isEmpty()) {
-            client.subscribe(channels.toArray(new String[channels.size()]));
+            client.noReply(RedisCommand.SUBSCRIBE, channels.toArray(new String[channels.size()]));
         }
 
         if (patterns != null && !patterns.isEmpty()) {
-            client.psubscribe(patterns.toArray(new String[patterns.size()]));
+            client.noReply(RedisCommand.PSUBSCRIBE, patterns.toArray(new String[patterns.size()]));
         }
 
         do {
             List<Object> reply;
             try {
-                reply = client.getObjectMultiBulkReply();
+                reply = client.getMultiBulkReply();
             } catch (Exception e) {
                 break;
             }

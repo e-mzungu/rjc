@@ -75,11 +75,7 @@ class RedisConnectionImpl implements RedisConnection {
 
 
     public void sendCommand(final RedisCommand cmd, final String... args) {
-        final byte[][] bargs = new byte[args.length][];
-        for (int i = 0; i < args.length; i++) {
-            bargs[i] = SafeEncoder.encode(args[i]);
-        }
-        sendCommand(cmd, bargs);
+        sendCommand(cmd, SafeEncoder.encode(args));
     }
 
     public void sendCommand(final RedisCommand cmd, final byte[]... args) {
@@ -193,8 +189,22 @@ class RedisConnectionImpl implements RedisConnection {
         return all;
     }
 
+    public List<Object> getBinaryAll() {
+        List<Object> all = new ArrayList<Object>();
+        while (pipelinedCommands > 0) {
+            all.add(protocol.read(inputStream, false));
+            pipelinedCommands--;
+        }
+        return all;
+    }
+
     public Object getOne() {
         pipelinedCommands--;
         return protocol.read(inputStream);
+    }
+
+    public Object getBinaryOne() {
+        pipelinedCommands--;
+        return protocol.read(inputStream, false);
     }
 }

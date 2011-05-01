@@ -68,7 +68,11 @@ public interface RedisConnection {
 
     List<Object> getAll();
 
+    List<Object> getBinaryAll();
+
     Object getOne();
+
+    Object getBinaryOne();
 
     void sendCommand(final RedisCommand cmd, final String... args);
 

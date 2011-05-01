@@ -18,5 +18,5 @@ package org.idevlab.rjc;
 
 public interface Pipeline {
     
-    void execute(RedisCommands commands);
+    void execute(RedisClient redis);
 }

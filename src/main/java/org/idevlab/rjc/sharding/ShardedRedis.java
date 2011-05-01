@@ -16,10 +16,7 @@
 
 package org.idevlab.rjc.sharding;
 
-import org.idevlab.rjc.ElementScore;
-import org.idevlab.rjc.RedisOperations;
-import org.idevlab.rjc.SortingParams;
-import org.idevlab.rjc.Client;
+import org.idevlab.rjc.*;
 
 import java.util.*;
 
@@ -371,7 +368,7 @@ public class ShardedRedis implements RedisOperations {
         return locator.getNode(key).zremrangeByScore(key, min, max);
     }
 
-    public Long linsert(final String key, Client.LIST_POSITION where, String pivot,
+    public Long linsert(final String key, ListPosition where, String pivot,
                         String value) {
         return locator.getNode(key).linsert(key, where, pivot, value);
     }

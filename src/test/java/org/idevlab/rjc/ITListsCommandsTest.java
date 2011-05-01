@@ -295,12 +295,12 @@ public class ITListsCommandsTest extends SingleNodeTestBase {
 
     @Test
     public void linsert() {
-        long status = session.linsert("foo", Client.LIST_POSITION.BEFORE, "bar",
+        long status = session.linsert("foo", ListPosition.BEFORE, "bar",
                 "car");
         assertEquals(0, status);
 
         session.lpush("foo", "a");
-        status = session.linsert("foo", Client.LIST_POSITION.AFTER, "a", "b");
+        status = session.linsert("foo", ListPosition.AFTER, "a", "b");
         assertEquals(2, status);
 
         List<String> actual = session.lrange("foo", 0, 100);
@@ -310,7 +310,7 @@ public class ITListsCommandsTest extends SingleNodeTestBase {
 
         assertEquals(expected, actual);
 
-        status = session.linsert("foo", Client.LIST_POSITION.BEFORE, "bar", "car");
+        status = session.linsert("foo", ListPosition.BEFORE, "bar", "car");
         assertEquals(-1, status);
     }
 

@@ -1404,7 +1404,7 @@ public interface RedisOperations {
      * @param value the value
      * @return the length of the list after the insert operation, or -1 when the value pivot was not found.
      */
-    Long linsert(String key, Client.LIST_POSITION where, String pivot, String value);
+    Long linsert(String key, ListPosition where, String pivot, String value);
 
     Long publish(String channel, String message);
 

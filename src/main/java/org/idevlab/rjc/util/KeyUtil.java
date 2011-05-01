@@ -72,4 +72,10 @@ public class KeyUtil {
         return toKey(':', blocks);
     }
 
+    public static String[] joinParams(String dstkey, String[] keys) {
+        final String[] params = new String[keys.length + 1];
+        params[0] = dstkey;
+        System.arraycopy(keys, 0, params, 1, keys.length);
+        return params;
+    }
 }

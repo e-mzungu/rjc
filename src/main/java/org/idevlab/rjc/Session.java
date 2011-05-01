@@ -28,9 +28,9 @@ public interface Session extends SingleRedisOperations {
     /**
      * Marks the start of a transaction block. Subsequent commands will be queued for atomic execution using EXEC.
      *
-     * @return always OK
+     * @return interface for commands execution
      */
-    String multi();
+    RedisClient multi();
 
     /**
      * Flushes all previously queued commands in a transaction and restores the connection state to normal.

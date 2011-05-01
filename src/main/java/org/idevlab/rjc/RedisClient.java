@@ -23,27 +23,51 @@ import java.util.List;
 /**
  * @author Evgeny Dolgov
  */
-public interface Redis {
+public interface RedisClient {
+
     String getStatusReply(RedisCommand command);
+
     String getStatusReply(RedisCommand command, String... args);
+
     String getStatusReply(RedisCommand command, byte[]... args);
 
     Long getIntegerReply(RedisCommand command);
+
     Long getIntegerReply(RedisCommand command, String... args);
+
     Long getIntegerReply(RedisCommand command, byte[]... args);
 
+    String getBulkReply();
+
     String getBulkReply(RedisCommand command);
+
     String getBulkReply(RedisCommand command, String... args);
-    byte[] getBulkReply(RedisCommand command, byte[]... args);
+
+    byte[] getBinaryBulkReply(RedisCommand command, byte[]... args);
 
     byte[] getBinaryBulkReply(RedisCommand command);
 
 
     /**
-     * Reply may contains Long and String objects
+     * Reply may contain Long and String objects
+     *
+     * @return Long and String objects
+     */
+    List<Object> getMultiBulkReply();
+
+    /**
+     * Reply may contain Long and String objects
      *
      * @param command redis command
-     * @param args command arguments
+     * @return Long and String objects
+     */
+    List<Object> getMultiBulkReply(RedisCommand command);
+
+    /**
+     * Reply may contain Long and String objects
+     *
+     * @param command redis command
+     * @param args    command arguments
      * @return Long and String objects
      */
     List<Object> getMultiBulkReply(RedisCommand command, String... args);
@@ -51,13 +75,39 @@ public interface Redis {
     List<String> getStringMultiBulkReply(RedisCommand command, String... args);
 
     /**
-     * Reply may contains Long and byte[] objects
+     * Reply may contain Long and byte[] objects
      *
      * @param command redis command
-     * @param args command arguments
+     * @param args    command arguments
      * @return Long and byte[] objects
      */
     List<Object> getBinaryMultiBulkReply(RedisCommand command, byte[]... args);
 
+    /**
+     * Reply may contain Long and byte[] objects
+     *
+     * @param command redis command
+     * @return Long and byte[] objects
+     */
+    List<Object> getBinaryMultiBulkReply(RedisCommand command);
+
+    /**
+     * May contain Long and String objects
+     *
+     * @return Long and String objects
+     */
+    List<Object> getAll();
+
+    /**
+     * May contain Long and byte[] objects
+     *
+     * @return Long and byte[] objects
+     */
+    List<Object> getBinaryAll();
+
     void noReply(RedisCommand command);
+
+    void noReply(RedisCommand command, String... args);
+
+    void noReply(RedisCommand command, byte[]... args);
 }
