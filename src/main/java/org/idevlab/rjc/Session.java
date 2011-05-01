@@ -30,7 +30,7 @@ public interface Session extends SingleRedisOperations {
      *
      * @return interface for commands execution
      */
-    RedisClient multi();
+    StatusReplyCommands multi();
 
     /**
      * Flushes all previously queued commands in a transaction and restores the connection state to normal.

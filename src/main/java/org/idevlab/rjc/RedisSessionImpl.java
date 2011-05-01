@@ -561,8 +561,7 @@ class RedisSessionImpl implements Session {
         return redis.getBulkReply(RedisCommand.ZINCRBY, key, String.valueOf(score), member);
     }
 
-
-    public RedisClient multi() {
+    public StatusReplyCommands multi() {
         redis.getStatusReply(RedisCommand.MULTI);
         return redis;
     }

@@ -23,13 +23,7 @@ import java.util.List;
 /**
  * @author Evgeny Dolgov
  */
-public interface RedisClient {
-
-    String getStatusReply(RedisCommand command);
-
-    String getStatusReply(RedisCommand command, String... args);
-
-    String getStatusReply(RedisCommand command, byte[]... args);
+public interface RedisClient extends StatusReplyCommands, NoReplyCommands {
 
     Long getIntegerReply(RedisCommand command);
 
@@ -104,10 +98,4 @@ public interface RedisClient {
      * @return Long and byte[] objects
      */
     List<Object> getBinaryAll();
-
-    void noReply(RedisCommand command);
-
-    void noReply(RedisCommand command, String... args);
-
-    void noReply(RedisCommand command, byte[]... args);
 }
