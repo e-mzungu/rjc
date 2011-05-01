@@ -26,11 +26,11 @@ import java.util.*;
  */
 class RedisSessionImpl implements Session {
     private Client client;
-    private final RedisImpl redis;
+    private final RedissImpl redis;
 
     public RedisSessionImpl(RedisConnection connection) {
         this.client = new Client(connection);
-        this.redis = new RedisImpl(connection);
+        this.redis = new RedissImpl(connection);
     }
 
     public String set(final String key, String value) {
