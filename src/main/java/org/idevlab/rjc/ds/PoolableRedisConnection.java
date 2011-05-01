@@ -17,8 +17,8 @@
 package org.idevlab.rjc.ds;
 
 import org.idevlab.rjc.RedisException;
-import org.idevlab.rjc.protocol.Protocol;
 import org.apache.commons.pool.ObjectPool;
+import org.idevlab.rjc.protocol.RedisCommand;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -119,6 +119,10 @@ class PoolableRedisConnection implements RedisConnection {
         return conn.getBulkReply();
     }
 
+    public byte[] getBinaryBulkReply() {
+        return conn.getBinaryBulkReply();
+    }
+
     public Long getIntegerReply() {
         return conn.getIntegerReply();
     }
@@ -131,6 +135,10 @@ class PoolableRedisConnection implements RedisConnection {
         return conn.getObjectMultiBulkReply();
     }
 
+    public List<Object> getBinaryObjectMultiBulkReply() {
+        return conn.getBinaryObjectMultiBulkReply();
+    }
+
     public List<Object> getAll() {
         return conn.getAll();
     }
@@ -139,15 +147,15 @@ class PoolableRedisConnection implements RedisConnection {
         return conn.getOne();
     }
 
-    public void sendCommand(Protocol.Command cmd, String... args) {
+    public void sendCommand(RedisCommand cmd, String... args) {
         conn.sendCommand(cmd, args);
     }
 
-    public void sendCommand(Protocol.Command cmd, byte[]... args) {
+    public void sendCommand(RedisCommand cmd, byte[]... args) {
         conn.sendCommand(cmd, args);
     }
 
-    public void sendCommand(Protocol.Command cmd) {
+    public void sendCommand(RedisCommand cmd) {
         conn.sendCommand(cmd);
     }
 

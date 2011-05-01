@@ -122,14 +122,14 @@ public class ITSubscriberTest extends SingleNodeTestBase {
         });
         t.start();
 
-        Thread.sleep(500);
+        Thread.sleep(1000);
 
         if (subscribeAfter) {
             subscriber.subscribe("c1", "c22");
             subscriber.psubscribe("c*", "c2*");
         }
 
-        Thread.sleep(500);
+        Thread.sleep(1000);
 
         for (int i = 0; i < 5; i++) {
             session.publish("c1", String.valueOf(i));

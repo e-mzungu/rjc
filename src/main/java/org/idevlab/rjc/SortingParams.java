@@ -16,7 +16,7 @@
 
 package org.idevlab.rjc;
 
-import org.idevlab.rjc.protocol.Protocol;
+import org.idevlab.rjc.protocol.RedisKeyword;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -44,7 +44,7 @@ public class SortingParams {
      * @return the SortingParams Object
      */
     public SortingParams by(final String pattern) {
-        params.add(Protocol.Keyword.BY.str);
+        params.add(RedisKeyword.BY.str);
         params.add(pattern);
         return this;
     }
@@ -59,8 +59,8 @@ public class SortingParams {
      * @return the SortingParams Object
      */
     public SortingParams nosort() {
-        params.add(Protocol.Keyword.BY.str);
-        params.add(Protocol.Keyword.NOSORT.str);
+        params.add(RedisKeyword.BY.str);
+        params.add(RedisKeyword.NOSORT.str);
         return this;
     }
 
@@ -74,7 +74,7 @@ public class SortingParams {
      * @return the sortingParams Object
      */
     public SortingParams desc() {
-        params.add(Protocol.Keyword.DESC.str);
+        params.add(RedisKeyword.DESC.str);
         return this;
     }
 
@@ -84,7 +84,7 @@ public class SortingParams {
      * @return the SortingParams Object
      */
     public SortingParams asc() {
-        params.add(Protocol.Keyword.ASC.str);
+        params.add(RedisKeyword.ASC.str);
         return this;
     }
 
@@ -97,7 +97,7 @@ public class SortingParams {
      * @return the SortingParams Object
      */
     public SortingParams limit(final int start, final int count) {
-        params.add(Protocol.Keyword.LIMIT.str);
+        params.add(RedisKeyword.LIMIT.str);
         params.add(String.valueOf(start));
         params.add(String.valueOf(count));
         return this;
@@ -110,7 +110,7 @@ public class SortingParams {
      * @return the SortingParams Object
      */
     public SortingParams alpha() {
-        params.add(Protocol.Keyword.ALPHA.str);
+        params.add(RedisKeyword.ALPHA.str);
         return this;
     }
 
@@ -131,7 +131,7 @@ public class SortingParams {
      */
     public SortingParams get(String... patterns) {
         for (final String pattern : patterns) {
-            params.add(Protocol.Keyword.GET.str);
+            params.add(RedisKeyword.GET.str);
             params.add(pattern);
         }
         return this;

@@ -17,7 +17,7 @@
 package org.idevlab.rjc.ds;
 
 import org.idevlab.rjc.RedisException;
-import org.idevlab.rjc.protocol.Protocol;
+import org.idevlab.rjc.protocol.RedisCommand;
 
 /**
  * @author Evgeny Dolgov
@@ -46,7 +46,7 @@ class ConnectionFactoryImpl implements ConnectionFactory {
 
         redis.connect();
         if (null != this.password) {
-            redis.sendCommand(Protocol.Command.AUTH);
+            redis.sendCommand(RedisCommand.AUTH);
             if (!"OK".equals(redis.getStatusCodeReply())) {
                 throw new RedisException("Authentication failed");
             }

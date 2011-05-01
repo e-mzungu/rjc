@@ -18,6 +18,7 @@ package org.idevlab.rjc.ds;
 
 import org.idevlab.rjc.protocol.Protocol;
 import org.idevlab.rjc.RedisException;
+import org.idevlab.rjc.protocol.RedisCommand;
 import org.idevlab.rjc.protocol.RedisInputStream;
 import org.idevlab.rjc.protocol.RedisOutputStream;
 import org.idevlab.rjc.util.SafeEncoder;
@@ -73,7 +74,7 @@ class RedisConnectionImpl implements RedisConnection {
     }
 
 
-    public void sendCommand(final Protocol.Command cmd, final String... args) {
+    public void sendCommand(final RedisCommand cmd, final String... args) {
         final byte[][] bargs = new byte[args.length][];
         for (int i = 0; i < args.length; i++) {
             bargs[i] = SafeEncoder.encode(args[i]);
@@ -81,7 +82,7 @@ class RedisConnectionImpl implements RedisConnection {
         sendCommand(cmd, bargs);
     }
 
-    public void sendCommand(final Protocol.Command cmd, final byte[]... args) {
+    public void sendCommand(final RedisCommand cmd, final byte[]... args) {
         try {
             connect();
         } catch (UnknownHostException e) {
@@ -93,7 +94,7 @@ class RedisConnectionImpl implements RedisConnection {
         pipelinedCommands++;
     }
 
-    public void sendCommand(final Protocol.Command cmd) {
+    public void sendCommand(final RedisCommand cmd) {
         sendCommand(cmd, new byte[0][]);
     }
 
@@ -155,6 +156,11 @@ class RedisConnectionImpl implements RedisConnection {
         return (String) protocol.read(inputStream);
     }
 
+    public byte[] getBinaryBulkReply() {
+        pipelinedCommands--;
+        return (byte[]) protocol.read(inputStream, false);
+    }
+
     public Long getIntegerReply() {
         pipelinedCommands--;
         return (Long) protocol.read(inputStream);
@@ -170,6 +176,12 @@ class RedisConnectionImpl implements RedisConnection {
     public List<Object> getObjectMultiBulkReply() {
         pipelinedCommands--;
         return (List<Object>) protocol.read(inputStream);
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public List<Object> getBinaryObjectMultiBulkReply() {
+        pipelinedCommands--;
+        return (List<Object>) protocol.read(inputStream, false);
     }
 
     public List<Object> getAll() {

@@ -19,7 +19,7 @@ package org.idevlab.rjc.message;
 import org.idevlab.rjc.Client;
 import org.idevlab.rjc.RedisException;
 import org.idevlab.rjc.ds.DataSource;
-import org.idevlab.rjc.protocol.Protocol;
+import org.idevlab.rjc.protocol.RedisKeyword;
 import org.idevlab.rjc.util.SafeEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,7 +159,7 @@ public class RedisNodeSubscriber {
                 throw new RedisException("Unknown message type: " + firstObj);
             }
 
-            Protocol.Keyword keyword = Protocol.Keyword.find((String) firstObj);
+            RedisKeyword keyword = RedisKeyword.find((String) firstObj);
             if (keyword == null) {
                 throw new RedisException("Unknown pub/sub message: " + firstObj);
             }

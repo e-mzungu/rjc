@@ -16,7 +16,7 @@
 
 package org.idevlab.rjc;
 
-import org.idevlab.rjc.protocol.Protocol;
+import org.idevlab.rjc.protocol.RedisKeyword;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +31,7 @@ public class ZParams {
     private List<String> params = new ArrayList<String>();
 
     public ZParams weights(final int... weights) {
-        params.add(Protocol.Keyword.WEIGHTS.str);
+        params.add(RedisKeyword.WEIGHTS.str);
         for (final int weight : weights) {
             params.add(String.valueOf(weight));
         }
@@ -44,7 +44,7 @@ public class ZParams {
     }
 
     public ZParams aggregate(final Aggregate aggregate) {
-        params.add(Protocol.Keyword.AGGREGATE.str);
+        params.add(RedisKeyword.AGGREGATE.str);
         params.add(aggregate.name());
         return this;
     }

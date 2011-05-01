@@ -17,6 +17,7 @@
 package org.idevlab.rjc;
 
 import org.idevlab.rjc.ds.RedisConnection;
+import org.idevlab.rjc.protocol.RedisCommand;
 
 import java.util.*;
 
@@ -25,90 +26,76 @@ import java.util.*;
  */
 class RedisSessionImpl implements Session {
     private Client client;
+    private final RedisImpl redis;
 
     public RedisSessionImpl(RedisConnection connection) {
         this.client = new Client(connection);
+        this.redis = new RedisImpl(connection);
     }
 
     public String set(final String key, String value) {
-        client.set(key, value);
-        return client.getStatusCodeReply();
+        return redis.getStatusReply(RedisCommand.SET, key, value);
     }
 
     public String get(final String key) {
-        client.get(key);
-        return client.getBulkReply();
+        return redis.getBulkReply(RedisCommand.GET, key);
     }
 
     public void quit() {
-        client.quit();
+        redis.noReply(RedisCommand.QUIT);
     }
 
-
     public Boolean exists(final String key) {
-        client.exists(key);
-        return integerReplayToBoolean();
+        return integerReplayToBoolean(redis.getIntegerReply(RedisCommand.EXISTS, key));
     }
 
     public Long del(final String... keys) {
-        client.del(keys);
-        return client.getIntegerReply();
+        return redis.getIntegerReply(RedisCommand.DEL, keys);
     }
 
     public String type(final String key) {
-        client.type(key);
-        return client.getStatusCodeReply();
+        return redis.getStatusReply(RedisCommand.TYPE, key);
     }
 
     public String flushDB() {
-        client.flushDB();
-        return client.getStatusCodeReply();
+        return redis.getStatusReply(RedisCommand.FLUSHDB);
     }
 
+    @SuppressWarnings({"unchecked"})
     public Set<String> keys(final String pattern) {
-        client.keys(pattern);
-        return new HashSet<String>(client.getMultiBulkReply());
+        return new HashSet<String>(redis.getStringMultiBulkReply(RedisCommand.KEYS, pattern));
     }
 
     public String randomKey() {
-        client.randomKey();
-        return client.getBulkReply();
+        return redis.getBulkReply(RedisCommand.RANDOMKEY);
     }
 
     public String rename(final String key, final String newKey) {
-        client.rename(key, newKey);
-        return client.getStatusCodeReply();
+        return redis.getStatusReply(RedisCommand.RENAME, key, newKey);
     }
 
     public Boolean renamenx(final String key, final String newKey) {
-        client.renamenx(key, newKey);
-        return integerReplayToBoolean();
+        return integerReplayToBoolean(redis.getIntegerReply(RedisCommand.RENAMENX, key, newKey));
     }
 
     public Long dbSize() {
-        client.dbSize();
-        return client.getIntegerReply();
+        return redis.getIntegerReply(RedisCommand.DBSIZE);
     }
 
     public Boolean expire(final String key, final int seconds) {
-        client.expire(key, seconds);
-        return integerReplayToBoolean();
+        return integerReplayToBoolean(redis.getIntegerReply(RedisCommand.EXPIRE, key, String.valueOf(seconds)));
     }
 
     public Boolean expireAt(final String key, final long unixTime) {
-        client.expireAt(key, unixTime);
-        return integerReplayToBoolean();
+        return integerReplayToBoolean(redis.getIntegerReply(RedisCommand.EXPIREAT, key, String.valueOf(unixTime)));
     }
 
     public Long ttl(final String key) {
-
-        client.ttl(key);
-        return client.getIntegerReply();
+        return redis.getIntegerReply(RedisCommand.TTL, key);
     }
 
     public String select(final int index) {
-        client.select(index);
-        return client.getStatusCodeReply();
+        return redis.getStatusReply(RedisCommand.SELECT, String.valueOf(index));
     }
 
 
@@ -315,7 +302,10 @@ class RedisSessionImpl implements Session {
     }
 
     private Boolean integerReplayToBoolean() {
-        Long replay = client.getIntegerReply();
+        return integerReplayToBoolean(client.getIntegerReply());
+    }
+
+    private Boolean integerReplayToBoolean(Long replay) {
         if (replay == null) {
             return null;
         } else {
@@ -479,6 +469,7 @@ class RedisSessionImpl implements Session {
 
     public void close() {
         client.close();
+//        redis.close();
     }
 
     public List<String> sort(final String key) {

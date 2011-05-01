@@ -21,7 +21,6 @@ import org.idevlab.rjc.util.SafeEncoder;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public final class Protocol {
@@ -37,7 +36,7 @@ public final class Protocol {
     public static final byte MINUS_BYTE = '-';
     public static final byte COLON_BYTE = ':';
 
-    public void sendCommand(final RedisOutputStream os, final Command command,
+    public void sendCommand(final RedisOutputStream os, final RedisCommand command,
                             final byte[]... args) {
         sendCommand(os, command.raw, args);
     }
@@ -69,17 +68,20 @@ public final class Protocol {
         throw new RedisException(message);
     }
 
-    private Object process(final RedisInputStream is) {
+    private Object process(final RedisInputStream is, boolean stringsOnly) {
         try {
             byte b = is.readByte();
             if (b == MINUS_BYTE) {
                 processError(is);
             } else if (b == ASTERISK_BYTE) {
-                return processMultiBulkReply(is);
+                return processMultiBulkReply(is, stringsOnly);
             } else if (b == COLON_BYTE) {
                 return processInteger(is);
             } else if (b == DOLLAR_BYTE) {
-                return processBulkReply(is);
+                if (stringsOnly) {
+                    return processBulkReply(is);
+                }
+                return processBinaryBulkReply(is);
             } else if (b == PLUS_BYTE) {
                 return processStatusCodeReply(is);
             } else {
@@ -96,6 +98,14 @@ public final class Protocol {
     }
 
     private String processBulkReply(final RedisInputStream is) {
+        byte[] result = processBinaryBulkReply(is);
+        if (result == null) {
+            return null;
+        }
+        return SafeEncoder.encode(result);
+    }
+
+    private byte[] processBinaryBulkReply(final RedisInputStream is) {
         int len = Integer.parseInt(is.readLine());
         if (len == -1) {
             return null;
@@ -113,7 +123,7 @@ public final class Protocol {
             throw new RedisException(e);
         }
 
-        return SafeEncoder.encode(read);
+        return read;
     }
 
     private Long processInteger(final RedisInputStream is) {
@@ -121,20 +131,24 @@ public final class Protocol {
         return Long.valueOf(num);
     }
 
-    private List<Object> processMultiBulkReply(final RedisInputStream is) {
+    private List<Object> processMultiBulkReply(final RedisInputStream is, boolean stringsOnly) {
         int num = Integer.parseInt(is.readLine());
         if (num == -1) {
             return null;
         }
         List<Object> ret = new ArrayList<Object>(num);
         for (int i = 0; i < num; i++) {
-            ret.add(process(is));
+            ret.add(process(is, stringsOnly));
         }
         return ret;
     }
 
     public Object read(final RedisInputStream is) {
-        return process(is);
+        return read(is, true);
+    }
+
+    public Object read(final RedisInputStream is, boolean stringsOnly) {
+        return process(is, stringsOnly);
     }
 
     public static byte[] toByteArray(final int value) {
@@ -149,45 +163,4 @@ public final class Protocol {
         return SafeEncoder.encode(String.valueOf(value));
     }
 
-    public static enum Command {
-        PING, SET, GET, QUIT, EXISTS, DEL, TYPE, FLUSHDB, KEYS, RANDOMKEY, RENAME, RENAMENX, RENAMEX, DBSIZE,
-        EXPIRE, EXPIREAT, TTL, SELECT, MOVE, FLUSHALL, GETSET, MGET, SETNX, SETEX, MSET, MSETNX, DECRBY, DECR,
-        INCRBY, INCR, APPEND, GETRANGE, HSET, HGET, HSETNX, HMSET, HMGET, HINCRBY, HEXISTS, HDEL, HLEN, HKEYS,
-        HVALS, HGETALL, RPUSH, LPUSH, LLEN, LRANGE, LTRIM, LINDEX, LSET, LREM, LPOP, RPOP, RPOPLPUSH, SADD,
-        SMEMBERS, SREM, SPOP, SMOVE, SCARD, SISMEMBER, SINTER, SINTERSTORE, SUNION, SUNIONSTORE, SDIFF,
-        SDIFFSTORE, SRANDMEMBER, ZADD, ZRANGE, ZREM, ZINCRBY, ZRANK, ZREVRANK, ZREVRANGE, ZCARD, ZSCORE,
-        MULTI, DISCARD, EXEC, WATCH, UNWATCH, SORT, BLPOP, BRPOP, AUTH, SUBSCRIBE, PUBLISH, UNSUBSCRIBE,
-        PSUBSCRIBE, PUNSUBSCRIBE, ZCOUNT, ZRANGEBYSCORE, ZREMRANGEBYRANK, ZREMRANGEBYSCORE, ZUNIONSTORE,
-        ZINTERSTORE, SAVE, BGSAVE, BGREWRITEAOF, LASTSAVE, SHUTDOWN, INFO, MONITOR, SLAVEOF, CONFIG, STRLEN,
-        SYNC, LPUSHX, PERSIST, RPUSHX, ECHO, LINSERT, DEBUG, BRPOPLPUSH, SETBIT, GETBIT, SETRANGE, ZREVRANGEBYSCORE;
-
-        public final byte[] raw;
-
-        Command() {
-            raw = SafeEncoder.encode(this.name());
-        }
-    }
-
-    public static enum Keyword {
-        AGGREGATE, ALPHA, ASC, BY, DESC, GET, LIMIT, MESSAGE, NO, NOSORT, PMESSAGE, PSUBSCRIBE, PUNSUBSCRIBE, OK,
-        ONE, QUEUED, SET, STORE, SUBSCRIBE, UNSUBSCRIBE, WEIGHTS, WITHSCORES, RESETSTAT;
-        public final byte[] raw;
-        public final String str;
-
-        Keyword() {
-            str = this.name().toLowerCase();
-            raw = SafeEncoder.encode(str);
-        }
-
-        public static Keyword find(String value) {
-            for (Keyword keyword : values()) {
-                if (keyword.name().equalsIgnoreCase(value)) {
-                    return keyword;
-                }
-            }
-
-            return null;
-        }
-
-    }
 }

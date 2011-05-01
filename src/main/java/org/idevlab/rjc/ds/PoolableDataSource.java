@@ -21,6 +21,7 @@ import org.idevlab.rjc.protocol.Protocol;
 import org.apache.commons.pool.BasePoolableObjectFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.idevlab.rjc.protocol.RedisCommand;
 
 /**
  * Provides a poolable implementation of <code>DataSource</code> based on <em>commons-pool</em>
@@ -562,7 +563,7 @@ public class PoolableDataSource implements DataSource {
                 final PoolableRedisConnection redis = (PoolableRedisConnection) obj;
                 if (redis.isConnected()) {
                     try {
-                        redis.sendCommand(Protocol.Command.QUIT);
+                        redis.sendCommand(RedisCommand.QUIT);
                         redis.reallyDisconnect();
                     } catch (Exception e) {
                         //...
@@ -576,7 +577,7 @@ public class PoolableDataSource implements DataSource {
                 final RedisConnection redis = (RedisConnection) obj;
                 try {
                     if (redis.isConnected()) {
-                        redis.sendCommand(Protocol.Command.PING);
+                        redis.sendCommand(RedisCommand.PING);
                         return "PONG".equals(redis.getStatusCodeReply());
                     }
                 } catch (Exception e) {

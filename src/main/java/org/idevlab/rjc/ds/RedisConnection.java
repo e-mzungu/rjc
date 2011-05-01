@@ -16,7 +16,7 @@
 
 package org.idevlab.rjc.ds;
 
-import org.idevlab.rjc.protocol.Protocol;
+import org.idevlab.rjc.protocol.RedisCommand;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -46,20 +46,33 @@ public interface RedisConnection {
 
     String getBulkReply();
 
+    byte[] getBinaryBulkReply();
+
     Long getIntegerReply();
 
     List<String> getMultiBulkReply();
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Reply may contains Long and String objects
+     *
+     * @return Long and String objects
+     */
     List<Object> getObjectMultiBulkReply();
+
+    /**
+     * Reply may contains Long and byte[] objects
+     *
+     * @return Long and byte[] objects
+     */
+    List<Object> getBinaryObjectMultiBulkReply();
 
     List<Object> getAll();
 
     Object getOne();
 
-    void sendCommand(final Protocol.Command cmd, final String... args);
+    void sendCommand(final RedisCommand cmd, final String... args);
 
-    void sendCommand(final Protocol.Command cmd, final byte[]... args);
+    void sendCommand(final RedisCommand cmd, final byte[]... args);
 
-    void sendCommand(final Protocol.Command cmd);
+    void sendCommand(final RedisCommand cmd);
 }
