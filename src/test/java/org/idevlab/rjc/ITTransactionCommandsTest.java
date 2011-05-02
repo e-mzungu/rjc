@@ -32,7 +32,7 @@ import static org.junit.Assert.assertEquals;
 public class ITTransactionCommandsTest extends SingleNodeTestBase {
     @Test
     public void multi() {
-        StatusReplyCommands redis = session.multi();
+        RedisClient redis = session.multi();
 
         assertEquals("QUEUED", redis.getStatusReply(RedisCommand.SADD, "foo", "a"));
         assertEquals("QUEUED", redis.getStatusReply(RedisCommand.SADD, "foo", "c"));

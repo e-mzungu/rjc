@@ -23,7 +23,19 @@ import java.util.List;
 /**
  * @author Evgeny Dolgov
  */
-public interface RedisClient extends StatusReplyCommands, NoReplyCommands {
+public interface RedisClient {
+
+    void noReply(RedisCommand command);
+
+    void noReply(RedisCommand command, String... args);
+
+    void noReply(RedisCommand command, byte[]... args);
+
+    String getStatusReply(RedisCommand command);
+
+    String getStatusReply(RedisCommand command, String... args);
+
+    String getStatusReply(RedisCommand command, byte[]... args);
 
     Long getIntegerReply(RedisCommand command);
 
@@ -43,14 +55,14 @@ public interface RedisClient extends StatusReplyCommands, NoReplyCommands {
 
 
     /**
-     * Reply may contain Long and String objects
+     * Converts all bytes responses to the String object
      *
      * @return Long and String objects
      */
     List<Object> getMultiBulkReply();
 
     /**
-     * Reply may contain Long and String objects
+     * Converts all bytes responses to the String object
      *
      * @param command redis command
      * @return Long and String objects
@@ -58,7 +70,7 @@ public interface RedisClient extends StatusReplyCommands, NoReplyCommands {
     List<Object> getMultiBulkReply(RedisCommand command);
 
     /**
-     * Reply may contain Long and String objects
+     * Converts all bytes responses to the String object
      *
      * @param command redis command
      * @param args    command arguments
@@ -69,21 +81,28 @@ public interface RedisClient extends StatusReplyCommands, NoReplyCommands {
     List<String> getStringMultiBulkReply(RedisCommand command, String... args);
 
     /**
-     * Reply may contain Long and byte[] objects
+     * Reply as is, i.e. without bytes to string conversion.
+     *
+     * @return Long, byte[] and String objects
+     */
+    List<Object> getBinaryMultiBulkReply();
+
+    /**
+     * Reply as is, i.e. without bytes to string conversion.
+     *
+     * @param command redis command
+     * @return Long, byte[] and String objects
+     */
+    List<Object> getBinaryMultiBulkReply(RedisCommand command);
+
+    /**
+     * Reply as is, i.e. without bytes to string conversion.
      *
      * @param command redis command
      * @param args    command arguments
-     * @return Long and byte[] objects
+     * @return Long, byte[] and String objects
      */
     List<Object> getBinaryMultiBulkReply(RedisCommand command, byte[]... args);
-
-    /**
-     * Reply may contain Long and byte[] objects
-     *
-     * @param command redis command
-     * @return Long and byte[] objects
-     */
-    List<Object> getBinaryMultiBulkReply(RedisCommand command);
 
     /**
      * May contain Long and String objects
@@ -93,9 +112,11 @@ public interface RedisClient extends StatusReplyCommands, NoReplyCommands {
     List<Object> getAll();
 
     /**
-     * May contain Long and byte[] objects
+     * Reply as is, i.e. without bytes to string conversion.
      *
-     * @return Long and byte[] objects
+     * @return Long, byte[] and String objects
      */
     List<Object> getBinaryAll();
+
+    void close();
 }

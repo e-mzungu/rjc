@@ -116,6 +116,10 @@ public class RedisClientImpl implements RedisClient {
         return connection.getMultiBulkReply();
     }
 
+    public List<Object> getBinaryMultiBulkReply() {
+        return connection.getBinaryObjectMultiBulkReply();
+    }
+
     public List<Object> getBinaryMultiBulkReply(RedisCommand command, byte[]... args) {
         connection.sendCommand(command, args);
         return connection.getBinaryObjectMultiBulkReply();
