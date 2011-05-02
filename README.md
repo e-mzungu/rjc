@@ -17,7 +17,7 @@ Include maven dependency to you project
         <dependency>
             <groupId>org.idevlab</groupId>
             <artifactId>rjc</artifactId>
-            <version>0.6.4</version>
+            <version>0.7</version>
         </dependency>
 
 # Quick start
