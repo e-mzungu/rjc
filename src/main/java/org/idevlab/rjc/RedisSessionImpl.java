@@ -26,7 +26,7 @@ import java.util.*;
 /**
  * @author Evgeny Dolgov
  */
-class RedisSessionImpl implements Session {
+public class RedisSessionImpl implements Session {
     private final RedisClientImpl client;
 
     public RedisSessionImpl(RedisConnection connection) {
