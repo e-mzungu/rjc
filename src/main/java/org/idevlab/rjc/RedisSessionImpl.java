@@ -445,7 +445,15 @@ public class RedisSessionImpl implements Session {
         List<String> args = new ArrayList<String>();
         args.addAll(Arrays.asList(keys));
         args.add(String.valueOf(timeout));
-        return client.getStringMultiBulkReply(RedisCommand.BRPOP, args.toArray(new String[args.size()]));
+        List<String> result;
+        client.setTimeoutInfinite();
+        try {
+            result = client.getStringMultiBulkReply(RedisCommand.BRPOP, args.toArray(new String[args.size()]));
+        } finally {
+            client.rollbackTimeout();
+        }
+
+        return result;
     }
 
     public String auth(final String password) {
